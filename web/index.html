@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#140f3a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Rift Rumble</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Controles de toque durante a partida -->
+  <div id="hud" class="hidden">
+    <div id="controls"></div>
+    <button id="btnPause" aria-label="Pausar">❚❚</button>
+  </div>
+
+  <!-- Tela inicial -->
+  <section class="screen show" id="screen-title">
+    <div class="title-wrap">
+      <h1 class="logo"><span>RIFT</span><span>RUMBLE</span></h1>
+      <p class="tagline">Lute. Lance. Derrube da arena.</p>
+      <div class="menu">
+        <button class="btn big primary" data-go="select">JOGAR</button>
+        <button class="btn" data-go="howto">COMO JOGAR</button>
+        <button class="btn" data-go="options">OPÇÕES</button>
+      </div>
+    </div>
+    <div class="version">v1.0</div>
+  </section>
+
+  <!-- Seleção de personagem -->
+  <section class="screen" id="screen-select">
+    <header class="bar">
+      <button class="btn back" data-back>◀</button>
+      <h2>ESCOLHA SEU LUTADOR</h2>
+      <button class="btn primary" id="toStage">PRÓXIMO ▶</button>
+    </header>
+    <div class="select-body">
+      <div class="char-grid" id="charGrid"></div>
+      <div class="char-info" id="charInfo"></div>
+    </div>
+    <footer class="setup">
+      <div class="opt"><label>Modo</label><div class="seg" id="optMode"></div></div>
+      <div class="opt"><label>Bots</label><div class="seg" id="optBots"></div></div>
+      <div class="opt"><label>Dificuldade</label><div class="seg" id="optLevel"></div></div>
+      <div class="opt"><label>Oponentes <small>(toque para trocar)</small></label><div class="cpus" id="cpuSlots"></div></div>
+    </footer>
+  </section>
+
+  <!-- Seleção de arena -->
+  <section class="screen" id="screen-stage">
+    <header class="bar">
+      <button class="btn back" data-back>◀</button>
+      <h2>ESCOLHA A ARENA</h2>
+      <button class="btn primary" id="startFight">LUTAR! ▶</button>
+    </header>
+    <div class="stage-grid" id="stageGrid"></div>
+  </section>
+
+  <!-- Como jogar -->
+  <section class="screen" id="screen-howto">
+    <header class="bar">
+      <button class="btn back" data-back>◀</button>
+      <h2>COMO JOGAR</h2>
+      <span></span>
+    </header>
+    <div class="panel scroll">
+      <h3>Objetivo</h3>
+      <p>Não existe barra de vida: cada golpe aumenta a <b>% de dano</b>. Quanto maior a %, mais longe você voa. Jogue os oponentes para fora da arena!</p>
+      <h3>Controles</h3>
+      <ul>
+        <li><b>Joystick</b> (lado esquerdo, em qualquer lugar): mover. Para baixo numa plataforma fina: descer. Para baixo no ar: queda rápida.</li>
+        <li><b>A</b>: ataque básico (toque várias vezes para combo). Com o joystick para cima/baixo: golpe alto/baixo.</li>
+        <li><b>B</b>: skill especial. <b>Joystick para cima + B</b>: skill de recuperação (para voltar para a arena).</li>
+        <li><b>Seta</b>: pular (até 2 pulos; Zyra tem 3). Toque rápido = pulo curto.</li>
+        <li><b>Escudo</b>: segure para defender. Escudo + joystick para o lado: rolar. Escudo + baixo: esquiva. No ar: esquiva aérea.</li>
+        <li><b>Estrela</b>: ULTIMATE. A barra enche causando e recebendo dano.</li>
+      </ul>
+      <h3>Bordas e respawn</h3>
+      <p>Chegue perto da borda caindo para se <b>agarrar</b>. Depois: para frente sobe, pulo salta, A sobe atacando.</p>
+      <p>Ao ser derrubado, você reaparece numa plataforma no alto com 0% e fica <b>2 s invencível</b> (piscando).</p>
+      <h3>Teclado (PC)</h3>
+      <p>A/D/W/S ou setas: mover · Espaço: pular · J: ataque · K: especial · L: escudo · U: ultimate · Esc: pausa</p>
+    </div>
+  </section>
+
+  <!-- Opções -->
+  <section class="screen" id="screen-options">
+    <header class="bar">
+      <button class="btn back" data-back>◀</button>
+      <h2>OPÇÕES</h2>
+      <span></span>
+    </header>
+    <div class="panel scroll options" id="optionsPanel"></div>
+  </section>
+
+  <!-- Pausa -->
+  <section class="screen overlay" id="screen-pause">
+    <div class="modal">
+      <h2>PAUSADO</h2>
+      <button class="btn big primary" id="resume">CONTINUAR</button>
+      <button class="btn" id="restart">REINICIAR</button>
+      <button class="btn" id="pauseOptions">OPÇÕES</button>
+      <button class="btn" id="quit">SAIR PARA O MENU</button>
+    </div>
+  </section>
+
+  <!-- Resultados -->
+  <section class="screen overlay" id="screen-results">
+    <div class="modal wide">
+      <h2 id="resTitle">VITÓRIA!</h2>
+      <div id="resTable"></div>
+      <div class="row">
+        <button class="btn primary" id="rematch">REVANCHE</button>
+        <button class="btn" id="resSelect">TROCAR LUTADOR</button>
+        <button class="btn" id="resMenu">MENU</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="rotate"><div>⟳<br>Gire o celular para a horizontal</div></div>
+
+  <script src="js/util.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/stages.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

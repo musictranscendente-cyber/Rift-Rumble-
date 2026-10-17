@@ -37,6 +37,6 @@ if [ ! -f "$KEYSTORE" ]; then
   keytool -genkeypair -keystore "$KEYSTORE" -alias riftrumble -keyalg RSA -keysize 2048 -validity 10000 \
     -storepass "$KS_PASS" -keypass "$KS_PASS" -dname "CN=Rift Rumble Dev" > /dev/null 2>&1
 fi
-apksigner sign --ks "$KEYSTORE" --ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS" --out "$OUT" "$BUILD/aligned.apk"
+apksigner sign --v4-signing-enabled false --ks "$KEYSTORE" --ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS" --out "$OUT" "$BUILD/aligned.apk"
 apksigner verify "$OUT"
 echo "> Pronto: $OUT ($(du -h "$OUT" | cut -f1))"

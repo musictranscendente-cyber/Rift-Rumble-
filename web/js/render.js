@@ -523,12 +523,22 @@
       const k = ((g.phaseT - 1) % 60) / 60;
       if (n >= 1) text(ctx, String(n), W / 2, H / 2, Math.min(150, H * 0.3) * (1.4 - k * 0.4), '#ffd166');
     }
+    if (g.phase === 'ending' && g.winner && g.endT < 170) {
+      const k = Math.min(1, (170 - g.endT) / 30);
+      const w = toScreen(g.winner.x, g.winner.y - g.winner.h * 0.6);
+      const rad = ctx.createRadialGradient(w.x, w.y, H * 0.18, w.x, w.y, H * 0.75);
+      rad.addColorStop(0, 'rgba(0,0,0,0)');
+      rad.addColorStop(1, `rgba(0,0,0,${0.6 * k})`);
+      ctx.fillStyle = rad;
+      ctx.fillRect(0, 0, W, H);
+    }
     if (g.message) {
       const m = g.message;
       const k = 1 - m.t / m.max;
       const sc = k < 0.15 ? 0.6 + (k / 0.15) * 0.5 : 1.1 - Math.min(0.1, (k - 0.15) * 0.3);
       ctx.globalAlpha = m.t < 12 ? m.t / 12 : 1;
-      text(ctx, m.text, W / 2, H * 0.45, Math.min(96, W * 0.09) * sc, m.color);
+      const my = g.phase === 'ending' && g.winner && g.endT < 160 ? H * 0.84 : H * 0.45;
+      text(ctx, m.text, W / 2, my, Math.min(96, W * 0.09) * sc * (my > H * 0.5 ? 0.7 : 1), m.color);
       ctx.globalAlpha = 1;
     }
   };

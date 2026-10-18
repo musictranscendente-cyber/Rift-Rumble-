@@ -279,12 +279,19 @@
     }
     lastPlayers = players;
     RR.input.human.reset();
+    ui.hideControls(false);
     RR.match = new RR.Match({ mode: cfg.mode, stocks: 3, time: 120, stageId: cfg.stage, players });
     RR.paused = false;
     show('game');
     RR.input.layout();
     RR.audio.init();
     RR.audio.music(0.55);
+  };
+
+  // esconde os botões de toque (cena de vitória)
+  ui.hideControls = function (hide) {
+    $('#controls').classList.toggle('hidden', hide);
+    $('#btnPause').classList.toggle('hidden', hide);
   };
 
   ui.pause = function () {

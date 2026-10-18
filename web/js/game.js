@@ -95,6 +95,20 @@
         return;
       }
       if (this.phase === 'ending') {
+        const w = this.winner;
+        if (w) {
+          if (!w.grounded && w.state !== 'respawn') {
+            w.vx *= 0.9;
+            w.vy = Math.min(w.vy + w.def.grav, w.def.fall);
+            w.moveAndCollide(this);
+          }
+          if (this.endT === 150) {
+            this.showMessage(w.def.name.toUpperCase() + ' VENCEU!', 150, w.def.color);
+            this.flashScreen('#ffffff', 0.35);
+            this.ring(w.x, w.y - w.h * 0.5, w.def.color, 160);
+          }
+          if (this.endT < 150 && this.endT % 6 === 0) this.burst(w.x + (Math.random() - 0.5) * 160, w.y - Math.random() * 160, 'neutral', 1, 3);
+        }
         this.updateFx();
         this.updateCamera();
         if (--this.endT <= 0) {
@@ -398,10 +412,22 @@
     endMatch() {
       if (this.phase === 'ending' || this.phase === 'done') return;
       this.phase = 'ending';
-      this.endT = 140;
-      this.showMessage(this.mode === 'time' ? 'TEMPO!' : 'FIM DE JOGO!', 140, '#ffd166');
+      this.endT = 230;
+      this.showMessage(this.mode === 'time' ? 'TEMPO!' : 'FIM DE JOGO!', 80, '#ffd166');
       sfx('game');
       this.hitstop = 0;
+      RR.ui && RR.ui.hideControls && RR.ui.hideControls(true);
+      // vencedor: câmera aproxima nele na pose de vitória
+      const w = this.ranking()[0];
+      if (w && w.alive) {
+        this.winner = w;
+        w.isWinner = true;
+        w.hidden = false;
+        w.invuln = 0;
+        w.flash = 0;
+        w.anim.spin = 0;
+        if (w.state === 'respawn' || w.state === 'ledge') w.releaseLedge && w.releaseLedge();
+      }
     }
 
     ranking() {
@@ -490,6 +516,11 @@
         tx = f.x;
         ty = f.y - f.h * 0.6;
         tz = 1.5;
+      } else if (this.phase === 'ending' && this.winner && this.endT < 170) {
+        const f = this.winner;
+        tx = f.x;
+        ty = f.y - f.h * 0.75;
+        tz = 2.1;
       } else {
         let minX = st.cx - 320, maxX = st.cx + 320, minY = -240, maxY = 60;
         for (const f of this.fighters) {
@@ -512,7 +543,7 @@
         tx = (minX + maxX) / 2;
         ty = (minY + maxY) / 2 - 10;
       }
-      const k = this.cine ? 0.15 : 0.08;
+      const k = this.cine ? 0.15 : this.winner ? 0.06 : 0.08;
       this.cam.x += (tx - this.cam.x) * k;
       this.cam.y += (ty - this.cam.y) * k;
       this.cam.zoom += (tz - this.cam.zoom) * (this.cine ? 0.12 : 0.05);

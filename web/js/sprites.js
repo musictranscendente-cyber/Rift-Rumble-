@@ -313,7 +313,8 @@
   S.pose = function (f, p, time) {
     const set = SETS[f.def.sprite];
     let fr, rot = 0;
-    if (f.state === 'attack') [fr, rot] = moveFrame(set, f);
+    if (f.isWinner && RR.game && RR.game.phase === 'ending' && RR.game.endT < 170 && f.grounded) fr = 'win';
+    else if (f.state === 'attack') [fr, rot] = moveFrame(set, f);
     else fr = set.pose(f, time) || set.idle;
     p.frame = fr;
     p.frot = rot;

@@ -205,6 +205,110 @@
 
   S.hasShieldFrame = (d) => !!(d.sprite && SETS[d.sprite].shieldFrame);
 
+  // ---------------- Camada de movimento ----------------
+  // As folhas têm poucas poses; isto dá o movimento "entre" elas: transição suave entre quadros,
+  // respiração, inclinação na corrida e no ar, esticar/achatar, virar de lado, avanço no golpe e rastro.
+  const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  const ease = (k) => k * k * (3 - 2 * k);
+  const approach = (v, target, rate, dt) => v + (target - v) * (1 - Math.pow(1 - rate, dt));
+
+  function motion(f, p, set) {
+    const mo = f.mo || (f.mo = { cur: p.frame, prev: null, blend: 1, speed: 0.2, turn: 1, facing: f.facing, lean: 0, sx: 1, sy: 1, bob: 0, punch: 0, t: now(), trail: [], trailT: 0, moveT: -1 });
+    const t = now();
+    const dt = Math.min(3, Math.max(0, ((t - mo.t) / 1000) * 60)); // em quadros de 60 Hz
+    mo.t = t;
+    const st = f.state, d = f.def;
+
+    // transição entre poses: a pose anterior some aos poucos por cima da nova
+    if (p.frame !== mo.cur) {
+      const idleSwap = /^idle/.test(p.frame) && /^idle/.test(mo.cur);
+      const run = /^run/.test(p.frame) && /^run/.test(mo.cur);
+      mo.prev = mo.cur;
+      mo.cur = p.frame;
+      mo.blend = 0;
+      mo.speed = idleSwap ? 0.05 : run ? 0.3 : st === 'attack' ? 0.32 : 0.2;
+    }
+    mo.blend = Math.min(1, mo.blend + mo.speed * dt);
+    p.prevFrame = mo.blend < 1 ? mo.prev : null;
+    p.prevAlpha = 1 - ease(mo.blend);
+
+    // virar de lado: o corpo afina e volta, em vez de espelhar de uma vez
+    if (f.facing !== mo.facing) {
+      mo.facing = f.facing;
+      mo.turn = 0;
+    }
+    mo.turn = Math.min(1, mo.turn + 0.22 * dt);
+
+    // alvos de inclinação e escala conforme o estado
+    let lean = 0, sx = 1, sy = 1, bob = 0;
+    const tt = t / 1000;
+    if ((st === 'idle' || st === 'shield') && f.grounded) {
+      const b = Math.sin(tt * 3.2 + f.slot);
+      sy = 1 + b * 0.022;
+      sx = 1 - b * 0.012;
+    } else if (st === 'run') {
+      const k = Math.min(1, Math.abs(f.vx) / d.walk);
+      lean = 0.09 * k;
+      bob = -Math.abs(Math.sin(f.anim.run * Math.PI * 1.3)) * 4 * k;
+      sy = 1 + Math.abs(Math.sin(f.anim.run * Math.PI * 1.3)) * 0.03 * k;
+    } else if (st === 'air' || st === 'helpless') {
+      lean = Math.max(-0.14, Math.min(0.18, f.vy * 0.012));
+      const stretch = Math.min(0.12, Math.max(0, -f.vy * 0.006));
+      sy = 1 + stretch;
+      sx = 1 - stretch * 0.6;
+    } else if (st === 'hitstun') {
+      lean = -0.22;
+    } else if (st === 'attack') {
+      const m = f.move, k = (f.moveT - m.startup) / Math.max(1, m.active);
+      if (f.moveT !== mo.moveT && f.moveT === m.startup) mo.punch = 1;
+      mo.moveT = f.moveT;
+      lean = f.moveT < m.startup ? -0.06 : k >= 0 && k <= 1 ? 0.07 : 0;
+      if (k >= 0 && k <= 1 && f.grounded) p.offX = Math.sin(k * Math.PI) * 9;
+    } else if (st === 'landing') {
+      sy = 0.94;
+      sx = 1.04;
+    }
+    mo.lean = approach(mo.lean, lean, 0.25, dt);
+    mo.sx = approach(mo.sx, sx, 0.3, dt);
+    mo.sy = approach(mo.sy, sy, 0.3, dt);
+    mo.bob = approach(mo.bob, bob, 0.5, dt);
+    mo.punch = Math.max(0, mo.punch - 0.12 * dt);
+
+    const punch = 1 + mo.punch * 0.06;
+    p.sx *= mo.sx * punch * (0.4 + 0.6 * ease(mo.turn));
+    p.sy *= mo.sy * punch;
+    p.mlean = mo.lean;
+    p.bob2 = mo.bob;
+    if (st === 'hitstun' && f.flash > 0) p.offX = (p.offX || 0) + (Math.random() - 0.5) * 6;
+
+    // rastro (imagens fantasma) quando está muito rápido
+    const fast = Math.hypot(f.vx, f.vy) > 11 || (st === 'attack' && (f.moveId === 'recovery' || f.moveId === 'ult'));
+    mo.trailT += dt;
+    if (fast && mo.trailT >= 2 && !f.hidden) {
+      mo.trailT = 0;
+      mo.trail.push({ x: f.x, y: f.y, frame: p.frame, rot: p.frot, facing: f.facing, life: 1 });
+      if (mo.trail.length > 5) mo.trail.shift();
+    }
+    for (const g of mo.trail) g.life -= 0.09 * dt;
+    mo.trail = mo.trail.filter((g) => g.life > 0);
+  }
+
+  // imagens fantasma desenhadas atrás do lutador (coordenadas do mundo)
+  S.drawTrail = function (ctx, f) {
+    if (!f.mo || !f.mo.trail.length) return;
+    const id = f.def.sprite;
+    ctx.save();
+    for (const g of f.mo.trail) {
+      ctx.globalAlpha = g.life * 0.28;
+      ctx.save();
+      ctx.translate(g.x, g.y);
+      ctx.scale(g.facing, 1);
+      drawFrame(ctx, id, g.frame, 0, 0, g.rot || 0, 1, f.def.h);
+      ctx.restore();
+    }
+    ctx.restore();
+  };
+
   // escolhe o quadro conforme o estado do lutador (chamado por computePose)
   S.pose = function (f, p, time) {
     const set = SETS[f.def.sprite];
@@ -213,6 +317,7 @@
     else fr = set.pose(f, time) || set.idle;
     p.frame = fr;
     p.frot = rot;
+    motion(f, p, set);
     if (!set.twin) return;
     // gêmeo que acompanha flutuando atrás, com atraso
     const tw = f.twin || (f.twin = { x: f.x, y: f.y });
@@ -239,9 +344,21 @@
         drawFrame(ctx, id, tw === 'L' ? set.twin.D : set.twin.L, tx, ty + Math.sin(time * 0.09) * 2, 0, 0.9, d.h);
       }
     }
+    ctx.save();
+    // inclinação a partir dos pés, balanço da corrida e avanço do golpe
+    ctx.translate(p.offX || 0, p.bob2 || 0);
+    if (p.mlean) ctx.rotate(p.mlean);
     if (tint) ctx.filter = tint === '#ffffff' ? 'brightness(2.6) saturate(0.2)' : 'saturate(0.4) brightness(1.3)';
     drawFrame(ctx, id, fr, 0, 0, p.frot || 0, 1, d.h);
     if (tint) ctx.filter = 'none';
+    // pose anterior sumindo por cima: transição suave entre quadros
+    if (p.prevFrame && p.prevAlpha > 0.02) {
+      const a = ctx.globalAlpha;
+      ctx.globalAlpha = a * p.prevAlpha;
+      drawFrame(ctx, id, p.prevFrame, 0, 0, 0, 1, d.h);
+      ctx.globalAlpha = a;
+    }
+    ctx.restore();
   };
 
   // rosto no placar; devolve false se o personagem não tiver retrato próprio

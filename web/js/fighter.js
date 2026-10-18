@@ -105,6 +105,8 @@
 
     // ------------------------------------------------------------------
     update(g) {
+      this.px = this.x;
+      this.py = this.y;
       const inp = (this.inp = this.ctrl.poll(this, g));
       if (this.state === 'out') return;
       this.stateT++;

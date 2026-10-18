@@ -55,6 +55,7 @@
       }
     }
     if (acc > STEP) acc = 0;
+    RR.renderAlpha = acc / STEP;
     if (m) {
       RR.render.draw(ctx, m, W, H, time);
       if (!m.demo) RR.input.updateHUD(m.fighters.find((f) => f.isHuman));

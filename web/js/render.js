@@ -145,7 +145,24 @@
 
   R.drawModel = (...a) => RR.art.drawModel(...a);
 
+  // desenha na posição interpolada entre os dois últimos passos da física (movimento mais suave)
   function drawFighter(ctx, f, g, time) {
+    const a = RR.renderAlpha == null || RR.paused || g.hitstop > 0 || g.phase !== 'play' ? 1 : RR.renderAlpha;
+    const ox = f.x, oy = f.y;
+    if (f.px != null && Math.abs(f.x - f.px) < 120 && Math.abs(f.y - f.py) < 120) {
+      f.x = f.px + (ox - f.px) * a;
+      f.y = f.py + (oy - f.py) * a;
+    }
+    if (f.def.sprite) RR.sprites.drawTrail(ctx, f);
+    try {
+      drawFighterAt(ctx, f, g, time);
+    } finally {
+      f.x = ox;
+      f.y = oy;
+    }
+  }
+
+  function drawFighterAt(ctx, f, g, time) {
     if (f.state === 'dead' || f.state === 'out') return;
     const d = f.def;
     ctx.save();

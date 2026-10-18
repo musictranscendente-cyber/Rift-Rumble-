@@ -408,9 +408,76 @@
     }),
   };
 
+  // ---------------- BRONT: colosso de pedra (Touro), terra — tudo de vídeo ----------------
+  C.bront = {
+    id: 'bront', name: 'Bront', title: 'Colosso de Pedra', arche: 'Pesado', sign: '♉',
+    sprite: 'bront',
+    color: '#c27a3a', color2: '#5dff6a', dark: '#4a2a12', fxColor: '#8cff7a',
+    alts: [{ color: '#7a8a99', color2: '#7df9ff', dark: '#2e3740' }],
+    w: 70, h: 88, weight: 126, walk: 4.4, air: 4.0, airAccel: 0.45, jump: 15.5, djump: 14, jumps: 2,
+    grav: 0.98, fall: 15, ff: 21,
+    stats: { Velocidade: 2, Força: 5, Peso: 5, Alcance: 3 },
+    skills: [
+      { key: 'A', name: 'Martelo de Rocha', desc: 'Três socos de pedra; o terceiro lança longe.' },
+      { key: 'B', name: 'Ruptura Sísmica', desc: 'Soca o chão e manda uma onda de rochas e cristais pela plataforma.' },
+      { key: '↑B', name: 'Investida do Touro', desc: 'Salta para cima e para a frente com os chifres, blindado.' },
+      { key: 'ULT', name: 'Colosso da Terra', desc: 'Esmaga o chão e faz pilares de pedra e cristal emergirem.' },
+    ],
+    ai: { pref: 85, range: 105, specialRange: 480, ultRange: 320 },
+    moves: Object.assign(basics({ reach: 88, pow: 1.3, spd: 3, h: 88, w: 70, fx: 'rock' }), {
+      special: {
+        name: 'Ruptura Sísmica', startup: 22, active: 4, recovery: 22, cooldown: 60, air: true, armor: [1, 22], sfx: 'rock',
+        onFrame(f, g, t) {
+          if (!f.grounded && t === 21) {
+            f.moveT = 20; // no ar, segura até tocar o chão
+            f.vy = 18;
+          }
+          if (t === 22) {
+            g.shake = 12;
+            g.burst(f.x + f.facing * 50, f.y, 'rock', 14);
+            g.spawnProjectile(f, {
+              type: 'wave', x: f.x + f.facing * 70, y: f.y, vx: f.facing * 10, w: 48, h: 60, life: 46, fx: 'rock',
+              ground: true, hit: hb(0, 0, 0, 0, 12, 8, 13, 70, { fx: 'rock' }),
+            });
+          }
+        },
+        hits: [hb(60, -24, 120, 50, 9, 7, 10, 72, { fx: 'rock' })],
+      },
+      recovery: {
+        name: 'Investida do Touro', startup: 5, active: 20, recovery: 12, helpless: true, air: true, lc: true, landLag: 14,
+        grav: 0.5, noDrift: true, armor: [1, 16], sfx: 'rock',
+        onFrame(f, g, t) {
+          if (t === 5) {
+            f.vy = -19;
+            f.vx = f.facing * 5 + f.inp.mx * 2;
+            g.burst(f.x, f.y, 'rock', 10, 7);
+          }
+        },
+        hits: [hb(30, -60, 100, 100, 10, 8, 13, 70, { fx: 'rock', t1: 12 })],
+      },
+      ult: {
+        name: 'Colosso da Terra', startup: 40, active: 30, recovery: 12, air: true, grav: 0.3, noDrift: true,
+        intang: [1, 40], armor: [1, 82], sfx: 'ult',
+        onFrame(f, g, t) {
+          if (t === 1) {
+            f.vx = 0;
+            f.vy = 0;
+          }
+          if (t === 58) {
+            g.shake = 30;
+            g.flashScreen('#8cff7a', 0.45);
+            g.burst(f.x, f.y, 'rock', 40, 14);
+            RR.audio.play('heavyhit');
+          }
+        },
+        hits: [hb(0, -100, 620, 260, 24, 6, 20, 72, { fx: 'rock', t0: 18, t1: 24, radial: true })],
+      },
+    }),
+  };
+
   function U_rand(a, b) {
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['lunara', 'solkar', 'astrael', 'noxara', 'vex'];
+  C.list = ['bront', 'lunara', 'solkar', 'astrael', 'noxara', 'vex'];
 })(window.RR);

@@ -34,6 +34,7 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 
 | Lutador | Estilo | A | B | ↑B | Ultimate |
 |---|---|---|---|---|---|
+| **Bront** ♉ | Colosso de pedra: lento, fortíssimo, pesado | Martelo de Rocha | Ruptura Sísmica (onda pelo chão) | Investida do Touro | Colosso da Terra |
 | **Lunara** ♋ | Tanque: lenta, forte e muito pesada | Garras da Maré | Orbe Abissal | Jato Lunar | Imperatriz do Oceano |
 | **Solkar** ♌ | Rei guerreiro: forte e pesado | Garras Solares | Rugido Solar (com armadura) | Ascensão do Leão | Coroa da Estrela |
 | **Astrael** ♐ | Arqueiro estelar (alcance 5) | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
@@ -70,6 +71,8 @@ Personagens novos seguem o modelo da Noxara: folha em grade (`tools/extract-noxa
 ### Animações a partir de vídeo
 
 A Lunara usa quadros extraídos de vídeos curtos (fundo verde, câmera parada, personagem no lugar): `tools/extract-lunara.py` tira os quadros com ffmpeg, remove o verde, usa o mesmo recorte e ponto de apoio para o vídeo inteiro e salva em WebP. Em `sprites.js`, `{ track: [...] }` toca a sequência ao longo do golpe inteiro.
+
+Personagens com verde no corpo (como o Bront) usam vídeos com fundo magenta: `tools/video_tools.py` (`key_auto`) compara cada quadro com a cor da borda e remove também a sombra roxa do chão.
 
 ### Criar um personagem novo
 

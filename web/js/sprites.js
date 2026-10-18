@@ -38,6 +38,9 @@
   const VJAB2 = seqNames('vjab2', 19), VJAB3 = seqNames('vjab3', 23);
   const VJUMP = seqNames('vjump', 9).slice(1), VREC = seqNames('vrec', 16);
   const VSP = seqNames('vsp', 34), VORB = seqNames('vorb', 17);
+  const BRUN = seqNames('brun', 11), BIDLE = seqNames('bidle', 16), BJAB = seqNames('bjab', 23), BJAB2 = seqNames('bjab2', 18);
+  const BJAB3 = seqNames('bjab3', 26), BSPEC = seqNames('bspec', 21), BJUMP = seqNames('bjump', 8), BREC = seqNames('brec', 17);
+  const BWIN = seqNames('bwin', 21), BULT = seqNames('bult', 24);
 
   // Configuração de cada personagem com sprites
   // scale: unidades do mundo por pixel (número, ou por quadro/prefixo quando a folha mistura tamanhos)
@@ -227,6 +230,42 @@
           case 'ledge': return 'stance';
         }
         return VIDLE[Math.floor((time + f.slot * 17) / 9) % VIDLE.length];
+      },
+    },
+
+    // Bront: tudo tirado de vídeo (fundo magenta)
+    bront: {
+      ext: 'webp',
+      idle: 'bidle00',
+      portrait: 'face',
+      frames: ['face'].concat(BRUN, BIDLE, BJAB, BJAB2, BJAB3, BSPEC, BJUMP, BREC, BWIN, BULT),
+      scale: 0.62,
+      moves: {
+        jab1: { track: BJAB },
+        jab2: { track: BJAB2 },
+        jab3: { track: BJAB3 },
+        upA: { track: BJAB2 },
+        downG: { track: BSPEC.slice(6, 14) },
+        nair: { track: BJAB2 },
+        dair: { track: BJAB3.slice(4, 14) },
+        special: { track: BSPEC },
+        recovery: { track: BREC },
+        ult: { track: BULT },
+      },
+      winFrame: (time) => BWIN[Math.floor(time / 3) % BWIN.length],
+      pose(f, time) {
+        switch (f.state) {
+          case 'run': return BRUN[Math.floor(f.anim.run * 2.4) % BRUN.length];
+          case 'air': {
+            const k = Math.min(1, Math.max(0, (f.vy + f.def.jump) / (2 * f.def.jump)));
+            return BJUMP[Math.round(k * (BJUMP.length - 1))];
+          }
+          case 'helpless': return BJUMP[BJUMP.length - 1];
+          case 'roll': case 'airdodge': return BREC[1];
+          case 'hitstun': case 'stunned': return BREC[16];
+          case 'ledge': return BJUMP[0];
+        }
+        return BIDLE[Math.floor((time + f.slot * 17) / 9) % BIDLE.length];
       },
     },
   };

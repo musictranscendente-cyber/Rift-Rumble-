@@ -349,10 +349,10 @@
     moves: Object.assign(basics({ reach: 84, pow: 1.0, spd: 1, h: 70, w: 64, fx: 'water' }), {
       special: {
         // track de vídeo: giro, carga nas duas pinças e explosão na metade do golpe
-        name: 'Orbe Abissal', startup: 26, active: 1, recovery: 26, cooldown: 45, air: true, grav: 0.4, sfx: 'ice',
+        name: 'Orbe Abissal', startup: 40, active: 1, recovery: 36, cooldown: 45, air: true, grav: 0.4, sfx: 'ice',
         onFrame(f, g, t) {
-          if (t === 8) RR.audio.play('wind');
-          if (t === 26) {
+          if (t === 12) RR.audio.play('wind');
+          if (t === 40) {
             g.spawnProjectile(f, {
               type: 'orb', anim: VORB, animRate: 2, scale: 0.42,
               x: f.x + f.facing * 90, y: f.y - f.h * 0.55, vx: f.facing * 11,

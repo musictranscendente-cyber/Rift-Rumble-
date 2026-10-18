@@ -175,3 +175,9 @@ input[type=range] { width: 46%; accent-color: var(--accent); touch-action: pan-x
   .modal { padding: 12px 18px; gap: 7px; }
   .modal h2 { font-size: 24px; }
 }
+
+/* ---------- Atualização ---------- */
+#screen-update { z-index: 60; }
+.upd-name { margin: 0; font-weight: 900; color: var(--accent); }
+.upd-notes { margin: 0; max-width: 520px; white-space: pre-wrap; font-family: inherit; font-size: 12px; color: var(--muted); max-height: 28vh; overflow: auto; }
+.upd-hint { margin: 0; font-size: 11px; color: var(--muted); }

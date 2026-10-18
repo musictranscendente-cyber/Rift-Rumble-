@@ -2,7 +2,11 @@
 
 Jogo de luta de plataforma estilo Smash Bros para celular (Android), feito em HTML5 Canvas + JavaScript e empacotado num app Android nativo (WebView).
 
-**APK pronto:** [`release/RiftRumble.apk`](release/RiftRumble.apk)
+**Baixar o APK:** [último Release](https://github.com/musictranscendente-cyber/Rift-Rumble-/releases/latest) → `RiftRumble.apk`
+
+### Atualização automática
+
+A cada push que muda o jogo, o GitHub Actions (`.github/workflows/apk.yml`) compila o APK e publica um Release novo (`v<número>`). Ao abrir, o app consulta o último Release e, se houver versão mais nova, mostra **NOVA VERSÃO → ATUALIZAR**, que baixa o APK pelo navegador; é só tocar no arquivo para instalar por cima (a assinatura é sempre a mesma). A versão instalada aparece no canto da tela inicial.
 
 ## Como jogar
 
@@ -70,7 +74,7 @@ Copie um bloco em `web/js/characters.js` (por exemplo `C.kael`), mude atributos 
 ```bash
 # Dependências (Ubuntu/Debian)
 sudo apt-get install android-sdk-platform-23 aapt apksigner zipalign dalvik-exchange openjdk-17-jdk
-./tools/build-apk.sh                      # gera release/RiftRumble.apk
+./tools/build-apk.sh                      # gera release/RiftRumble.apk (versão = nº de commits)
 
 node tools/sim.js 20                      # simula partidas bot x bot + tabela de % para KO
 NODE_PATH=$(npm root -g) node tools/browser-test.js /tmp   # teste no Chromium com capturas

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.riftrumble.game"
-    android:versionCode="1"
-    android:versionName="1.0">
+    android:versionCode="@VERSION_CODE@"
+    android:versionName="@VERSION_NAME@">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="Rift Rumble"

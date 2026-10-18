@@ -408,6 +408,9 @@
     window.addEventListener('pointerdown', unlock);
     startDemo();
     show('title');
+    const ver = document.querySelector('.version');
+    if (ver && RR.VERSION) ver.textContent = 'v' + RR.VERSION.name;
+    setTimeout(() => RR.update && RR.update.check(), 1500);
   };
 
   // anima os retratos na seleção

@@ -122,8 +122,21 @@
     </div>
   </section>
 
+  <!-- Atualização disponível -->
+  <section class="screen overlay" id="screen-update">
+    <div class="modal">
+      <h2>NOVA VERSÃO!</h2>
+      <p class="upd-name" id="updName"></p>
+      <pre class="upd-notes" id="updNotes"></pre>
+      <button class="btn big primary" id="updGo">ATUALIZAR</button>
+      <button class="btn" id="updLater">DEPOIS</button>
+      <p class="upd-hint">O download abre no navegador. Depois é só tocar no arquivo para instalar.</p>
+    </div>
+  </section>
+
   <div id="rotate"><div>⟳<br>Gire o celular para a horizontal</div></div>
 
+  <script src="js/version.js"></script>
   <script src="js/util.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/characters.js"></script>
@@ -137,6 +150,7 @@
   <script src="js/art.js"></script>
   <script src="js/render.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/update.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

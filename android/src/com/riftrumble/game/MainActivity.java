@@ -2,6 +2,8 @@ package com.riftrumble.game;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -104,6 +106,19 @@ public class MainActivity extends Activity {
         public void vibrate(int ms) {
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             if (v != null && v.hasVibrator()) v.vibrate(ms);
+        }
+
+        @JavascriptInterface
+        public void openUrl(final String url) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    } catch (Exception ignored) {
+                    }
+                }
+            });
         }
 
         @JavascriptInterface

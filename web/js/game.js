@@ -203,8 +203,8 @@
       b.flash = 8;
       if (h.poison) b.poison = { n: h.poison.n, dmg: h.poison.dmg, every: h.poison.every, t: h.poison.every, by: a };
       const kb = this.knockback(h, b.percent, b.def.weight);
-      this.burst(cx, cy, h.fx || 'neutral', 4 + Math.min(14, h.dmg | 0), 6 + kb * 0.15);
-      this.fx.push({ type: 'impact', x: cx, y: cy, life: 10, max: 10, r: 14 + Math.min(40, kb), color: (FX_COLORS[h.fx] || FX_COLORS.neutral)[0] });
+      if (RR.vfx) RR.vfx.hit(this, cx, cy, h.fx || 'neutral', h.dmg, kb, dir);
+      else this.burst(cx, cy, h.fx || 'neutral', 4 + Math.min(14, h.dmg | 0), 6 + kb * 0.15);
       this.addText(cx, cy - 30, Math.round(h.dmg) + '%', '#fff');
       if (a.isHuman || b.isHuman) U.vibrate(Math.min(90, 15 + h.dmg * 3));
 
@@ -289,7 +289,7 @@
         for (const s of this.stage.solids) if (p.x > s.x && p.x < s.x + s.w && Math.abs(p.y - s.y) < 4) onGround = true;
         for (const s of this.stage.plats) if (p.x > s.x && p.x < s.x + s.w && s.y2 == null && Math.abs(p.y - s.y) < 4) onGround = true;
         if (!onGround) p.dead = true;
-        if (p.t % 4 === 0) this.burst(p.x, p.y, 'rock', 1, 3);
+        if (RR.vfx) RR.vfx.trail(this, p);
       } else if (p.type !== 'blast') {
         for (const s of this.stage.solids) {
           if (U.overlap(this.projRect(p), s)) {
@@ -299,7 +299,8 @@
           }
         }
         if (p.type === 'orb') {
-          if (p.t % 3 === 0) this.burst(p.x - p.vx, p.y - p.vy, p.fx, 1, 2);
+          if (RR.vfx) RR.vfx.trail(this, p);
+          else if (p.t % 3 === 0) this.burst(p.x - p.vx, p.y - p.vy, p.fx, 1, 2);
         } else if (p.t % 2 === 0) this.trail(p);
       }
       if (!p.dead) this.projHits(p, p.hit);
@@ -503,7 +504,7 @@
         } else if (p.type === 'text') {
           p.y += p.vy;
           p.vy *= 0.93;
-        }
+        } else if (p.type === 'v') RR.vfx.update(p);
       }
       this.fx = this.fx.filter((p) => p.life > 0);
     }

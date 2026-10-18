@@ -294,6 +294,8 @@
         text(ctx, p.text, p.x, p.y, 22, p.color);
       } else if (p.type === 'spriteFx') {
         RR.sprites.drawFx(ctx, p);
+      } else if (p.type === 'v') {
+        RR.vfx.draw(ctx, p);
       } else if (p.type === 'impact') {
         RR.art.drawImpact(ctx, p.x, p.y, p.r, p.life / p.max, p.color);
       } else if (p.type === 'ko') {

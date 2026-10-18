@@ -6,7 +6,7 @@ global.window = global;
 global.localStorage = { getItem: () => null, setItem: () => {} };
 global.navigator = {};
 const dir = path.join(__dirname, '..', 'web', 'js');
-for (const f of ['util.js', 'characters.js', 'stages.js', 'fighter.js', 'ai.js', 'game.js']) {
+for (const f of ['util.js', 'characters.js', 'stages.js', 'fighter.js', 'ai.js', 'game.js', 'vfx.js']) {
   eval(fs.readFileSync(path.join(dir, f), 'utf8'));
 }
 const RR = window.RR;

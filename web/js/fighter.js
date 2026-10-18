@@ -315,6 +315,7 @@
       if (m.step && t === m.startup && this.grounded) this.vx = m.step * this.facing;
       if (m.sfx && t === m.startup) sfx(m.sfx);
       if (m.onFrame) m.onFrame(this, g, t);
+      if (RR.vfx && this.state === 'attack') RR.vfx.move(this, g, t);
       if (this.state !== 'attack') return;
       if (m.chain && inp.attackP) this.chainQ = true;
       if (this.chainQ && this.grounded && t >= m.startup + m.active + 2) {

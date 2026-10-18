@@ -81,7 +81,6 @@
           if (t >= 4 && t < 28) {
             f.vy = -13 + (t - 4) * 0.28;
             f.vx = f.inp.mx * 4.8;
-            if (t % 3 === 0) g.burst(f.x, f.y - 20, t % 6 ? 'light' : 'shadow', 2);
           }
         },
         hits: [
@@ -101,7 +100,6 @@
             g.shake = 16;
             g.flashScreen('#c9a6ff', 0.4);
           }
-          if (t > 16 && t < 56 && t % 3 === 0) g.burst(f.x + U_rand(-200, 200), f.y - U_rand(20, 200), t % 2 ? 'light' : 'shadow', 2, 8);
           if (t === 50) {
             g.shake = 22;
             RR.audio.play('heavyhit');
@@ -152,7 +150,6 @@
           if (t >= 4 && t < 26) {
             f.vy = -14 + (t - 4) * 0.3;
             f.vx = f.inp.mx * 4.5;
-            if (t % 3 === 0) g.burst(f.x, f.y - 20, 'shadow', 2);
           }
         },
         hits: [
@@ -172,7 +169,6 @@
             g.shake = 16;
             g.flashScreen('#d24dff', 0.4);
           }
-          if (t > 18 && t < 54 && t % 3 === 0) g.burst(f.x + f.facing * U_rand(40, 360), f.y - U_rand(20, 200), 'shadow', 2, 8);
           if (t === 46) {
             g.shake = 22;
             RR.audio.play('heavyhit');
@@ -222,10 +218,7 @@
           if (t === 5) {
             f.vy = -20;
             f.vx = f.inp.mx * 4;
-            g.burst(f.x, f.y, 'light', 14, 9);
-            g.ring(f.x, f.y, '#7fe3ff', 70);
           }
-          if (t > 5 && t < 23 && t % 3 === 0) g.burst(f.x, f.y, 'light', 2);
         },
         hits: [hb(0, -30, 110, 110, 9, 8, 12, 82, { fx: 'light', t1: 6, radial: true })],
       },
@@ -293,9 +286,7 @@
           if (t === 6) {
             f.vy = -20;
             f.vx = f.inp.mx * 3;
-            g.burst(f.x, f.y, 'fire', 14, 9);
           }
-          if (t > 6 && t < 26 && t % 3 === 0) g.burst(f.x, f.y - 10, 'fire', 2);
         },
         hits: [
           hb(0, -40, 100, 110, 4, 5, 3, 85, { fx: 'fire', multi: 6, radial: true, t1: 14 }),
@@ -314,7 +305,6 @@
             g.flashScreen('#ffd166', 0.45);
             g.shake = 14;
           }
-          if (t > 18 && t < 52 && t % 3 === 0) g.burst(f.x + f.facing * U_rand(40, 380), f.y - U_rand(10, 180), 'fire', 2, 9);
           if (t === 44) {
             g.shake = 26;
             RR.audio.play('heavyhit');
@@ -360,8 +350,6 @@
               hit: hb(0, 0, 0, 0, 11, 8, 12, 35, { fx: 'water' }),
             });
             g.shake = 10;
-            g.ring(f.x + f.facing * 90, f.y - f.h * 0.55, '#8fdcff', 90);
-            g.burst(f.x + f.facing * 90, f.y - f.h * 0.55, 'water', 14, 10);
             f.vx = -f.facing * 5; // recuo
           }
         },
@@ -373,9 +361,7 @@
           if (t === 6) {
             f.vy = -21;
             f.vx = f.inp.mx * 3;
-            g.burst(f.x, f.y, 'water', 16, 9);
           }
-          if (t > 6 && t < 26 && t % 2 === 0) g.burst(f.x, f.y + 10, 'water', 2);
         },
         hits: [
           hb(0, -20, 90, 120, 3, 4, 2, 88, { fx: 'water', multi: 6, t1: 14 }),
@@ -393,7 +379,6 @@
           }
           if (t === 20) g.flashScreen('#8fdcff', 0.3);
           if (t === 60) g.shake = 10;
-          if (t > 86 && t < 112 && t % 3 === 0) g.burst(f.x + U_rand(-260, 260), f.y - U_rand(0, 140), 'water', 2, 8);
           if (t === 86) {
             g.flashScreen('#8fdcff', 0.45);
             g.shake = 26;
@@ -434,7 +419,6 @@
           }
           if (t === 22) {
             g.shake = 12;
-            g.burst(f.x + f.facing * 50, f.y, 'rock', 14);
             g.spawnProjectile(f, {
               type: 'wave', x: f.x + f.facing * 70, y: f.y, vx: f.facing * 10, w: 48, h: 60, life: 46, fx: 'rock',
               ground: true, hit: hb(0, 0, 0, 0, 12, 8, 13, 70, { fx: 'rock' }),
@@ -450,7 +434,6 @@
           if (t === 5) {
             f.vy = -19;
             f.vx = f.facing * 5 + f.inp.mx * 2;
-            g.burst(f.x, f.y, 'rock', 10, 7);
           }
         },
         hits: [hb(30, -60, 100, 100, 10, 8, 13, 70, { fx: 'rock', t1: 12 })],
@@ -466,7 +449,6 @@
           if (t === 58) {
             g.shake = 30;
             g.flashScreen('#8cff7a', 0.45);
-            g.burst(f.x, f.y, 'rock', 40, 14);
             RR.audio.play('heavyhit');
           }
         },

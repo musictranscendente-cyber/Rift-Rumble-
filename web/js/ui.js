@@ -17,6 +17,9 @@
   let current = 'title';
   let lastPlayers = null;
   const portraits = [];
+  // vitrine da seleção: o escolhido em tamanho grande ('idle', 'show' = golpe ao tocar, 'win' = vitória ao confirmar)
+  const sc = { mode: 'idle', t0: 0, time: 0 };
+  const SHOW_T = 50, WIN_T = 70;
 
   function click() {
     RR.audio.init();
@@ -59,10 +62,13 @@
       card.appendChild(cv);
       card.insertAdjacentHTML('beforeend', `<div class="nm">${d.name}</div><div class="ar">${d.arche}</div>`);
       card.addEventListener('click', () => {
+        if (sc.mode === 'win') return;
         click();
         cfg.char = id;
         saveCfg();
         refreshSelect();
+        sc.mode = 'show';
+        sc.t0 = sc.time;
       });
       card.dataset.id = id;
       grid.appendChild(card);
@@ -98,8 +104,9 @@
     const d = RR.chars[cfg.char];
     const info = $('#charInfo');
     info.style.setProperty('--c', d.color);
+    $('#showcase').style.setProperty('--c', d.color);
+    $('#scName').innerHTML = `<b>${d.sign} ${d.name}</b><span>${d.title}</span>`;
     info.innerHTML =
-      `<h3 style="color:${d.color}">${d.name}</h3><div class="sub">${d.title} · ${d.arche}</div>` +
       `<div class="stats">${Object.entries(d.stats)
         .map(([k, v]) => `<span>${k}</span><span class="pips">${[1, 2, 3, 4, 5].map((i) => `<i class="${i <= v ? 'on' : ''}"></i>`).join('')}</span>`)
         .join('')}</div>` +
@@ -338,7 +345,7 @@
         `<span class="nm"><b>${f.def.name}</b><small>${f.label}</small></span><span class="v">${f.kos}</span><span class="v">${f.falls}</span><span class="v">${Math.round(f.dmgDealt)}%</span>`
       );
       tbl.appendChild(row);
-      RR.render.portrait(cv, f.def, 0, 'win');
+      RR.render.portrait(cv, f.def, 0, RR.sprites.anim(f.def, 'win', 30));
     });
     show('results');
     RR.audio.music(0.2);
@@ -378,8 +385,12 @@
     );
     document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => ui.onBack()));
     $('#toStage').addEventListener('click', () => {
+      if (sc.mode === 'win') return;
       click();
-      show('stage');
+      RR.audio.play('ult');
+      // pose de vitória do escolhido antes de ir para as arenas
+      sc.mode = 'win';
+      sc.t0 = sc.time;
     });
     $('#startFight').addEventListener('click', () => {
       click();
@@ -431,8 +442,26 @@
 
   // anima os retratos na seleção
   ui.tick = function (time) {
-    if (current !== 'select') return;
+    if (current !== 'select') {
+      sc.mode = 'idle';
+      return;
+    }
+    sc.time = time;
+    const d = RR.chars[cfg.char];
+    const t = time - sc.t0;
+    let frame;
+    if (sc.mode === 'show') {
+      frame = RR.sprites.anim(d, 'show', time, t / SHOW_T);
+      if (t >= SHOW_T) sc.mode = 'idle';
+    } else if (sc.mode === 'win') {
+      frame = RR.sprites.anim(d, 'win', t);
+      if (t >= WIN_T) {
+        sc.mode = 'idle';
+        show('stage');
+      }
+    } else frame = RR.sprites.anim(d, 'idle', time);
+    RR.render.portrait($('#showCv'), d, time, frame, 0.42, 0.8);
     if (time % 2) return;
-    for (const p of portraits) RR.render.portrait(p.cv, p.d, time);
+    for (const p of portraits) RR.render.portrait(p.cv, p.d, time, RR.sprites.anim(p.d, 'idle', time + p.d.h * 3), 0.62, 0.88);
   };
 })(window.RR);

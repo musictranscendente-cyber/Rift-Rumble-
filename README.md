@@ -64,9 +64,9 @@ release/        APK gerado
 
 ### Arte em sprites (personagens do zodíaco)
 
-As folhas de personagem ficam em `art/source/` (fundo verde). `python3 tools/extract-vex.py` remove o verde, recorta cada quadro (`web/img/vex/`), calcula o ponto de apoio dos pés e gera `web/js/sprites-vex.js`. Em `web/js/sprites.js` fica qual quadro usar em cada estado/golpe e a escala de cada linha da folha. Plataformas com `y2` em `stages.js` são rampas (altura `y` na esquerda e `y2` na direita). A logo (`art/source/logo-icone.png`) gera os ícones do app inteira, sem cortar. A arena vira `web/img/arena-gemeos.webp`; a colisão das plataformas está em `web/js/stages.js` (1 px da imagem = 0,8 unidade do mundo).
+Os personagens vêm de vídeos do Grok (6 s, câmera parada, fundo verde; o Bront usa magenta por causa dos cristais), um por animação, em `art/source/<personagem>/`. `python3 tools/extract-video-chars.py` (Solkar, Astrael, Vex, Noxara), `tools/extract-lunara.py` e `tools/extract-bront.py` tiram os quadros, removem o fundo, calculam o ponto de apoio dos pés e geram `web/js/sprites-<id>.js`; cada vídeo tem a escala ajustada para o personagem ficar do mesmo tamanho. Em `web/js/sprites.js` fica qual animação usar em cada estado/golpe. Plataformas com `y2` em `stages.js` são rampas (altura `y` na esquerda e `y2` na direita). Os scripts `tools/arena-*.py` geram as arenas (e os ícones do app, a partir de `art/source/logo-icone.png`); a colisão das plataformas está em `web/js/stages.js` (1 px da imagem = 0,8 unidade do mundo).
 
-Personagens novos seguem o modelo da Noxara: folha em grade (`tools/extract-noxara.py` + `tools/sprite_tools.py`) e uma entrada em `SETS` no `sprites.js` dizendo qual quadro usar em cada estado e golpe.
+Personagens novos seguem o modelo de `tools/extract-video-chars.py`: uma linha por vídeo (quadros e ponto de apoio) e uma entrada em `SETS` no `sprites.js`.
 
 ### Animações a partir de vídeo
 

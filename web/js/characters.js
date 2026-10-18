@@ -114,14 +114,15 @@
       },
       ult: {
         // dois dragões (luz embaixo, sombra no alto) atravessam a arena inteira à frente
-        name: 'Dragões Gêmeos', startup: 22, active: 4, recovery: 26, air: true, grav: 0.1, noDrift: true,
-        intang: [1, 30], sfx: 'ult',
+        // o vídeo mostra o círculo e os dragões nascendo; quando eles saem do quadro, viram projéteis que cruzam a arena
+        name: 'Dragões Gêmeos', startup: 84, active: 4, recovery: 20, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 88], sfx: 'ult',
         onFrame(f, g, t) {
           if (t === 1) {
             f.vx = 0;
             f.vy = 0;
           }
-          if (t === 22) {
+          if (t === 84) {
             g.shake = 14;
             g.flashScreen('#c9a6ff', 0.35);
             for (const [dy, col, col2, hit] of [
@@ -130,7 +131,7 @@
             ])
               g.spawnProjectile(f, {
                 type: 'spirit', col, col2, pierce: true,
-                x: f.x - f.facing * 60, y: f.y + dy, vx: f.facing * 17,
+                x: f.x + f.facing * 300, y: f.y + dy, vx: f.facing * 17,
                 w: 150, h: 90, life: 90, fx: hit.fx, hit,
               });
           }
@@ -296,7 +297,7 @@
             const k = Math.min(1, (v.c || 0) / 60);
             const full = k > 0.95;
             g.spawnProjectile(f, {
-              type: 'orb', sprite: 'comet', scale: 0.5 + k * 0.5, pierce: full,
+              type: 'arrow', len: 60 + k * 90, charge: k, pierce: full,
               x: f.x + f.facing * 60, y: f.y - f.h * 0.5, vx: f.facing * (15 + k * 9),
               w: 40 + k * 50, h: 22 + k * 12, life: 60 + k * 30, fx: 'light',
               hit: hb(0, 0, 0, 0, 4 + k * 10, 4 + k * 4, 5 + k * 9, 25, { fx: 'light' }),
@@ -320,26 +321,26 @@
         hits: [hb(0, -30, 110, 110, 9, 8, 12, 82, { fx: 'light', t1: 6, radial: true })],
       },
       ult: {
-        name: 'Chuva de Constelações', startup: 16, active: 44, recovery: 20, air: true, grav: 0.1, noDrift: true,
-        intang: [1, 30], sfx: 'ult',
+        // segue o vídeo: flecha para o céu, constelação e a chuva caindo à frente (as flechas que acertam são invisíveis)
+        name: 'Chuva de Constelações', startup: 36, active: 44, recovery: 20, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 40], sfx: 'ult',
         onFrame(f, g, t) {
           if (t === 1) {
             f.vx = 0;
             f.vy = 0;
           }
-          if (t === 16) g.flashScreen('#9fe8ff', 0.35);
-          // flechas caindo do céu em ondas sobre a área à frente
-          if (t >= 16 && t < 56 && t % 4 === 0) {
-            const k = (t - 16) / 40;
-            const last = t === 52;
+          if (t === 20) g.flashScreen('#9fe8ff', 0.35);
+          if (t >= 36 && t < 80 && t % 4 === 0) {
+            const k = (t - 36) / 44;
+            const last = t === 76;
             g.spawnProjectile(f, {
-              type: 'orb', sprite: 'volley', scale: last ? 1.05 : 0.75, pierce: true,
-              x: f.x + f.facing * (60 + U_rand(0, 420)), y: f.y - 520 - U_rand(0, 80),
-              vx: f.facing * 5, vy: 22, w: last ? 120 : 70, h: 70, life: 40, fx: 'light',
+              type: 'arrow', invisible: true, pierce: true,
+              x: f.x + f.facing * (90 + U_rand(0, 360)), y: f.y - 520,
+              vx: 0, vy: 22, w: last ? 300 : 80, h: 70, life: 40, fx: 'light',
               hit: last ? hb(0, 0, 0, 0, 12, 5, 19, 55, { fx: 'light' }) : hb(0, 0, 0, 0, 3, 3, 1, 70 - k * 20, { fx: 'light' }),
             });
           }
-          if (t === 52) g.shake = 18;
+          if (t === 76) g.shake = 18;
         },
       },
     }),
@@ -412,12 +413,14 @@
             const b = nearest(f, g);
             const tx = b ? b.x : f.x + f.facing * 200;
             f.x = Math.max(st.left + 40, Math.min(st.right - 40, tx));
-            f.y = st.solids[0].y - 620;
+            v.ty = b && b.grounded ? b.y : st.solids[0].y; // cai até a altura do alvo
+            f.y = v.ty - 620;
             f.vy = 26;
             f.vx = 0;
             f.hidden = false;
             g.flashScreen('#ffd166', 0.3);
           }
+          if (t > 26 && !v.landed && f.y < v.ty - 12) f.dropT = 2; // atravessa as plataformas finas no caminho
           if (t > 26 && !v.landed && f.grounded) {
             v.landed = true;
             g.shake = 28;

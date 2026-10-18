@@ -82,11 +82,11 @@ def video_frames(video, out_dir, name, a, b, step, mode, R, keyfn, body_h=None):
     return out
 
 
-def to_webp(out_dir):
+def to_webp(out_dir, quality=90):
     for f in os.listdir(out_dir):
         if f.endswith('.png'):
             p = os.path.join(out_dir, f)
-            Image.open(p).save(p[:-4] + '.webp', 'WEBP', quality=90, method=6)
+            Image.open(p).save(p[:-4] + '.webp', 'WEBP', quality=quality, method=6)
             os.remove(p)
 
 

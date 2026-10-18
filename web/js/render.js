@@ -546,13 +546,14 @@
   };
 
   // retrato para menus
-  R.portrait = function (canvas, def, time, frame) {
+  // zoom: altura do personagem em fração do quadro; base: altura dos pés
+  R.portrait = function (canvas, def, time, frame, zoom, base) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     ctx.save();
-    const s = (h * 0.72) / def.h;
-    ctx.translate(w / 2, h * 0.9);
+    const s = Math.min((h * (zoom || 0.72)) / def.h, (w * 0.86) / RR.sprites.idleWidth(def));
+    ctx.translate(w / 2, h * (base || 0.9));
     ctx.scale(s, s);
     RR.art.drawModel(ctx, def, { legF: 0.25, legB: -0.25, armF: 1.2, armB: -0.5, lean: 0, bob: Math.sin((time || 0) * 0.08) * 2, crouch: 0, sx: 1, sy: 1, eyes: 'open', frame }, time || 0);
     ctx.restore();

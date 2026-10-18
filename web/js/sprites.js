@@ -20,10 +20,16 @@
     const m = f.move, t = f.moveT;
     const i = t < m.startup ? 0 : t < m.startup + m.active ? 1 : 2;
     const list = (set.moveFrames && set.moveFrames(f)) || set.moves[f.moveId];
+    if (typeof list === 'function') return [list(f), 0];
     // track: sequência contínua ao longo do golpe inteiro (quadros tirados de vídeo)
     if (list && list.track) {
-      const total = m.startup + m.active + m.recovery;
-      return [list.track[Math.min(list.track.length - 1, Math.floor((t / total) * list.track.length))], 0];
+      const L = list.track, total = m.startup + m.active + m.recovery;
+      // hit: quadro do vídeo em que o golpe acerta, alinhado com o começo do golpe ativo
+      if (list.hit != null) {
+        const idx = t < m.startup ? (t / m.startup) * list.hit : list.hit + ((t - m.startup) / (m.active + m.recovery)) * (L.length - list.hit);
+        return [L[Math.min(L.length - 1, Math.floor(idx))], 0];
+      }
+      return [L[Math.min(L.length - 1, Math.floor((t / total) * L.length))], 0];
     }
     let e = list ? list[i] : set.idle;
     if (e && e.seq) {
@@ -42,151 +48,132 @@
   const BJAB3 = seqNames('bjab3', 26), BSPEC = seqNames('bspec', 21), BJUMP = seqNames('bjump', 8), BREC = seqNames('brec', 17);
   const BWIN = seqNames('bwin', 21), BULT = seqNames('bult', 24);
 
+  // animações de vídeo: lista de quadros de cada prefixo (quantidade gerada pelo extrator)
+  const V = {};
+  for (const id of ['solkar', 'astrael', 'vex', 'noxara']) {
+    const memo = {};
+    V[id] = (p) => memo[p] || (memo[p] = seqNames(p, ((RR.spriteData[id] || {}).__count || {})[p] || 1));
+  }
+
+  // conjunto de um personagem feito só de vídeo: corrida, parado, pulo, subida e vitória seguem o mesmo padrão
+  function videoSet(id, k, moves) {
+    const L = V[id], data = RR.spriteData[id] || {};
+    const prefixes = Object.keys(data.__count || {}).filter((p) => p !== 'face');
+    const RUN = L(k + 'run'), IDLE = L(k + 'idle'), JUMP = L(k + 'jump'), REC = L(k + 'rec'), WIN = L(k + 'win');
+    return {
+      ext: 'webp',
+      idle: IDLE[0],
+      anims: { idle: IDLE, win: WIN, show: moves.jab2.track },
+      portrait: 'face',
+      frames: ['face'].concat(...prefixes.map(L)),
+      scale: Object.assign({ default: (data.__scale || {})[k + 'idle'] || 0.5 }, data.__scale),
+      moves,
+      winFrame: (time) => WIN[Math.floor(time / 3) % WIN.length],
+      pose(f, time) {
+        switch (f.state) {
+          case 'run': return RUN[Math.floor(f.anim.run * 2.4) % RUN.length];
+          case 'air': {
+            const q = Math.min(1, Math.max(0, (f.vy + f.def.jump) / (2 * f.def.jump)));
+            return JUMP[Math.round(q * (JUMP.length - 1))];
+          }
+          case 'helpless': return JUMP[JUMP.length - 1];
+          case 'roll': case 'airdodge': return REC[1];
+          case 'hitstun': case 'stunned': return JUMP[Math.floor(JUMP.length / 2)];
+          case 'ledge': return JUMP[0];
+        }
+        return IDLE[Math.floor((time + f.slot * 17) / 7) % IDLE.length];
+      },
+    };
+  }
+
   // Configuração de cada personagem com sprites
   // scale: unidades do mundo por pixel (número, ou por quadro/prefixo quando a folha mistura tamanhos)
   const SETS = {
-    // Vex: folha de personagem com linhas em escalas diferentes; o gêmeo escuro acompanha flutuando
-    vex: {
-      idle: 'idle',
-      frames: ['idle', 'idle_dark', 'front', 'c1a', 'c1b', 'c1c', 'c1d', 'c2a', 'c2b', 'c3a', 'c3b', 'castA', 'castB',
-        'orbA', 'orbB', 'rec1', 'rec2', 'rec3', 'ult1', 'ult2', 'ult3', 'win'],
-      scale: { idle: 0.53, idle_dark: 0.5, front: 0.53, c: 0.72, cast: 0.74, orb: 0.74, rec: 0.66, ult: 0.86, win: 0.42 },
-      twin: { L: 'idle', D: 'idle_dark', frames: { c2a: 'LD', c2b: 'LD', c3b: 'LD', rec2: 'LD', rec3: 'D', castB: 'D', ult1: 'LD', ult2: 'LD', ult3: 'LD', win: 'LD' } },
-      moves: {
-        jab1: ['c1a', 'c1b', 'c1b'],
-        jab2: ['c1a', 'c2a', 'c2b'],
-        jab3: ['c3a', 'c3b', 'c3b'],
-        upA: ['c1c', ['c1d', -1.1], ['c1d', -1.1]],
-        downG: ['c1a', ['c1b', 0.35], ['c1b', 0.35]],
-        nair: ['c1c', 'c1d', 'c1d'],
-        dair: ['c1c', ['c1d', 1.3], ['c1d', 1.3]],
-        special: ['castB', 'c3b', 'c3b'],
-        recovery: ['rec1', 'rec2', 'rec3'],
-        ult: ['ult1', 'ult2', 'ult3'],
+    // Solkar, Astrael, Vex e Noxara: tudo de vídeo (tools/extract-video-chars.py)
+    solkar: videoSet('solkar', 's', {
+      jab1: { track: V.solkar('sjab'), hit: 7 },
+      jab2: { track: V.solkar('sjab2'), hit: 6 },
+      jab3: { track: V.solkar('sjab3'), hit: 6 },
+      upA: { track: V.solkar('sjab3'), hit: 6 },
+      downG: { track: V.solkar('sjab'), hit: 7 },
+      nair: { track: V.solkar('srec').slice(3, 12), hit: 1 },
+      dair: { track: V.solkar('sjab2'), hit: 6 },
+      special: { track: V.solkar('sspec'), hit: 3 },
+      recovery: { track: V.solkar('srec'), hit: 3 },
+      // Queda do Sol: salto (até sumir), bola de fogo caindo e a explosão depois de tocar o chão
+      ult(f) {
+        const L = V.solkar('sult'), m = f.move, t = f.moveT;
+        if (f.mvar.landed) return L[Math.min(L.length - 1, 28 + Math.floor(((t - m.startup - m.active) / m.recovery) * (L.length - 28)))];
+        if (t < 26) return L[Math.min(19, Math.floor((t / 14) * 19))];
+        return L[22 + (Math.floor((t - 26) / 2) % 7)];
       },
-      pose(f) {
-        switch (f.state) {
-          case 'run': return 'c1a';
-          case 'air': return f.vy < 0 ? 'c1c' : 'c1a';
-          case 'helpless': case 'roll': case 'airdodge': return 'c1c';
-          case 'hitstun': case 'stunned': case 'ledge': return 'front';
-        }
-        return 'idle';
-      },
-    },
+    }),
 
-    // Noxara: folha em grade, mesma escala em todas as poses
-    noxara: {
-      idle: 'idle1',
-      portrait: 'face',
-      shieldFrame: true,
-      frames: ['idle1', 'idle2', 'run1', 'run2', 'run3', 'run4', 'jump', 'fall', 'land', 'crouch', 'shield', 'roll', 'hurt',
-        'launched', 'ledge', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b1', 'b2', 'b3', 'b4', 'b5', 'blade1', 'blade2', 'impact',
-        's1', 's2', 's3', 'r1', 'r2', 'r3', 'slam', 'u1', 'u2', 'u3', 'win', 'face'],
-      scale: 0.66,
-      moves: {
-        jab1: ['a1', 'a1', 'a2'],
-        jab2: ['a3', 'a3', 'a4'],
-        jab3: ['a5', 'a6', 'a6'],
-        upA: ['b1', 'b1', 'b1'],
-        downG: ['b2', 'b3', 'b3'],
-        nair: ['b4', 'b4', 'b5'],
-        dair: ['b5', ['b4', 0.9], ['b4', 0.9]],
-        special: ['s1', 's2', 's3'],
-        recovery: ['r1', { seq: ['r1', 'r2', 'r3'] }, 'r3'],
-        ult: ['u1', { seq: ['u2', 'u3'] }, 'u3'],
+    astrael: videoSet('astrael', 'a', {
+      jab1: { track: V.astrael('ajab'), hit: 3 },
+      jab2: { track: V.astrael('ajab2'), hit: 3 },
+      jab3: { track: V.astrael('ajab3'), hit: 4 },
+      upA: { track: V.astrael('ajab'), hit: 3 },
+      downG: { track: V.astrael('ajab3').slice(0, 10), hit: 4 },
+      nair: { track: V.astrael('ajab'), hit: 3 },
+      dair: { track: V.astrael('ajab2'), hit: 3 },
+      // Flecha Cometa: a corda vai sendo puxada com a carga; solta rápido (tiro curto) ou o cometa (carga alta)
+      special(f) {
+        const C = V.astrael('achg'), m = f.move, t = f.moveT, c = f.mvar.c || 0;
+        if (t < m.startup) return c < 4 ? C[Math.floor((t / m.startup) * 4)] : C[Math.min(C.length - 1, 4 + Math.floor((c / 60) * (C.length - 5)))];
+        const k = (t - m.startup) / (m.active + m.recovery);
+        const L = c < 20 ? V.astrael('ajab2').slice(3) : V.astrael('arel');
+        return L[Math.min(L.length - 1, Math.floor(k * L.length))];
       },
-      pose(f, time) {
-        switch (f.state) {
-          case 'run': return ['run1', 'run2', 'run3', 'run4'][Math.floor(f.anim.run * 1.3) % 4];
-          case 'air': return f.vy < 0 ? 'jump' : 'fall';
-          case 'helpless': return 'fall';
-          case 'landing': return f.lagT > 6 ? 'slam' : 'land';
-          case 'shield': return 'shield';
-          case 'spotdodge': return 'crouch';
-          case 'roll': case 'airdodge': return 'roll';
-          case 'hitstun': return f.lastKb > 22 ? 'launched' : 'hurt';
-          case 'stunned': return 'hurt';
-          case 'ledge': return 'ledge';
-        }
-        return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
-      },
-    },
+      recovery: { track: V.astrael('arec'), hit: 2 },
+      ult: { track: V.astrael('ault') },
+    }),
 
-    // Astrael: folha em grade, mesma escala em todas as poses
-    astrael: {
-      idle: 'idle1',
-      portrait: 'face',
-      shieldFrame: true,
-      frames: ['idle1', 'idle2', 'run1', 'run2', 'run3', 'run4', 'jump', 'fall', 'land', 'crouch', 'shield', 'roll', 'hurt',
-        'launched', 'spin', 'ledge', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'b1', 'b2', 'b3', 'b4', 'b5', 'comet',
-        's1', 's2', 'r1', 'r2', 'r3', 'r4', 'r5', 'volley', 'u1', 'u2', 'u3', 'win', 'face'],
-      scale: 0.64,
-      moves: {
-        jab1: ['a1', 'a2', 'a2'],
-        jab2: ['a3', 'a4', 'a4'],
-        jab3: ['a5', 'a7', 'a7'],
-        upA: ['b1', 'b1', 'b1'],
-        downG: ['b3', 'b3', 'b3'],
-        nair: ['b2', 'b4', 'b4'],
-        dair: ['b5', ['b5', 1.1], ['b5', 1.1]],
-        special: ['a1', 'a6', 'a6'],
-        recovery: ['r1', { seq: ['r2', 'r3', 'r4'] }, 'r5'],
-        ult: ['u1', { seq: ['u2', 'u3'] }, 'u3'],
+    vex: videoSet('vex', 'x', {
+      jab1: { track: V.vex('xjab'), hit: 6 },
+      jab2: { track: V.vex('xjab2'), hit: 7 },
+      jab3: { track: V.vex('xjab3'), hit: 4 },
+      upA: { track: V.vex('xjab2'), hit: 7 },
+      downG: { track: V.vex('xjab'), hit: 6 },
+      nair: { track: V.vex('xrec').slice(2, 12), hit: 1 },
+      dair: { track: V.vex('xjab3'), hit: 4 },
+      // Passo Gêmeo: lampejo, some (não é desenhado) e reaparece no chute
+      special(f) {
+        const L = V.vex('xspec'), m = f.move, t = f.moveT;
+        if (t < 6) return L[Math.floor((t / 6) * 5)];
+        const k = Math.min(0.999, (t - 13) / (m.startup + m.active + m.recovery - 13));
+        return L[14 + Math.floor(Math.max(0, k) * (L.length - 14))];
       },
-      pose(f, time) {
-        switch (f.state) {
-          case 'run': return ['run1', 'run2', 'run3', 'run4'][Math.floor(f.anim.run * 1.3) % 4];
-          case 'air': return f.vy < 0 ? 'jump' : 'fall';
-          case 'helpless': return 'fall';
-          case 'landing': return f.lagT > 6 ? 'crouch' : 'land';
-          case 'shield': return 'shield';
-          case 'spotdodge': return 'crouch';
-          case 'roll': case 'airdodge': return 'roll';
-          case 'hitstun': return f.lastKb > 22 ? 'launched' : 'hurt';
-          case 'stunned': return 'hurt';
-          case 'ledge': return 'ledge';
-        }
-        return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
-      },
-    },
+      recovery: { track: V.vex('xrec'), hit: 1 },
+      ult: { track: V.vex('xult') },
+    }),
 
-    // Solkar: mesma grade do Astrael
-    solkar: {
-      idle: 'idle1',
-      portrait: 'face',
-      shieldFrame: true,
-      frames: ['idle1', 'idle2', 'run1', 'run2', 'run3', 'run4', 'jump', 'land', 'crouch', 'shield', 'roll', 'hurt',
-        'launched', 'spin', 'ledge', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'b1', 'b2', 'b3', 'b4', 'b5', 'roar', 'roarBig',
-        's1', 's2', 'r1', 'r2', 'r3', 'r4', 'r5', 'u1', 'u2', 'u3', 'win', 'face'],
-      scale: 0.66,
-      moves: {
-        jab1: ['a1', 'a2', 'a2'],
-        jab2: ['a3', 'a4', 'a4'],
-        jab3: ['a5', 'a6', 'a6'],
-        upA: ['b1', 'b1', 'b1'],
-        downG: ['b3', 'b3', 'b3'],
-        nair: ['b2', 'b4', 'b4'],
-        dair: ['b5', ['b5', 1.1], ['b5', 1.1]],
-        special: ['s1', 's2', 's2'],
-        recovery: ['r1', { seq: ['r2', 'r3', 'r4'] }, 'r5'],
-        ult: ['u1', { seq: ['u2', 'u3'] }, 'u3'],
+    noxara: videoSet('noxara', 'n', {
+      jab1: { track: V.noxara('njab'), hit: 3 },
+      jab2: { track: V.noxara('njab2'), hit: 2 },
+      jab3: { track: V.noxara('njab3'), hit: 6 },
+      upA: { track: V.noxara('njab2'), hit: 2 },
+      downG: { track: V.noxara('njab'), hit: 3 },
+      nair: { track: V.noxara('nrec').slice(2, 14), hit: 1 },
+      dair: { track: V.noxara('njab3'), hit: 6 },
+      // Bote do Escorpião: avanço, prende (ferroadas enquanto segura) e arremesso
+      special(f) {
+        const L = V.noxara('nspec'), m = f.move, t = f.moveT, v = f.mvar;
+        if (v.grab) return L[Math.min(29, 6 + Math.floor((v.gt / 40) * 24))];
+        if (t <= m.startup + m.active && !v.done) return L[Math.min(6, Math.floor((t / (m.startup + m.active)) * 7))];
+        const k = Math.min(0.999, Math.max(0, (t - m.startup - m.active) / m.recovery));
+        return L[30 + Math.floor(k * (L.length - 30))];
       },
-      pose(f, time) {
-        switch (f.state) {
-          case 'run': return ['run1', 'run2', 'run3', 'run4'][Math.floor(f.anim.run * 1.3) % 4];
-          case 'air': case 'helpless': return 'jump';
-          case 'landing': return f.lagT > 6 ? 'crouch' : 'land';
-          case 'shield': return 'shield';
-          case 'spotdodge': return 'crouch';
-          case 'roll': case 'airdodge': return 'roll';
-          case 'hitstun': return f.lastKb > 22 ? 'spin' : 'hurt';
-          case 'stunned': return 'hurt';
-          case 'ledge': return 'ledge';
-        }
-        return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
+      recovery: { track: V.noxara('nrec'), hit: 3 },
+      // Dança do Eclipse: o eclipse se forma, ela some durante os cortes e volta no ferrão final
+      ult(f) {
+        const L = V.noxara('nult'), t = f.moveT, m = f.move;
+        if (t < 18) return L[Math.floor((t / 18) * 6)];
+        const k = Math.min(0.999, Math.max(0, (t - 66) / (m.startup + m.active + m.recovery - 66)));
+        return L[32 + Math.floor(k * (L.length - 32))];
       },
-    },
+    }),
+
 
     // Lunara: corrida, parado, golpe 1 e vitória tirados de vídeo (quadros densos); resto da folha
     lunara: {
@@ -212,6 +199,7 @@
         ult: { track: VULT },
       },
       winFrame: (time) => VWIN[Math.floor(time / 3) % VWIN.length],
+      anims: { idle: VIDLE, win: VWIN, show: VJAB2 },
       pose(f, time) {
         switch (f.state) {
           case 'run': return VRUN[Math.floor(f.anim.run * 2.6) % VRUN.length];
@@ -253,6 +241,7 @@
         ult: { track: BULT },
       },
       winFrame: (time) => BWIN[Math.floor(time / 3) % BWIN.length],
+      anims: { idle: BIDLE, win: BWIN, show: BJAB2 },
       pose(f, time) {
         switch (f.state) {
           case 'run': return BRUN[Math.floor(f.anim.run * 2.4) % BRUN.length];
@@ -270,6 +259,13 @@
     },
   };
   S.sets = SETS;
+
+  // quadro de uma animação fora da luta (seleção de personagem): 'idle' e 'win' repetem; 'show' vai de 0 a 1
+  S.anim = function (def, kind, time, k) {
+    const a = SETS[def.sprite].anims[kind];
+    if (kind === 'show') return a[Math.min(a.length - 1, Math.floor(k * a.length))];
+    return a[Math.floor(time / (kind === 'win' ? 3 : 7)) % a.length];
+  };
   S.seq = seqNames;
 
   const path = (id, name) => `img/${id}/${name}.${SETS[id].ext || 'png'}`;
@@ -286,6 +282,12 @@
   }
 
   // desenha um quadro com os pés (ponto de apoio) em (x, y)
+  // largura do personagem parado no mundo (para caber nos quadros da seleção)
+  S.idleWidth = function (def) {
+    const set = SETS[def.sprite], m = RR.spriteData[def.sprite] && RR.spriteData[def.sprite][set.idle];
+    return m ? m.w * scaleOf(set, set.idle) : def.w;
+  };
+
   function drawFrame(ctx, id, name, x, y, rot, mul, h) {
     if (SETS[id].alias && SETS[id].alias[name]) name = SETS[id].alias[name];
     const im = cache[path(id, name)];
@@ -423,32 +425,12 @@
     p.frame = fr;
     p.frot = rot;
     motion(f, p, set);
-    if (!set.twin) return;
-    // gêmeo que acompanha flutuando atrás, com atraso
-    const tw = f.twin || (f.twin = { x: f.x, y: f.y });
-    const tx = f.x - f.facing * 38, ty = f.y - 20 + Math.sin(time * 0.07 + f.slot) * 6;
-    tw.x += (tx - tw.x) * 0.15;
-    tw.y += (ty - tw.y) * 0.15;
-    if (Math.abs(tw.x - f.x) > 300 || Math.abs(tw.y - f.y) > 300) {
-      tw.x = tx;
-      tw.y = ty;
-    }
-    p.twinX = (tw.x - f.x) * f.facing;
-    p.twinY = tw.y - f.y;
   };
 
   // desenha o personagem com os pés em (0,0), olhando para +x
   S.draw = function (ctx, d, p, time, tint) {
     const id = d.sprite, set = SETS[id];
     const fr = p.frame || set.idle;
-    if (set.twin) {
-      const tw = set.twin.frames[fr] || 'L';
-      if (tw !== 'LD') {
-        const tx = p.twinX != null ? p.twinX : -36;
-        const ty = p.twinY != null ? p.twinY : -14;
-        drawFrame(ctx, id, tw === 'L' ? set.twin.D : set.twin.L, tx, ty + Math.sin(time * 0.09) * 2, 0, 0.9, d.h);
-      }
-    }
     ctx.save();
     // inclinação a partir dos pés, balanço da corrida e avanço do golpe
     ctx.translate(p.offX || 0, p.bob2 || 0);

@@ -303,8 +303,8 @@
             this.projFx(p);
           }
         }
-        if (p.type === 'orb') {
-          if (RR.vfx) RR.vfx.trail(this, p);
+        if (p.type === 'orb' || p.type === 'arrow') {
+          if (RR.vfx && !p.invisible) RR.vfx.trail(this, p);
           else if (p.t % 3 === 0) this.burst(p.x - p.vx, p.y - p.vy, p.fx, 1, 2);
         } else if (p.t % 2 === 0) this.trail(p);
       }

@@ -431,6 +431,7 @@
   A.drawProjectile = function (ctx, p, g, time) {
     if (p.type === 'orb') return RR.sprites.drawOrb(ctx, p, time);
     if (p.type === 'spirit') return RR.vfx.drawSpirit(ctx, p, time);
+    if (p.type === 'arrow') return p.invisible ? null : RR.vfx.drawArrow(ctx, p, time);
     ctx.save();
     if (p.type === 'fireball') {
       const r = 16 + Math.sin(time * 0.7) * 1.5;

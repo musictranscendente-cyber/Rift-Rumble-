@@ -20,6 +20,11 @@
     const m = f.move, t = f.moveT;
     const i = t < m.startup ? 0 : t < m.startup + m.active ? 1 : 2;
     const list = (set.moveFrames && set.moveFrames(f)) || set.moves[f.moveId];
+    // track: sequência contínua ao longo do golpe inteiro (quadros tirados de vídeo)
+    if (list && list.track) {
+      const total = m.startup + m.active + m.recovery;
+      return [list.track[Math.min(list.track.length - 1, Math.floor((t / total) * list.track.length))], 0];
+    }
     let e = list ? list[i] : set.idle;
     if (e && e.seq) {
       const k = Math.min(0.999, Math.max(0, (t - m.startup) / m.active));
@@ -27,6 +32,9 @@
     }
     return Array.isArray(e) ? e : [e, 0];
   }
+
+  const seqNames = (prefix, n) => Array.from({ length: n }, (_, i) => prefix + String(i).padStart(2, '0'));
+  const VRUN = seqNames('vrun', 12), VIDLE = seqNames('vidle', 16), VJAB = seqNames('vjab', 17), VWIN = seqNames('vwin', 21);
 
   // Configuração de cada personagem com sprites
   // scale: unidades do mundo por pixel (número, ou por quadro/prefixo quando a folha mistura tamanhos)
@@ -173,21 +181,67 @@
         return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
       },
     },
+
+    // Lunara: corrida, parado, golpe 1 e vitória tirados de vídeo (quadros densos); resto da folha
+    lunara: {
+      ext: 'webp',
+      idle: 'vidle00',
+      portrait: 'face',
+      shieldFrame: true,
+      alias: { win: 'vwin12' },
+      frames: ['stance', 'swipe', 'spin', 'up', 'wave', 'claw', 'cast', 'orbA', 'orbB', 'splash', 'jump', 'rise1', 'rise2',
+        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN),
+      // cada fonte foi desenhada num tamanho: vídeo (v...), vídeo da vitória (com zoom) e folha
+      scale: { vwin: 0.5, v: 0.6, default: 0.66 },
+      moves: {
+        jab1: { track: VJAB },
+        jab2: ['stance', 'swipe', 'swipe'],
+        jab3: ['claw', 'spin', 'spin'],
+        upA: ['stance', 'up', 'up'],
+        downG: ['low', 'low', 'low'],
+        nair: ['spin', 'wave', 'wave'],
+        dair: ['fall', 'dive', 'dive'],
+        special: ['charge', 'cast', 'cast'],
+        recovery: ['jump', { seq: ['rise1', 'rise2'] }, 'rise2'],
+        ult: ['u1', { seq: ['u2'] }, 'u3'],
+      },
+      winFrame: (time) => VWIN[Math.floor(time / 3) % VWIN.length],
+      pose(f, time) {
+        switch (f.state) {
+          case 'run': return VRUN[Math.floor(f.anim.run * 2.6) % VRUN.length];
+          case 'air': return f.vy < 0 ? 'jump' : 'fall';
+          case 'helpless': return 'fall';
+          case 'landing': return 'low';
+          case 'shield': return 'bubble';
+          case 'spotdodge': return 'low';
+          case 'roll': case 'airdodge': return 'dash';
+          case 'hitstun': return f.lastKb > 22 ? 'ko' : 'hurt';
+          case 'stunned': return 'dizzy';
+          case 'ledge': return 'stance';
+        }
+        return VIDLE[Math.floor((time + f.slot * 17) / 9) % VIDLE.length];
+      },
+    },
   };
   S.sets = SETS;
 
-  for (const [id, set] of Object.entries(SETS)) for (const fr of set.frames) S.image(`img/${id}/${fr}.png`);
+  const path = (id, name) => `img/${id}/${name}.${SETS[id].ext || 'png'}`;
+  for (const [id, set] of Object.entries(SETS)) for (const fr of set.frames) S.image(path(id, fr));
 
   function scaleOf(set, name) {
     if (typeof set.scale === 'number') return set.scale;
     if (set.scale[name] != null) return set.scale[name];
-    for (const k of ['cast', 'orb', 'rec', 'ult', 'c']) if (name.startsWith(k)) return set.scale[k];
-    return set.scale.idle;
+    // prefixo mais longo que combina (ex.: 'vwin' antes de 'v')
+    let best = null;
+    for (const k of Object.keys(set.scale)) if (name.startsWith(k) && (!best || k.length > best.length)) best = k;
+    if (best) return set.scale[best];
+    return set.scale.default != null ? set.scale.default : set.scale.idle;
   }
 
   // desenha um quadro com os pés (ponto de apoio) em (x, y)
   function drawFrame(ctx, id, name, x, y, rot, mul, h) {
-    const im = cache[`img/${id}/${name}.png`];
+    if (SETS[id].alias && SETS[id].alias[name]) name = SETS[id].alias[name];
+    const im = cache[path(id, name)];
     const m = RR.spriteData[id] && RR.spriteData[id][name];
     if (!ready(im) || !m) return;
     const s = scaleOf(SETS[id], name) * (mul || 1);
@@ -220,7 +274,10 @@
     const st = f.state, d = f.def;
 
     // transição entre poses: a pose anterior some aos poucos por cima da nova
-    if (p.frame !== mo.cur) {
+    if (p.frame !== mo.cur && /^v[a-z]+\d\d$/.test(p.frame) && p.frame.slice(0, -2) === String(mo.cur).slice(0, -2)) {
+      mo.cur = p.frame;
+      mo.blend = 1;
+    } else if (p.frame !== mo.cur) {
       const idleSwap = /^idle/.test(p.frame) && /^idle/.test(mo.cur);
       const run = /^run/.test(p.frame) && /^run/.test(mo.cur);
       mo.prev = mo.cur;
@@ -313,7 +370,7 @@
   S.pose = function (f, p, time) {
     const set = SETS[f.def.sprite];
     let fr, rot = 0;
-    if (f.isWinner && RR.game && RR.game.phase === 'ending' && RR.game.endT < 170 && f.grounded) fr = 'win';
+    if (f.isWinner && RR.game && RR.game.phase === 'ending' && RR.game.endT < 170 && f.grounded) fr = set.winFrame ? set.winFrame(time) : 'win';
     else if (f.state === 'attack') [fr, rot] = moveFrame(set, f);
     else fr = set.pose(f, time) || set.idle;
     p.frame = fr;
@@ -366,7 +423,7 @@
   S.drawPortrait = function (ctx, d, cx, cy, r) {
     const set = d.sprite && SETS[d.sprite];
     if (!set || !set.portrait) return false;
-    const im = cache[`img/${d.sprite}/${set.portrait}.png`];
+    const im = cache[path(d.sprite, set.portrait)];
     if (!ready(im)) return true;
     const s = (r * 2.3) / Math.max(im.naturalWidth, im.naturalHeight);
     ctx.drawImage(im, cx - im.naturalWidth * s * 0.5, cy - im.naturalHeight * s * 0.42, im.naturalWidth * s, im.naturalHeight * s);

@@ -328,9 +328,80 @@
     }),
   };
 
+  // ---------------- LUNARA: guardiã das marés (Câncer), água — sprites (parte tirada de vídeo) ----------------
+  C.lunara = {
+    id: 'lunara', name: 'Lunara', title: 'Guardiã das Marés', arche: 'Tanque', sign: '♋',
+    sprite: 'lunara',
+    color: '#3db4ff', color2: '#ffb347', dark: '#0c2f5c', fxColor: '#8fdcff',
+    alts: [{ color: '#7f8cff', color2: '#ffd166', dark: '#1a1f5c' }],
+    w: 64, h: 70, weight: 118, walk: 4.6, air: 4.2, airAccel: 0.5, jump: 15.5, djump: 14.5, jumps: 2,
+    grav: 0.95, fall: 14.5, ff: 20.5,
+    stats: { Velocidade: 2, Força: 4, Peso: 5, Alcance: 3 },
+    skills: [
+      { key: 'A', name: 'Garras da Maré', desc: 'Combo de três golpes rápidos com as pinças.' },
+      { key: 'B', name: 'Orbe Abissal', desc: 'Dispara uma esfera de água pressurizada.' },
+      { key: '↑B', name: 'Jato Lunar', desc: 'Uma coluna de água a lança para cima.' },
+      { key: 'ULT', name: 'Imperatriz do Oceano', desc: 'Vira uma criatura aquática gigante que golpeia a arena com ondas.' },
+    ],
+    ai: { pref: 85, range: 105, specialRange: 520, ultRange: 320 },
+    moves: Object.assign(basics({ reach: 84, pow: 1.0, spd: 1, h: 70, w: 64, fx: 'water' }), {
+      special: {
+        name: 'Orbe Abissal', startup: 14, active: 1, recovery: 18, cooldown: 45, air: true, sfx: 'ice',
+        onFrame(f, g, t) {
+          if (t === 14)
+            g.spawnProjectile(f, {
+              type: 'orb', anim: ['orbA', 'orbB'], scale: 0.62,
+              x: f.x + f.facing * 56, y: f.y - f.h * 0.5, vx: f.facing * 10,
+              w: 46, h: 46, life: 70, fx: 'water',
+              hit: hb(0, 0, 0, 0, 10, 7, 11, 35, { fx: 'water' }),
+            });
+        },
+      },
+      recovery: {
+        name: 'Jato Lunar', startup: 6, active: 20, recovery: 10, helpless: true, air: true, lc: true, landLag: 14,
+        grav: 0.4, noDrift: true, armor: [1, 12], sfx: 'wind',
+        onFrame(f, g, t) {
+          if (t === 6) {
+            f.vy = -21;
+            f.vx = f.inp.mx * 3;
+            g.burst(f.x, f.y, 'water', 16, 9);
+          }
+          if (t > 6 && t < 26 && t % 2 === 0) g.burst(f.x, f.y + 10, 'water', 2);
+        },
+        hits: [
+          hb(0, -20, 90, 120, 3, 4, 2, 88, { fx: 'water', multi: 6, t1: 14 }),
+          hb(0, -40, 100, 120, 7, 9, 12, 82, { fx: 'water', t0: 14, group: 1 }),
+        ],
+      },
+      ult: {
+        name: 'Imperatriz do Oceano', startup: 18, active: 36, recovery: 24, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 34], sfx: 'ult',
+        onFrame(f, g, t) {
+          if (t === 1) {
+            f.vx = 0;
+            f.vy = 0;
+          }
+          if (t === 18) {
+            g.flashScreen('#8fdcff', 0.45);
+            g.shake = 16;
+          }
+          if (t > 18 && t < 54 && t % 3 === 0) g.burst(f.x + U_rand(-280, 280), f.y - U_rand(0, 160), 'water', 2, 8);
+          if (t === 46) {
+            g.shake = 26;
+            RR.audio.play('heavyhit');
+          }
+        },
+        hits: [
+          hb(0, -80, 560, 220, 3, 3, 1, 65, { fx: 'water', multi: 6, radial: true, t1: 26 }),
+          hb(0, -80, 600, 240, 13, 6, 20, 45, { fx: 'water', t0: 26, group: 1, radial: true }),
+        ],
+      },
+    }),
+  };
+
   function U_rand(a, b) {
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['solkar', 'astrael', 'noxara', 'vex'];
+  C.list = ['lunara', 'solkar', 'astrael', 'noxara', 'vex'];
 })(window.RR);

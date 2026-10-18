@@ -13,6 +13,7 @@
     light: ['#ffffff', '#9fd8ff', '#4dabff'],
     shadow: ['#ffd6f5', '#ff5fd2', '#8f3bff'],
     twin: ['#ffffff', '#4dabff', '#ff5fd2'],
+    water: ['#ffffff', '#8fdcff', '#3db4ff'],
   };
   RR.FX_COLORS = FX_COLORS;
   const PCOLORS = ['#ff4d6d', '#4dabff', '#ffd23f', '#7cff6b'];

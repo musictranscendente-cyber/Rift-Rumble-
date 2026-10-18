@@ -34,6 +34,7 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 
 | Lutador | Estilo | A | B | ↑B | Ultimate |
 |---|---|---|---|---|---|
+| **Lunara** ♋ | Tanque: lenta, forte e muito pesada | Garras da Maré | Orbe Abissal | Jato Lunar | Imperatriz do Oceano |
 | **Solkar** ♌ | Rei guerreiro: forte e pesado | Garras Solares | Rugido Solar (com armadura) | Ascensão do Leão | Coroa da Estrela |
 | **Astrael** ♐ | Arqueiro estelar (alcance 5) | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
 | **Noxara** ♏ | Assassina ágil (veneno) | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
@@ -65,6 +66,10 @@ release/        APK gerado
 As folhas de personagem ficam em `art/source/` (fundo verde). `python3 tools/extract-vex.py` remove o verde, recorta cada quadro (`web/img/vex/`), calcula o ponto de apoio dos pés e gera `web/js/sprites-vex.js`. Em `web/js/sprites.js` fica qual quadro usar em cada estado/golpe e a escala de cada linha da folha. Plataformas com `y2` em `stages.js` são rampas (altura `y` na esquerda e `y2` na direita). A logo (`art/source/logo-icone.png`) gera os ícones do app inteira, sem cortar. A arena vira `web/img/arena-gemeos.webp`; a colisão das plataformas está em `web/js/stages.js` (1 px da imagem = 0,8 unidade do mundo).
 
 Personagens novos seguem o modelo da Noxara: folha em grade (`tools/extract-noxara.py` + `tools/sprite_tools.py`) e uma entrada em `SETS` no `sprites.js` dizendo qual quadro usar em cada estado e golpe.
+
+### Animações a partir de vídeo
+
+A Lunara usa quadros extraídos de vídeos curtos (fundo verde, câmera parada, personagem no lugar): `tools/extract-lunara.py` tira os quadros com ffmpeg, remove o verde, usa o mesmo recorte e ponto de apoio para o vídeo inteiro e salva em WebP. Em `sprites.js`, `{ track: [...] }` toca a sequência ao longo do golpe inteiro.
 
 ### Criar um personagem novo
 

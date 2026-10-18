@@ -57,7 +57,24 @@
     },
   };
 
-  S.list = ['gemeos', 'ruinas', 'vulcao'];
+  // Arena da Noxara: plataformas pintadas + fundo cósmico separado (1 px = 0,72 unidade)
+  S.escorpiao = {
+    id: 'escorpiao', name: 'Abismo do Escorpião', desc: 'Arena da Noxara: ruínas no vazio cósmico.',
+    solids: [{ x: -531, y: 0, w: 1062, h: 210 }],
+    plats: [
+      { x: -495, y: -132, w: 266 },
+      { x: 189, y: -132, w: 266 },
+      { x: -153, y: -171, w: 266 },
+    ],
+    blast: { left: -1250, right: 1250, top: -900, bottom: 620 },
+    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
+    respawn: { y: -450, xs: [-200, 200, -70, 70] },
+    image: { src: 'img/arena-escorpiao.webp', x: -621, y: -442, w: 1204, h: 678 },
+    bg: { src: 'img/arena-escorpiao-fundo.webp', parallax: 0.04 },
+    theme: { sky: ['#12051f', '#3a0f5c', '#8a2bb8'], platGlow: '#d24dff', accent: '#d24dff' },
+  };
+
+  S.list = ['escorpiao', 'gemeos', 'ruinas', 'vulcao'];
 
   S.prepare = function (st) {
     st.ledges = [];

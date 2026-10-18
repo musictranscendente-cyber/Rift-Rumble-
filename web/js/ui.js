@@ -42,6 +42,8 @@
   function buildSelect() {
     const grid = $('#charGrid');
     grid.innerHTML = '';
+    const n = RR.chars.list.length;
+    grid.style.setProperty('--cols', n > 5 ? Math.ceil(n / 2) : n);
     for (const id of RR.chars.list) {
       const d = RR.chars[id];
       const card = document.createElement('div');
@@ -132,17 +134,20 @@
     const W = cv.width, H = cv.height, th = st.theme;
     if (st.image) {
       const im = RR.sprites.image(st.image.src);
+      const sky = st.bg && RR.sprites.image(st.bg.src);
       const paint = () => {
         const day = ctx.createLinearGradient(0, 0, W, 0);
         day.addColorStop(0.5, '#5aa8f0');
         day.addColorStop(0.5, '#2a1a6e');
-        ctx.fillStyle = day;
+        ctx.fillStyle = st.bg ? th.sky[1] : day;
         ctx.fillRect(0, 0, W, H);
+        if (sky && RR.sprites.ready(sky)) ctx.drawImage(sky, 0, 0, W, H);
         const s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.05;
         ctx.drawImage(im, (W - im.naturalWidth * s) / 2, (H - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s);
       };
       if (RR.sprites.ready(im)) paint();
       else im.addEventListener('load', paint);
+      if (sky) sky.addEventListener('load', paint);
       return;
     }
     const g = ctx.createLinearGradient(0, 0, 0, H);

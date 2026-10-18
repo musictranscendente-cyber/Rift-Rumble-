@@ -396,9 +396,80 @@
     }),
   };
 
+  // ---------------- NOXARA: assassina (Escorpião), veneno — arte em sprites ----------------
+  const POISON = { n: 3, dmg: 1, every: 40 };
+  C.noxara = {
+    id: 'noxara', name: 'Noxara', title: 'Assassina do Escorpião', arche: 'Assassina', sign: '♏',
+    sprite: 'noxara',
+    color: '#d24dff', color2: '#ff5fd2', dark: '#2a0f33', fxColor: '#e07bff',
+    alts: [{ color: '#ff5fd2', color2: '#d24dff', dark: '#33102a' }],
+    w: 54, h: 74, weight: 82, walk: 7.8, air: 6.1, airAccel: 0.78, jump: 17.5, djump: 16.5, jumps: 2,
+    grav: 0.9, fall: 13.5, ff: 20,
+    stats: { Velocidade: 5, Força: 3, Peso: 2, Alcance: 4 },
+    skills: [
+      { key: 'A', name: 'Combo Ferrão', desc: 'Três golpes rápidos com as garras e a cauda.' },
+      { key: 'B', name: 'Lâmina Venenosa', desc: 'Lâmina de energia magenta que envenena (dano extra aos poucos).' },
+      { key: '↑B', name: 'Espiral do Escorpião', desc: 'Gira a cauda e se impulsiona para cima.' },
+      { key: 'ULT', name: 'Eclipse Venenoso', desc: 'Invoca um escorpião gigante de energia que ataca à frente.' },
+    ],
+    ai: { pref: 85, range: 100, specialRange: 520, ultRange: 380 },
+    moves: Object.assign(basics({ reach: 76, pow: 0.95, spd: -1, h: 74, w: 54, fx: 'shadow' }), {
+      special: {
+        name: 'Lâmina Venenosa', startup: 10, active: 1, recovery: 16, cooldown: 38, air: true, sfx: 'dash',
+        onFrame(f, g, t) {
+          if (t === 10)
+            g.spawnProjectile(f, {
+              type: 'orb', anim: ['blade1', 'blade2'], scale: 0.78, hitFx: 'impact',
+              x: f.x + f.facing * 44, y: f.y - f.h * 0.5, vx: f.facing * 13,
+              w: 50, h: 28, life: 62, fx: 'shadow',
+              hit: hb(0, 0, 0, 0, 5, 4, 5, 20, { fx: 'shadow', poison: POISON }),
+            });
+        },
+      },
+      recovery: {
+        name: 'Espiral do Escorpião', startup: 4, active: 22, recovery: 10, helpless: true, air: true, lc: true, landLag: 12,
+        grav: 0, noDrift: true, sfx: 'wind',
+        onFrame(f, g, t) {
+          if (t >= 4 && t < 26) {
+            f.vy = -14 + (t - 4) * 0.3;
+            f.vx = f.inp.mx * 4.5;
+            if (t % 3 === 0) g.burst(f.x, f.y - 20, 'shadow', 2);
+          }
+        },
+        hits: [
+          hb(0, -40, 92, 104, 2, 4, 2, 85, { fx: 'shadow', multi: 5, radial: true, t1: 18 }),
+          hb(0, -44, 100, 110, 6, 8, 11, 78, { fx: 'shadow', t0: 18, group: 1 }),
+        ],
+      },
+      ult: {
+        name: 'Eclipse Venenoso', startup: 18, active: 36, recovery: 22, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 30], sfx: 'ult',
+        onFrame(f, g, t) {
+          if (t === 1) {
+            f.vx = 0;
+            f.vy = 0;
+          }
+          if (t === 18) {
+            g.shake = 16;
+            g.flashScreen('#d24dff', 0.4);
+          }
+          if (t > 18 && t < 54 && t % 3 === 0) g.burst(f.x + f.facing * U_rand(40, 360), f.y - U_rand(20, 200), 'shadow', 2, 8);
+          if (t === 46) {
+            g.shake = 22;
+            RR.audio.play('heavyhit');
+          }
+        },
+        hits: [
+          hb(150, -90, 440, 240, 2.5, 3, 1, 60, { fx: 'shadow', multi: 6, t1: 28 }),
+          hb(170, -90, 480, 260, 12, 5, 19, 40, { fx: 'shadow', t0: 28, group: 1, poison: { n: 5, dmg: 1.5, every: 30 } }),
+        ],
+      },
+    }),
+  };
+
   function U_rand(a, b) {
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['vex', 'kael', 'zyra', 'gorak', 'lumi'];
+  C.list = ['vex', 'noxara', 'kael', 'zyra', 'gorak', 'lumi'];
 })(window.RR);

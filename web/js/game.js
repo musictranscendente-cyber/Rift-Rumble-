@@ -186,6 +186,7 @@
       b.lastHitBy = a;
       b.lastHitFrame = this.frame;
       b.flash = 8;
+      if (h.poison) b.poison = { n: h.poison.n, dmg: h.poison.dmg, every: h.poison.every, t: h.poison.every, by: a };
       const kb = this.knockback(h, b.percent, b.def.weight);
       this.burst(cx, cy, h.fx || 'neutral', 4 + Math.min(14, h.dmg | 0), 6 + kb * 0.15);
       this.fx.push({ type: 'impact', x: cx, y: cy, life: 10, max: 10, r: 14 + Math.min(40, kb), color: (FX_COLORS[h.fx] || FX_COLORS.neutral)[0] });
@@ -279,6 +280,7 @@
           if (U.overlap(this.projRect(p), s)) {
             p.dead = true;
             this.burst(p.x, p.y, p.fx, 6);
+            this.projFx(p);
           }
         }
         if (p.t % 2 === 0) this.trail(p);
@@ -301,10 +303,16 @@
           p.hitLog.set(key, this.frame);
           if (!p.pierce) {
             p.dead = true;
+            this.projFx(p);
             return;
           }
         }
       }
+    }
+
+    // explosão desenhada (sprite) quando o projétil acerta algo
+    projFx(p) {
+      if (p.hitFx) this.fx.push({ type: 'spriteFx', id: p.owner.def.sprite, name: p.hitFx, x: p.x, y: p.y, life: 14, max: 14, scale: p.scale });
     }
 
     // ---------------- Ultimate ----------------
@@ -481,7 +489,7 @@
         ty = f.y - f.h * 0.6;
         tz = 1.5;
       } else {
-        let minX = st.cx - 380, maxX = st.cx + 380, minY = -260, maxY = 60;
+        let minX = st.cx - 320, maxX = st.cx + 320, minY = -240, maxY = 60;
         for (const f of this.fighters) {
           if (f.state === 'dead' || f.state === 'out') continue;
           minX = Math.min(minX, f.x - 60);
@@ -498,7 +506,7 @@
         const vw = RR.view ? RR.view.w / RR.view.base : 1280;
         const vh = RR.view ? RR.view.h / RR.view.base : 720;
         tz = Math.min(vw / (maxX - minX + padX * 2), vh / (maxY - minY + padY * 2));
-        tz = U.clamp(tz, 0.42, 1.05);
+        tz = U.clamp(tz, 0.42, 1.25);
         tx = (minX + maxX) / 2;
         ty = (minY + maxY) / 2 - 10;
       }

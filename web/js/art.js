@@ -786,6 +786,7 @@
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
+    if (st.bg) return drawImageSky(ctx, g, W, H, st.bg);
     if (th.split) return drawSplitSky(ctx, g, W, H, time, dc);
     if (!th.lava) {
       for (const s of dc.stars) {
@@ -912,6 +913,20 @@
       ctx.stroke();
     }
   };
+
+  // fundo pintado cobrindo a tela, com leve paralaxe
+  function drawImageSky(ctx, g, W, H, bg) {
+    const im = RR.sprites.image(bg.src);
+    if (!RR.sprites.ready(im)) return;
+    const s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.12;
+    const base = RR.view ? RR.view.base : 1;
+    const ox = -g.cam.x * base * (bg.parallax || 0.04);
+    const oy = -(g.cam.y + 150) * base * (bg.parallax || 0.04);
+    ctx.drawImage(im, (W - im.naturalWidth * s) / 2 + ox, (H - im.naturalHeight * s) / 2 + oy, im.naturalWidth * s, im.naturalHeight * s);
+    // escurece o fundo para os lutadores se destacarem
+    ctx.fillStyle = 'rgba(10,3,24,0.4)';
+    ctx.fillRect(0, 0, W, H);
+  }
 
   // céu metade dia (esquerda) e metade noite estrelada (direita), dividido no centro da arena
   function drawSplitSky(ctx, g, W, H, time, dc) {

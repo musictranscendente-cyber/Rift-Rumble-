@@ -60,6 +60,7 @@
       this.lastKb = 0;
       this.anim = { run: 0, squash: 1, spin: 0 };
       this.mvar = {};
+      this.poison = null;
       this.hitLog.clear();
     }
 
@@ -115,6 +116,7 @@
       if (this.dropT > 0) this.dropT--;
       this.jumpT++;
       this.anim.squash += (1 - this.anim.squash) * 0.25;
+      if (this.poison) this.tickPoison(g);
 
       switch (this.state) {
         case 'dead':
@@ -158,6 +160,19 @@
 
       this.applyControl(inp);
       this.applyPhysics(g);
+    }
+
+    // veneno: dano extra aos poucos
+    tickPoison(g) {
+      const p = this.poison;
+      if (!this.alive || this.state === 'respawn') return (this.poison = null);
+      if (this.stateT % 9 === 0) g.burst(this.x, this.y - this.h * 0.6, 'shadow', 1, 2);
+      if (--p.t > 0) return;
+      this.percent = Math.min(999, this.percent + p.dmg);
+      if (p.by) p.by.dmgDealt += p.dmg;
+      g.addText(this.x, this.y - this.h - 10, '+' + p.dmg + '%', '#e07bff');
+      p.t = p.every;
+      if (--p.n <= 0) this.poison = null;
     }
 
     // ---------- Ações a partir de estados livres ----------

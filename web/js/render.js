@@ -195,7 +195,7 @@
       }
     }
     // escudo
-    if (f.state === 'shield') {
+    if (f.state === 'shield' && !RR.sprites.hasShieldFrame(d)) {
       const r = 22 + (f.shieldHP / 100) * (f.h * 0.42);
       ctx.fillStyle = U.rgba(f.pcolor, 0.32);
       ctx.strokeStyle = U.rgba('#ffffff', 0.7);
@@ -275,6 +275,8 @@
       } else if (p.type === 'text') {
         ctx.globalAlpha = Math.min(1, k * 2);
         text(ctx, p.text, p.x, p.y, 22, p.color);
+      } else if (p.type === 'spriteFx') {
+        RR.sprites.drawFx(ctx, p);
       } else if (p.type === 'impact') {
         RR.art.drawImpact(ctx, p.x, p.y, p.r, p.life / p.max, p.color);
       } else if (p.type === 'ko') {
@@ -346,9 +348,11 @@
       ctx.fillStyle = f.def.dark;
       ctx.fill();
       ctx.clip();
-      ctx.translate(x + 26, y + 27 + f.def.h * 0.55 * 0.72);
-      ctx.scale(0.55, 0.55);
-      RR.art.drawModel(ctx, f.def, { legF: 0, legB: 0, armF: 0.3, armB: -0.3, lean: 0, bob: 0, crouch: 0, sx: 1, sy: 1, eyes: 'open' }, time);
+      if (!RR.sprites.drawPortrait(ctx, f.def, x + 26, y + 27, 19)) {
+        ctx.translate(x + 26, y + 27 + f.def.h * 0.55 * 0.72);
+        ctx.scale(0.55, 0.55);
+        RR.art.drawModel(ctx, f.def, { legF: 0, legB: 0, armF: 0.3, armB: -0.3, lean: 0, bob: 0, crouch: 0, sx: 1, sy: 1, eyes: 'open' }, time);
+      }
       ctx.restore();
       text(ctx, f.label, x + 26, y + ch - 6, 11, f.pcolor);
       // porcentagem

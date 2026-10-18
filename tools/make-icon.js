@@ -35,9 +35,9 @@ const sizes = { mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxxhdpi: 192 };
         ctx.lineTo(256 + Math.cos(a) * 340, 290 + Math.sin(a) * 340);
         ctx.stroke();
       }
-      ctx.translate(250, 440);
-      ctx.scale(3.4, 3.4);
-      RR.render.drawModel(ctx, RR.chars.kael, { legF: 0.6, legB: -0.5, armF: 2.6, armB: -1.2, lean: 0.1, bob: 0, crouch: 0, sx: 1, sy: 1, eyes: 'open' }, 0);
+      ctx.translate(230, 470);
+      ctx.scale(3.6, 3.6);
+      RR.art.drawModel(ctx, RR.chars.kael, { legF: 0.6, legB: -0.5, armF: 2.6, armB: -1.2, lean: 0.1, bob: 0, crouch: 0, sx: 1, sy: 1, eyes: 'open', elbow: 0.05, glow: true }, 0);
       ctx.restore();
       ctx.lineWidth = 14;
       ctx.strokeStyle = '#ffd166';

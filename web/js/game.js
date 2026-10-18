@@ -185,6 +185,7 @@
       b.flash = 8;
       const kb = this.knockback(h, b.percent, b.def.weight);
       this.burst(cx, cy, h.fx || 'neutral', 4 + Math.min(14, h.dmg | 0), 6 + kb * 0.15);
+      this.fx.push({ type: 'impact', x: cx, y: cy, life: 10, max: 10, r: 14 + Math.min(40, kb), color: (FX_COLORS[h.fx] || FX_COLORS.neutral)[0] });
       this.addText(cx, cy - 30, Math.round(h.dmg) + '%', '#fff');
       if (a.isHuman || b.isHuman) U.vibrate(Math.min(90, 15 + h.dmg * 3));
 

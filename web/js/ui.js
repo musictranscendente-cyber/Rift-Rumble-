@@ -28,7 +28,7 @@
 
   // ---------------- Partida demo no fundo dos menus ----------------
   function startDemo() {
-    const ids = RR.chars.list.slice().sort(() => Math.random() - 0.5);
+    const ids = RR.chars.list.slice().sort(() => Math.random() - 0.5).slice(0, 4);
     RR.match = new RR.Match({
       mode: 'time', time: 99999, stageId: U.pick(RR.stages.list),
       players: ids.map((id) => ({ charId: id, type: 'cpu', level: 2 })),
@@ -130,6 +130,21 @@
     RR.stages.prepare(st);
     const ctx = cv.getContext('2d');
     const W = cv.width, H = cv.height, th = st.theme;
+    if (st.image) {
+      const im = RR.sprites.image(st.image.src);
+      const paint = () => {
+        const day = ctx.createLinearGradient(0, 0, W, 0);
+        day.addColorStop(0.5, '#5aa8f0');
+        day.addColorStop(0.5, '#2a1a6e');
+        ctx.fillStyle = day;
+        ctx.fillRect(0, 0, W, H);
+        const s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.05;
+        ctx.drawImage(im, (W - im.naturalWidth * s) / 2, (H - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s);
+      };
+      if (RR.sprites.ready(im)) paint();
+      else im.addEventListener('load', paint);
+      return;
+    }
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, th.sky[0]);
     g.addColorStop(0.6, th.sky[1]);
@@ -307,7 +322,7 @@
         `<span class="nm"><b>${f.def.name}</b><small>${f.label}</small></span><span class="v">${f.kos}</span><span class="v">${f.falls}</span><span class="v">${Math.round(f.dmgDealt)}%</span>`
       );
       tbl.appendChild(row);
-      RR.render.portrait(cv, f.def, 0);
+      RR.render.portrait(cv, f.def, 0, 'win');
     });
     show('results');
     RR.audio.music(0.2);

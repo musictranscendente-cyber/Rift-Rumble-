@@ -712,6 +712,7 @@
 
   // desenha o personagem com os pés em (0,0), olhando para +x
   A.drawModel = function (ctx, d, p, time, tint) {
+    if (d.sprite) return RR.sprites.draw(ctx, d, p, time || 0, tint);
     const C = tint ? (c) => mix(c, tint, tint === '#ffffff' ? 0.8 : 0.55) : (c) => c;
     ctx.save();
     ctx.rotate(p.lean || 0);
@@ -785,6 +786,7 @@
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
+    if (th.split) return drawSplitSky(ctx, g, W, H, time, dc);
     if (!th.lava) {
       for (const s of dc.stars) {
         ctx.fillStyle = `rgba(255,255,255,${0.35 + 0.45 * Math.sin(time * 0.04 + s.p)})`;
@@ -911,6 +913,43 @@
     }
   };
 
+  // céu metade dia (esquerda) e metade noite estrelada (direita), dividido no centro da arena
+  function drawSplitSky(ctx, g, W, H, time, dc) {
+    const base = RR.view ? RR.view.base * g.cam.zoom : 1;
+    const sx = (0 - g.cam.x) * base + W / 2; // x na tela do centro da arena
+    const day = ctx.createLinearGradient(0, 0, 0, H);
+    day.addColorStop(0, '#2f7fe0');
+    day.addColorStop(0.6, '#8fd0ff');
+    day.addColorStop(1, '#e6f6ff');
+    ctx.fillStyle = day;
+    ctx.fillRect(0, 0, Math.max(0, sx), H);
+    const night = ctx.createLinearGradient(0, 0, 0, H);
+    night.addColorStop(0, '#0d0a2e');
+    night.addColorStop(0.6, '#2a1a6e');
+    night.addColorStop(1, '#6a3ab8');
+    ctx.fillStyle = night;
+    ctx.fillRect(Math.max(0, sx), 0, W, H);
+    const cx = g.cam.x * (RR.view ? RR.view.base : 1);
+    for (const c of dc.clouds) {
+      const x = (((c.x * W - cx * 0.05 + time * c.sp) % W) + W) % W;
+      if (x + 100 < sx) puff(ctx, x, c.y * H + H * 0.3, c.s * (H / 380), 'rgba(255,255,255,0.55)', null);
+    }
+    for (const s of dc.stars) {
+      const x = ((s.x * W - cx * 0.02) % W + W) % W;
+      if (x > sx) {
+        ctx.fillStyle = `rgba(255,230,255,${0.4 + 0.5 * Math.sin(time * 0.05 + s.p)})`;
+        ctx.fillRect(x, s.y * H, s.s * 1.3, s.s * 1.3);
+      }
+    }
+    // costura de luz entre os dois lados
+    const seam = ctx.createLinearGradient(sx - 30, 0, sx + 30, 0);
+    seam.addColorStop(0, 'rgba(159,216,255,0)');
+    seam.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+    seam.addColorStop(1, 'rgba(255,95,210,0)');
+    ctx.fillStyle = seam;
+    ctx.fillRect(sx - 30, 0, 60, H);
+  }
+
   // ---------------- Palco (coordenadas do mundo) ----------------
   function islandPath(ctx, s) {
     ctx.beginPath();
@@ -976,6 +1015,11 @@
 
   A.drawStage = function (ctx, g, time) {
     const st = g.stage, th = st.theme;
+    if (st.image) {
+      const im = RR.sprites.image(st.image.src);
+      if (RR.sprites.ready(im)) ctx.drawImage(im, st.image.x, st.image.y, st.image.w, st.image.h);
+      return;
+    }
     const lava = !!th.lava;
     for (const s of st.solids) {
       // decoração atrás dos lutadores
@@ -1133,6 +1177,7 @@
 
   // ---------------- Projéteis ----------------
   A.drawProjectile = function (ctx, p, g, time) {
+    if (p.type === 'orb') return RR.sprites.drawOrb(ctx, p, time);
     ctx.save();
     if (p.type === 'fireball') {
       const r = 16 + Math.sin(time * 0.7) * 1.5;

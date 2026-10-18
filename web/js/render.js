@@ -136,6 +136,7 @@
     }
     if (f.invuln > 0 && f.state !== 'respawn' && (f.invuln >> 2) % 2 === 0) p.alpha *= 0.45;
     if (f.state === 'respawn') p.alpha = 0.75 + 0.25 * Math.sin(time * 0.2);
+    if (f.def.sprite) RR.sprites.pose(f, p, time);
     // piscada
     if (p.eyes === 'open' && (time + f.slot * 37) % 180 < 6) p.eyes = 'blink';
     return p;
@@ -205,7 +206,7 @@
       ctx.stroke();
     }
     // golpe: rastro do ataque
-    if (f.state === 'attack' && f.move.hits) {
+    if (f.state === 'attack' && f.move.hits && !d.sprite) {
       const m = f.move, t = f.moveT - m.startup;
       if (t >= 0 && t < m.active + 2) {
         const col = (RR.FX_COLORS[(m.hits[0] && m.hits[0].fx) || 'neutral'] || RR.FX_COLORS.neutral)[1];
@@ -512,7 +513,7 @@
   };
 
   // retrato para menus
-  R.portrait = function (canvas, def, time) {
+  R.portrait = function (canvas, def, time, frame) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
@@ -520,7 +521,7 @@
     const s = (h * 0.72) / def.h;
     ctx.translate(w / 2, h * 0.9);
     ctx.scale(s, s);
-    RR.art.drawModel(ctx, def, { legF: 0.25, legB: -0.25, armF: 1.2, armB: -0.5, lean: 0, bob: Math.sin((time || 0) * 0.08) * 2, crouch: 0, sx: 1, sy: 1, eyes: 'open' }, time || 0);
+    RR.art.drawModel(ctx, def, { legF: 0.25, legB: -0.25, armF: 1.2, armB: -0.5, lean: 0, bob: Math.sin((time || 0) * 0.08) * 2, crouch: 0, sx: 1, sy: 1, eyes: 'open', frame }, time || 0);
     ctx.restore();
   };
 })(window.RR);

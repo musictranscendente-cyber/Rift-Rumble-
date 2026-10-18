@@ -30,12 +30,15 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 
 | Lutador | Estilo | A | B | ↑B | Ultimate |
 |---|---|---|---|---|---|
+| **Vex** ♊ | Gêmeos (luz e sombra) — arte em sprites | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
 | **Kael** | Equilibrado (fogo) | Lâmina Ígnea | Bola de Fogo | Ascensão Flamejante | Inferno |
 | **Zyra** | Rápida, leve (vento) | Lâminas Gêmeas | Corte do Vento | Tornado | Tempestade de Lâminas |
 | **Gorak** | Pesado, forte (pedra) | Punhos de Rocha | Tremor (blindado) | Salto Rochoso | Meteoro |
 | **Lumi** | À distância (gelo) | Cajado Cristal | Estilhaço de Gelo | Teleporte | Raio Prismático |
 
-Arenas: **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
+Arenas: **Santuário dos Gêmeos** (arena do Vex, arte pintada), **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
+
+Vex é o primeiro lutador do elenco do zodíaco (`art/source/roster-zodiaco.jpg`); os outros 4 ainda usam a arte desenhada em código.
 
 ## Estrutura
 
@@ -53,6 +56,10 @@ android/        projeto Android (Activity com WebView, manifesto, ícones)
 tools/          build do APK, simulação de balanceamento e teste no navegador
 release/        APK gerado
 ```
+
+### Arte em sprites (personagens do zodíaco)
+
+As folhas de personagem ficam em `art/source/` (fundo verde). `python3 tools/extract-vex.py` remove o verde, recorta cada quadro (`web/img/vex/`), calcula o ponto de apoio dos pés e gera `web/js/sprites-vex.js`. Em `web/js/sprites.js` fica qual quadro usar em cada estado/golpe e a escala de cada linha da folha. A arena vira `web/img/arena-gemeos.webp`; a colisão das plataformas está em `web/js/stages.js` (1 px da imagem = 0,8 unidade do mundo).
 
 ### Criar um personagem novo
 

@@ -37,7 +37,27 @@
     },
   };
 
-  S.list = ['ruinas', 'vulcao'];
+  // Arena do Vex: imagem pintada; a colisão segue as plataformas do desenho
+  // (1 pixel da imagem = 0,8 unidade do mundo; a origem é o centro do chão principal)
+  S.gemeos = {
+    id: 'gemeos', name: 'Santuário dos Gêmeos', desc: 'Arena do Vex: metade luz, metade sombra.',
+    solids: [{ x: -492, y: 0, w: 984, h: 210 }],
+    plats: [
+      { x: -500, y: -142, w: 256 },
+      { x: 252, y: -142, w: 264 },
+      { x: -120, y: -178, w: 248 },
+    ],
+    blast: { left: -1250, right: 1250, top: -900, bottom: 640 },
+    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
+    respawn: { y: -470, xs: [-200, 200, -70, 70] },
+    image: { src: 'img/arena-gemeos.webp', x: -664, y: -530, w: 1338, h: 753 },
+    theme: {
+      sky: ['#0d0a2e', '#2a1a6e', '#5a3aa8'], split: true,
+      platGlow: '#9fd8ff', accent: '#ffd166',
+    },
+  };
+
+  S.list = ['gemeos', 'ruinas', 'vulcao'];
 
   S.prepare = function (st) {
     st.ledges = [];

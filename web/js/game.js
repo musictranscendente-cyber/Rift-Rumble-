@@ -10,6 +10,9 @@
     ice: ['#ffffff', '#9ff3ff', '#8f6bff'],
     shield: ['#ffffff', '#9fd0ff', '#4dabff'],
     neutral: ['#ffffff', '#fff3b0', '#ffd166'],
+    light: ['#ffffff', '#9fd8ff', '#4dabff'],
+    shadow: ['#ffd6f5', '#ff5fd2', '#8f3bff'],
+    twin: ['#ffffff', '#4dabff', '#ff5fd2'],
   };
   RR.FX_COLORS = FX_COLORS;
   const PCOLORS = ['#ff4d6d', '#4dabff', '#ffd23f', '#7cff6b'];

@@ -322,9 +322,83 @@
     }),
   };
 
+  // ---------------- VEX: gêmeos (Gêmeos), luz e sombra — arte em sprites ----------------
+  C.vex = {
+    id: 'vex', name: 'Vex', title: 'Gêmeos de Luz e Sombra', arche: 'Gêmeos', sign: '♊',
+    sprite: 'vex',
+    color: '#4dabff', color2: '#ff5fd2', dark: '#1d1440', fxColor: '#9fd8ff',
+    alts: [{ color: '#ff5fd2', color2: '#4dabff', dark: '#2a0f33' }],
+    w: 46, h: 80, weight: 86, walk: 7, air: 5.8, airAccel: 0.7, jump: 17.5, djump: 16, jumps: 2,
+    grav: 0.85, fall: 13, ff: 19,
+    stats: { Velocidade: 4, Força: 3, Peso: 2, Alcance: 3 },
+    skills: [
+      { key: 'A', name: 'Combo Gêmeo', desc: 'Três golpes; no 2º e 3º os dois gêmeos atacam juntos.' },
+      { key: 'B', name: 'Orbe Dual', desc: 'Alterna: orbe de luz (rápido) e orbe de sombra (forte).' },
+      { key: '↑B', name: 'Espiral Gêmea', desc: 'Os gêmeos sobem girando e puxam quem estiver perto.' },
+      { key: 'ULT', name: 'Dragões Gêmeos', desc: 'Dois dragões espirituais varrem a área ao redor.' },
+    ],
+    ai: { pref: 80, range: 90, specialRange: 560, ultRange: 260 },
+    moves: Object.assign(basics({ reach: 60, pow: 0.95, spd: -1, h: 80, w: 46, fx: 'twin' }), {
+      special: {
+        name: 'Orbe Dual', startup: 12, active: 1, recovery: 18, cooldown: 40, air: true, sfx: 'ice',
+        onStart(f) {
+          f.twinDark = !f.twinDark;
+        },
+        onFrame(f, g, t) {
+          if (t !== 12) return;
+          const dark = f.twinDark;
+          g.spawnProjectile(f, {
+            type: 'orb', sprite: dark ? 'orbB' : 'orbA', scale: dark ? 0.6 : 0.52,
+            x: f.x + f.facing * 46, y: f.y - f.h * 0.5, vx: f.facing * (dark ? 9 : 12.5),
+            w: dark ? 46 : 38, h: dark ? 46 : 38, life: dark ? 80 : 70, fx: dark ? 'shadow' : 'light',
+            hit: dark ? hb(0, 0, 0, 0, 9, 6, 9, 35, { fx: 'shadow' }) : hb(0, 0, 0, 0, 6, 4, 6, 25, { fx: 'light' }),
+          });
+        },
+      },
+      recovery: {
+        name: 'Espiral Gêmea', startup: 4, active: 24, recovery: 10, helpless: true, air: true, lc: true, landLag: 12,
+        grav: 0, noDrift: true, sfx: 'wind',
+        onFrame(f, g, t) {
+          if (t >= 4 && t < 28) {
+            f.vy = -13 + (t - 4) * 0.28;
+            f.vx = f.inp.mx * 4.8;
+            if (t % 3 === 0) g.burst(f.x, f.y - 20, t % 6 ? 'light' : 'shadow', 2);
+          }
+        },
+        hits: [
+          hb(0, -40, 96, 110, 2, 4, 2, 85, { fx: 'twin', multi: 5, radial: true, t1: 20 }),
+          hb(0, -46, 104, 116, 5, 8, 11, 80, { fx: 'twin', t0: 20, group: 1 }),
+        ],
+      },
+      ult: {
+        name: 'Dragões Gêmeos', startup: 16, active: 40, recovery: 22, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 34], sfx: 'ult',
+        onFrame(f, g, t) {
+          if (t === 1) {
+            f.vx = 0;
+            f.vy = 0;
+          }
+          if (t === 16) {
+            g.shake = 16;
+            g.flashScreen('#c9a6ff', 0.4);
+          }
+          if (t > 16 && t < 56 && t % 3 === 0) g.burst(f.x + U_rand(-200, 200), f.y - U_rand(20, 200), t % 2 ? 'light' : 'shadow', 2, 8);
+          if (t === 50) {
+            g.shake = 22;
+            RR.audio.play('heavyhit');
+          }
+        },
+        hits: [
+          hb(0, -90, 520, 260, 2.5, 3, 1, 70, { fx: 'twin', multi: 6, radial: true, t1: 32 }),
+          hb(0, -90, 560, 280, 13, 5, 19, 45, { fx: 'twin', t0: 34, group: 1, radial: true }),
+        ],
+      },
+    }),
+  };
+
   function U_rand(a, b) {
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['kael', 'zyra', 'gorak', 'lumi'];
+  C.list = ['vex', 'kael', 'zyra', 'gorak', 'lumi'];
 })(window.RR);

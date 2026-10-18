@@ -40,7 +40,7 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 | **Noxara** ♏ | Assassina ágil (veneno) | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
 | **Vex** ♊ | Gêmeos de luz e sombra | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
 
-Arenas: **Trono Solar** (Solkar: escadarias, ilhas flutuantes no meio e plataformas altas), **Observatório Celeste** (Astrael: passarelas inclinadas), **Abismo do Escorpião** (Noxara) e **Santuário dos Gêmeos** (Vex).
+Arenas: **Santuário da Maré Lunar** (Lunara: pedestal da lua no centro e rochas flutuantes em alturas diferentes), **Trono Solar** (Solkar: escadarias, ilhas flutuantes no meio e plataformas altas), **Observatório Celeste** (Astrael: passarelas inclinadas), **Abismo do Escorpião** (Noxara) e **Santuário dos Gêmeos** (Vex).
 
 Todos os lutadores e arenas usam a arte enviada (`art/source/`).
 

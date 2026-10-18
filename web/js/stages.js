@@ -84,10 +84,28 @@
     theme: { sky: ['#3a1a08', '#a4521a', '#ffd166'], platGlow: '#ffd166', accent: '#ffb000' },
   };
 
+  // Arena da Lunara: disco à beira do mar, pedestal da lua no centro e rochas flutuantes em alturas diferentes
+  S.cancer = {
+    id: 'cancer', name: 'Santuário da Maré Lunar', desc: 'Arena da Lunara: pedestal da lua e rochas com cachoeiras.',
+    solids: [{ x: -580, y: 0, w: 1160, h: 210 }],
+    plats: [
+      { x: -528, y: -280, w: 236 },
+      { x: -172, y: -124, w: 352 },
+      { x: 340, y: -340, w: 128 },
+      { x: 484, y: -216, w: 120 },
+    ],
+    blast: { left: -1350, right: 1350, top: -950, bottom: 620 },
+    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
+    respawn: { y: -480, xs: [-200, 200, -70, 70] },
+    image: { src: 'img/arena-cancer.webp', x: -668, y: -484, w: 1338, h: 753 },
+    bg: { src: 'img/arena-cancer-fundo.webp', parallax: 0.03 },
+    theme: { sky: ['#04163a', '#0b4a8a', '#5ad0ff'], platGlow: '#8fdcff', accent: '#8fdcff' },
+  };
+
   // altura da superfície da plataforma no ponto x (rampas são inclinadas)
   S.surfaceY = (p, x) => (p.y2 == null ? p.y : p.y + ((p.y2 - p.y) * Math.min(1, Math.max(0, (x - p.x) / p.w))));
 
-  S.list = ['leao', 'sagitario', 'escorpiao', 'gemeos'];
+  S.list = ['cancer', 'leao', 'sagitario', 'escorpiao', 'gemeos'];
 
   S.prepare = function (st) {
     st.ledges = [];

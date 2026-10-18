@@ -328,6 +328,8 @@
     }),
   };
 
+  const VORB = Array.from({ length: 17 }, (_, i) => 'vorb' + String(i).padStart(2, '0'));
+
   // ---------------- LUNARA: guardiã das marés (Câncer), água — sprites (parte tirada de vídeo) ----------------
   C.lunara = {
     id: 'lunara', name: 'Lunara', title: 'Guardiã das Marés', arche: 'Tanque', sign: '♋',
@@ -346,15 +348,22 @@
     ai: { pref: 85, range: 105, specialRange: 520, ultRange: 320 },
     moves: Object.assign(basics({ reach: 84, pow: 1.0, spd: 1, h: 70, w: 64, fx: 'water' }), {
       special: {
-        name: 'Orbe Abissal', startup: 24, active: 1, recovery: 6, cooldown: 45, air: true, sfx: 'ice',
+        // track de vídeo: giro, carga nas duas pinças e explosão na metade do golpe
+        name: 'Orbe Abissal', startup: 26, active: 1, recovery: 26, cooldown: 45, air: true, grav: 0.4, sfx: 'ice',
         onFrame(f, g, t) {
-          if (t === 24)
+          if (t === 8) RR.audio.play('wind');
+          if (t === 26) {
             g.spawnProjectile(f, {
-              type: 'orb', anim: ['orbA', 'orbB'], scale: 0.62,
-              x: f.x + f.facing * 56, y: f.y - f.h * 0.5, vx: f.facing * 10,
-              w: 46, h: 46, life: 70, fx: 'water',
-              hit: hb(0, 0, 0, 0, 10, 7, 11, 35, { fx: 'water' }),
+              type: 'orb', anim: VORB, animRate: 2, scale: 0.42,
+              x: f.x + f.facing * 90, y: f.y - f.h * 0.55, vx: f.facing * 11,
+              w: 58, h: 58, life: 70, fx: 'water',
+              hit: hb(0, 0, 0, 0, 11, 8, 12, 35, { fx: 'water' }),
             });
+            g.shake = 10;
+            g.ring(f.x + f.facing * 90, f.y - f.h * 0.55, '#8fdcff', 90);
+            g.burst(f.x + f.facing * 90, f.y - f.h * 0.55, 'water', 14, 10);
+            f.vx = -f.facing * 5; // recuo
+          }
         },
       },
       recovery: {

@@ -22,6 +22,8 @@ VIDEOS = {
     'vspec': ('special.mp4', 31, 85, 3),  # Orbe Abissal: carrega e dispara
     'vjump': ('jump.mp4', 40, 64, 3, 'bottom'),  # no ar: o apoio acompanha o corpo (a física já faz subir)
     'vrec': ('rec.mp4', 25, 85, 4, 'jet'),       # Jato Lunar: apoio onde o corpo encontra a coluna d'água
+    'vsp': ('special2.mp4', 7, 139, 4, 'medfoot'),          # Orbe Abissal novo: giro, carga nas duas pinças e explosão
+    'vorb': ('orb.mp4', 31, 79, 3, 'center'),    # orbe girando (projétil)
 }
 
 
@@ -45,6 +47,13 @@ def video_frames(name, file, a, b, step, mode='fixed'):
     band = ys > foot - (foot - ys.min()) * 0.15
     ax = (xs[band].mean() - x0) * R
     ay = (max(bx[3] for bx in boxes) - 4 - y0) * R
+    if mode == 'medfoot':
+        # pés: mediana da base do corpo em todos os quadros (respingos no chão não contam)
+        feet = []
+        for k in keyed:
+            ysb = np.nonzero((k[..., 3] > 200).sum(axis=1) > 25)[0]
+            feet.append(ysb.max())
+        ay = (float(np.median(feet)) - y0) * R
     w, h = round((x1 - x0) * R), round((y1 - y0) * R)
     out = {}
     for n, k in enumerate(keyed):
@@ -55,7 +64,9 @@ def video_frames(name, file, a, b, step, mode='fixed'):
         rows = np.nonzero(a.any(axis=1))[0]
         top = rows.min()
         fax, fay = ax, ay
-        if mode == 'bottom':
+        if mode == 'center':
+            fax, fay = w * 0.7, h * 0.5
+        elif mode == 'bottom':
             fay = rows.max()
         elif mode == 'jet':
             # de baixo para cima, pula a coluna estreita até chegar ao corpo largo
@@ -93,9 +104,13 @@ json.dump(manifest, open(os.path.join(OUT, 'lunara.json'), 'w'), indent=1)
 with open(os.path.join(ROOT, 'web/js/sprites-lunara.js'), 'w') as f:
     f.write('// Gerado por tools/extract-lunara.py: tamanho e ponto de apoio (pés) de cada quadro da Lunara\n')
     f.write('window.RR = window.RR || {};\nRR.spriteData = RR.spriteData || {};\nRR.spriteData.lunara = ' + json.dumps(manifest) + ';\n')
-for k in ['vjab200', 'vjab300', 'vspec00', 'vjump00', 'vjump04', 'vrec00', 'vrec08']:
+for k in ['vsp00', 'vsp16', 'vorb00']:
     print(k, manifest[k])
 print(len(manifest), 'quadros')
+
+# arena da Lunara: plataformas (sem o verde) e fundo
+key(Image.open(os.path.join(ROOT, 'art/source/arena-cancer.png'))).save(os.path.join(ROOT, 'web/img/arena-cancer.webp'), 'WEBP', quality=88, method=6)
+Image.open(os.path.join(ROOT, 'art/source/arena-cancer-fundo.png')).convert('RGB').save(os.path.join(ROOT, 'web/img/arena-cancer-fundo.webp'), 'WEBP', quality=82, method=6)
 
 # WebP com transparência: bem menor que PNG
 for f in os.listdir(OUT):

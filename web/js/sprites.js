@@ -35,8 +35,9 @@
 
   const seqNames = (prefix, n) => Array.from({ length: n }, (_, i) => prefix + String(i).padStart(2, '0'));
   const VRUN = seqNames('vrun', 12), VIDLE = seqNames('vidle', 16), VJAB = seqNames('vjab', 17), VWIN = seqNames('vwin', 21);
-  const VJAB2 = seqNames('vjab2', 19), VJAB3 = seqNames('vjab3', 23), VSPEC = seqNames('vspec', 15);
+  const VJAB2 = seqNames('vjab2', 19), VJAB3 = seqNames('vjab3', 23);
   const VJUMP = seqNames('vjump', 9).slice(1), VREC = seqNames('vrec', 16);
+  const VSP = seqNames('vsp', 34), VORB = seqNames('vorb', 17);
 
   // Configuração de cada personagem com sprites
   // scale: unidades do mundo por pixel (número, ou por quadro/prefixo quando a folha mistura tamanhos)
@@ -192,7 +193,7 @@
       shieldFrame: true,
       alias: { win: 'vwin12' },
       frames: ['stance', 'swipe', 'spin', 'up', 'wave', 'claw', 'cast', 'orbA', 'orbB', 'splash', 'jump', 'rise1', 'rise2',
-        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN, VJAB2, VJAB3, VSPEC, VJUMP, VREC),
+        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN, VJAB2, VJAB3, VJUMP, VREC, VSP, VORB),
       // cada fonte foi desenhada num tamanho: vídeo (v...), vídeo da vitória (com zoom) e folha
       scale: { vwin: 0.5, v: 0.6, default: 0.66 },
       moves: {
@@ -203,7 +204,7 @@
         downG: ['low', 'low', 'low'],
         nair: ['spin', 'wave', 'wave'],
         dair: ['fall', 'dive', 'dive'],
-        special: { track: VSPEC },
+        special: { track: VSP },
         recovery: { track: VREC },
         ult: ['u1', { seq: ['u2'] }, 'u3'],
       },
@@ -230,6 +231,7 @@
     },
   };
   S.sets = SETS;
+  S.seq = seqNames;
 
   const path = (id, name) => `img/${id}/${name}.${SETS[id].ext || 'png'}`;
   for (const [id, set] of Object.entries(SETS)) for (const fr of set.frames) S.image(path(id, fr));
@@ -439,7 +441,7 @@
   // projétil com sprite (orbes do Vex, lâminas da Noxara)
   S.drawOrb = function (ctx, p, time) {
     const dir = p.vx < 0 ? -1 : 1;
-    const name = p.anim ? p.anim[Math.floor(p.t / 4) % p.anim.length] : p.sprite;
+    const name = p.anim ? p.anim[Math.floor(p.t / (p.animRate || 4)) % p.anim.length] : p.sprite;
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.scale(dir, 1);

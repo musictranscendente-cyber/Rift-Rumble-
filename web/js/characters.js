@@ -467,10 +467,10 @@
     }),
   };
 
-  // ---------------- ALTAIR: arqueiro estelar (Sagitário) — arte em sprites ----------------
-  C.altair = {
-    id: 'altair', name: 'Altair', title: 'Arqueiro Estelar', arche: 'Arqueiro', sign: '♐',
-    sprite: 'altair',
+  // ---------------- ASTRAEL: arqueiro estelar (Sagitário) — arte em sprites ----------------
+  C.astrael = {
+    id: 'astrael', name: 'Astrael', title: 'Arqueiro Estelar', arche: 'Arqueiro', sign: '♐',
+    sprite: 'astrael',
     color: '#4dc3ff', color2: '#ffd166', dark: '#16245c', fxColor: '#7fe3ff',
     alts: [{ color: '#ffd166', color2: '#4dc3ff', dark: '#3a2a10' }],
     w: 48, h: 78, weight: 85, walk: 7, air: 5.9, airAccel: 0.68, jump: 17.5, djump: 16, jumps: 2,
@@ -540,5 +540,5 @@
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['vex', 'noxara', 'altair', 'kael', 'zyra', 'gorak', 'lumi'];
+  C.list = ['vex', 'noxara', 'astrael', 'kael', 'zyra', 'gorak', 'lumi'];
 })(window.RR);

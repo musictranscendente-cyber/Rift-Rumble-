@@ -34,7 +34,7 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 
 | Lutador | Estilo | A | B | ↑B | Ultimate |
 |---|---|---|---|---|---|
-| **Altair** ♐ | Arqueiro estelar (alcance 5) — arte em sprites | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
+| **Astrael** ♐ | Arqueiro estelar (alcance 5) — arte em sprites | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
 | **Noxara** ♏ | Assassina ágil (veneno) — arte em sprites | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
 | **Vex** ♊ | Gêmeos (luz e sombra) — arte em sprites | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
 | **Kael** | Equilibrado (fogo) | Lâmina Ígnea | Bola de Fogo | Ascensão Flamejante | Inferno |
@@ -42,9 +42,9 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 | **Gorak** | Pesado, forte (pedra) | Punhos de Rocha | Tremor (blindado) | Salto Rochoso | Meteoro |
 | **Lumi** | À distância (gelo) | Cajado Cristal | Estilhaço de Gelo | Teleporte | Raio Prismático |
 
-Arenas: **Observatório Celeste** (arena do Altair, com rampas inclinadas e plataformas em alturas diferentes), **Abismo do Escorpião** (arena da Noxara, com fundo cósmico separado), **Santuário dos Gêmeos** (arena do Vex, arte pintada), **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
+Arenas: **Observatório Celeste** (arena do Astrael, com rampas inclinadas e plataformas em alturas diferentes), **Abismo do Escorpião** (arena da Noxara, com fundo cósmico separado), **Santuário dos Gêmeos** (arena do Vex, arte pintada), **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
 
-Vex, Noxara e Altair são os primeiros lutadores do elenco do zodíaco (`art/source/roster-zodiaco.jpg`); os outros 4 ainda usam a arte desenhada em código.
+Vex, Noxara e Astrael são os primeiros lutadores do elenco do zodíaco (`art/source/roster-zodiaco.jpg`); os outros 4 ainda usam a arte desenhada em código.
 
 ## Estrutura
 

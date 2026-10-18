@@ -1,4 +1,4 @@
-# Recorta os sprites do Altair (Sagitário), a arena dele e gera os ícones do app a partir da logo.
+# Recorta os sprites do Astrael (Sagitário), a arena dele e gera os ícones do app a partir da logo.
 # Uso: python3 tools/extract-sagitario.py
 import os
 from PIL import Image
@@ -27,7 +27,7 @@ ERASE = [(1305, 200, 1372, 332)]  # bloco de pedra da pose de borda
 center = lambda w, h: (w * 0.5, h * 0.5)
 ANCHORS = {'comet': lambda w, h: (w * 0.75, h * 0.5), 'volley': lambda w, h: (w * 0.75, h * 0.5), 'face': center}
 
-m = extract(os.path.join(ROOT, 'art/source/sagitario-sheet.png'), FRAMES, os.path.join(ROOT, 'web/img/altair'), 'altair', ROOT,
+m = extract(os.path.join(ROOT, 'art/source/sagitario-sheet.png'), FRAMES, os.path.join(ROOT, 'web/img/astrael'), 'astrael', ROOT,
             erase=ERASE, anchors=ANCHORS)
 for k, v in m.items():
     print(k, v)
@@ -40,4 +40,11 @@ logo = Image.open(os.path.join(ROOT, 'art/source/logo-icone.png')).convert('RGBA
 for dpi, size in {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}.items():
     logo.resize((size, size), Image.LANCZOS).save(os.path.join(ROOT, f'android/res/mipmap-{dpi}/ic_launcher.png'), optimize=True)
 logo.resize((512, 512), Image.LANCZOS).save(os.path.join(ROOT, 'android/icon-512.png'), optimize=True)
+# ícone adaptativo (Android 8+): camada de frente de 108dp onde só o centro aparece (~72dp, recortado no
+# formato do celular). A logo ocupa esse centro e o fundo tem a cor da moldura dourada, sem placa branca.
+for dpi, size in {'mdpi': 108, 'hdpi': 162, 'xhdpi': 216, 'xxhdpi': 324, 'xxxhdpi': 432}.items():
+    fg = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    inner = round(size * 76 / 108)
+    fg.alpha_composite(logo.resize((inner, inner), Image.LANCZOS), ((size - inner) // 2, (size - inner) // 2))
+    fg.save(os.path.join(ROOT, f'android/res/mipmap-{dpi}/ic_launcher_foreground.png'), optimize=True)
 logo.resize((420, 420), Image.LANCZOS).save(os.path.join(ROOT, 'web/img/logo.webp'), 'WEBP', quality=90, method=6)

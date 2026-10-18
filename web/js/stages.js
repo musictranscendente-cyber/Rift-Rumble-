@@ -74,10 +74,10 @@
     theme: { sky: ['#12051f', '#3a0f5c', '#8a2bb8'], platGlow: '#d24dff', accent: '#d24dff' },
   };
 
-  // Arena do Altair: rampas (passarelas inclinadas) e plataformas em alturas diferentes (1 px = 0,8 unidade)
+  // Arena do Astrael: rampas (passarelas inclinadas) e plataformas em alturas diferentes (1 px = 0,8 unidade)
   // plataforma com y2 = rampa: altura y na esquerda e y2 na direita
   S.sagitario = {
-    id: 'sagitario', name: 'Observatório Celeste', desc: 'Arena do Altair: passarelas inclinadas e plataformas altas.',
+    id: 'sagitario', name: 'Observatório Celeste', desc: 'Arena do Astrael: passarelas inclinadas e plataformas altas.',
     solids: [{ x: -500, y: 0, w: 1000, h: 210 }],
     plats: [
       { x: -640, y: -140, w: 192 },

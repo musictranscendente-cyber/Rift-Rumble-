@@ -99,8 +99,8 @@
       },
     },
 
-    // Altair: folha em grade, mesma escala em todas as poses
-    altair: {
+    // Astrael: folha em grade, mesma escala em todas as poses
+    astrael: {
       idle: 'idle1',
       portrait: 'face',
       shieldFrame: true,

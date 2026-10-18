@@ -1,4 +1,4 @@
-# Compila o APK a cada push no branch principal e publica como Release.
+# Compila o APK (e o pacote do CrazyGames) a cada push no branch principal e publica como Release.
 # O app instalado consulta o último Release e oferece a atualização.
 name: APK
 
@@ -8,6 +8,7 @@ on:
       - 'web/**'
       - 'android/**'
       - 'tools/build-apk.sh'
+      - 'tools/build-web.sh'
       - '.github/workflows/apk.yml'
   workflow_dispatch:
 
@@ -35,6 +36,9 @@ jobs:
       - name: Compilar APK
         run: ./tools/build-apk.sh
 
+      - name: Pacote para o CrazyGames
+        run: ./tools/build-web.sh crazygames
+
       - name: Publicar Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -43,7 +47,7 @@ jobs:
           TAG="v$CODE"
           NOTES=$(git log -1 --pretty=%B | grep -v -e '^Co-Authored-By' -e '^Claude-Session')
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" release/RiftRumble.apk --clobber
+            gh release upload "$TAG" release/RiftRumble.apk release/RiftRumble-crazygames.zip --clobber
           else
-            gh release create "$TAG" release/RiftRumble.apk --title "Rift Rumble 1.0.$CODE" --notes "$NOTES" --latest
+            gh release create "$TAG" release/RiftRumble.apk release/RiftRumble-crazygames.zip --title "Rift Rumble 1.0.$CODE" --notes "$NOTES" --latest
           fi

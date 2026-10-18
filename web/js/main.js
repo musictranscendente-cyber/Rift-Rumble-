@@ -31,6 +31,7 @@
   RR.onAppResume = () => RR.audio.resume();
   document.addEventListener('contextmenu', (e) => e.preventDefault());
 
+  RR.platform.init();
   RR.ui.init();
   resize();
 

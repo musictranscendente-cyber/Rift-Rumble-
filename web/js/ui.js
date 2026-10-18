@@ -274,7 +274,14 @@
   }
 
   // ---------------- Partida ----------------
+  let matchesPlayed = 0;
   ui.startMatch = function (players) {
+    // a partir da segunda luta, um anúncio do CrazyGames antes de começar (no app e no navegador comum não acontece nada)
+    if (matchesPlayed++ > 0) return RR.platform.midgame(() => beginMatch(players));
+    beginMatch(players);
+  };
+
+  function beginMatch(players) {
     if (!players) {
       const pool = RR.chars.list;
       players = [{ charId: cfg.char, type: 'human' }];
@@ -293,7 +300,8 @@
     RR.input.layout();
     RR.audio.init();
     RR.audio.music(0.55);
-  };
+    RR.platform.gameplayStart();
+  }
 
   // esconde os botões de toque (cena de vitória)
   ui.hideControls = function (hide) {
@@ -305,6 +313,7 @@
     if (!RR.match || RR.match.demo || current !== 'game') return;
     RR.paused = true;
     RR.input.human.reset();
+    RR.platform.gameplayStop();
     show('pause');
     RR.audio.music(0.15);
   };
@@ -314,9 +323,11 @@
     RR.paused = false;
     show('game');
     RR.audio.music(0.55);
+    RR.platform.gameplayStart();
   };
 
   ui.toMenu = function (screen) {
+    RR.platform.gameplayStop();
     startDemo();
     show(screen || 'title');
     RR.audio.music(0.25);
@@ -327,6 +338,8 @@
     const rank = m.ranking();
     const human = m.fighters.find((f) => f.isHuman);
     const won = rank[0] === human;
+    RR.platform.gameplayStop();
+    if (won) RR.platform.happy();
     $('#resTitle').textContent = won ? 'VITÓRIA!' : 'DERROTA';
     $('#resTitle').style.color = won ? '#ffd166' : '#ff6b6b';
     const tbl = $('#resTable');

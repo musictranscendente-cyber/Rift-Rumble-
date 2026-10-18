@@ -22,7 +22,7 @@ A cada push que muda o jogo, o GitHub Actions (`.github/workflows/apk.yml`) comp
 | Joystick (metade esquerda da tela) | Mover. Para baixo numa plataforma fina: descer. Para baixo no ar: queda rápida |
 | **A** | Ataque básico (combo de 3). Com joystick ↑/↓: golpe alto/baixo/meteoro |
 | **B** | Skill especial. **↑ + B**: skill de recuperação |
-| Seta | Pular (pulo duplo; Zyra tem pulo triplo) |
+| Seta | Pular (pulo duplo) |
 | Escudo | Defender. Escudo + lado: rolar. Escudo + ↓: esquiva. No ar: esquiva aérea |
 | Estrela | **Ultimate** (a barra enche causando e recebendo dano) |
 
@@ -30,21 +30,18 @@ Tamanho e opacidade dos controles, som, música e vibração ficam em **Opções
 
 No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial), L (escudo), U (ultimate), Esc (pausa).
 
-## Personagens
+## Personagens (elenco do zodíaco)
 
 | Lutador | Estilo | A | B | ↑B | Ultimate |
 |---|---|---|---|---|---|
-| **Astrael** ♐ | Arqueiro estelar (alcance 5) — arte em sprites | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
-| **Noxara** ♏ | Assassina ágil (veneno) — arte em sprites | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
-| **Vex** ♊ | Gêmeos (luz e sombra) — arte em sprites | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
-| **Kael** | Equilibrado (fogo) | Lâmina Ígnea | Bola de Fogo | Ascensão Flamejante | Inferno |
-| **Zyra** | Rápida, leve (vento) | Lâminas Gêmeas | Corte do Vento | Tornado | Tempestade de Lâminas |
-| **Gorak** | Pesado, forte (pedra) | Punhos de Rocha | Tremor (blindado) | Salto Rochoso | Meteoro |
-| **Lumi** | À distância (gelo) | Cajado Cristal | Estilhaço de Gelo | Teleporte | Raio Prismático |
+| **Solkar** ♌ | Rei guerreiro: forte e pesado | Garras Solares | Rugido Solar (com armadura) | Ascensão do Leão | Coroa da Estrela |
+| **Astrael** ♐ | Arqueiro estelar (alcance 5) | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
+| **Noxara** ♏ | Assassina ágil (veneno) | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
+| **Vex** ♊ | Gêmeos de luz e sombra | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
 
-Arenas: **Observatório Celeste** (arena do Astrael, com rampas inclinadas e plataformas em alturas diferentes), **Abismo do Escorpião** (arena da Noxara, com fundo cósmico separado), **Santuário dos Gêmeos** (arena do Vex, arte pintada), **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
+Arenas: **Trono Solar** (Solkar: escadarias, ilhas flutuantes no meio e plataformas altas), **Observatório Celeste** (Astrael: passarelas inclinadas), **Abismo do Escorpião** (Noxara) e **Santuário dos Gêmeos** (Vex).
 
-Vex, Noxara e Astrael são os primeiros lutadores do elenco do zodíaco (`art/source/roster-zodiaco.jpg`); os outros 4 ainda usam a arte desenhada em código.
+Todos os lutadores e arenas usam a arte enviada (`art/source/`).
 
 ## Estrutura
 
@@ -71,7 +68,7 @@ Personagens novos seguem o modelo da Noxara: folha em grade (`tools/extract-noxa
 
 ### Criar um personagem novo
 
-Copie um bloco em `web/js/characters.js` (por exemplo `C.kael`), mude atributos e golpes e adicione o id em `C.list`.
+Copie um bloco em `web/js/characters.js` (por exemplo `C.solkar`), mude atributos e golpes e adicione o id em `C.list`.
 
 ## Build
 

@@ -6,9 +6,13 @@
   const LEVEL_NAMES = ['Fácil', 'Médio', 'Difícil'];
 
   const cfg = Object.assign(
-    { char: 'kael', mode: 'stock', bots: 1, level: 1, stage: 'ruinas', cpuChars: ['random', 'random', 'random'] },
+    { char: 'solkar', mode: 'stock', bots: 1, level: 1, stage: 'leao', cpuChars: ['random', 'random', 'random'] },
     U.store.get('cfg', {})
   );
+  // escolhas salvas de versões antigas podem apontar para lutadores/arenas que não existem mais
+  if (!RR.chars[cfg.char]) cfg.char = RR.chars.list[0];
+  if (!RR.stages[cfg.stage]) cfg.stage = RR.stages.list[0];
+  cfg.cpuChars = cfg.cpuChars.map((c) => (c === 'random' || RR.chars[c] ? c : 'random'));
   const saveCfg = () => U.store.set('cfg', cfg);
   let current = 'title';
   let lastPlayers = null;

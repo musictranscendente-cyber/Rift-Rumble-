@@ -16,7 +16,7 @@ RR.input = { human: null };
 // 1) Teste de KO: qual % é preciso para um golpe derrubar do centro da arena
 function koPercent(attId, moveId, defId) {
   for (let p = 0; p <= 300; p += 5) {
-    const m = new RR.Match({ mode: 'stock', stocks: 3, stageId: 'ruinas', players: [{ charId: attId, type: 'cpu', level: 0 }, { charId: defId, type: 'cpu', level: 0 }] });
+    const m = new RR.Match({ mode: 'stock', stocks: 3, stageId: 'leao', players: [{ charId: attId, type: 'cpu', level: 0 }, { charId: defId, type: 'cpu', level: 0 }] });
     m.phase = 'play';
     const [a, b] = m.fighters;
     a.x = -40; a.y = 0; a.facing = 1; b.x = 20; b.y = 0; b.percent = p;
@@ -32,11 +32,10 @@ function koPercent(attId, moveId, defId) {
   }
   return '>300';
 }
-const tests = [['kael', 'jab3'], ['kael', 'upA'], ['kael', 'ult'], ['zyra', 'jab3'], ['zyra', 'ult'], ['gorak', 'jab3'], ['gorak', 'upA'], ['gorak', 'recovery'], ['lumi', 'jab3'], ['kael', 'special'.replace('special', 'nair')], ['kael', 'dair']];
-console.log('--- % necessária para KO (alvo Kael, centro da arena) ---');
-for (const [c, mv] of tests) console.log(c.padEnd(6), mv.padEnd(9), koPercent(c, mv, 'kael'));
-console.log('gorak ult blast', (() => { const h = { dmg: 24, kb: 7, gr: 20, ang: 68, cx: 0, cy: 0, w: 0, h: 0 }; RR.chars.gorak.moves.__t = { hits: [h] }; return koPercent('gorak', '__t', 'kael'); })());
-console.log('lumi beam final', (() => { RR.chars.lumi.moves.__t = { hits: [{ dmg: 12, kb: 5, gr: 19, ang: 32, cx: 0, cy: 0, w: 0, h: 0 }] }; return koPercent('lumi', '__t', 'kael'); })());
+const tests = [];
+for (const id of RR.chars.list) for (const mv of ['jab3', 'upA', 'ult']) if (RR.chars[id].moves[mv].hits) tests.push([id, mv]);
+console.log('--- % necessária para KO (alvo Solkar, centro da arena) ---');
+for (const [c, mv] of tests) console.log(c.padEnd(8), mv.padEnd(5), koPercent(c, mv, 'solkar'));
 
 // 2) Partidas completas entre bots
 const N = +process.argv[2] || 12;
@@ -45,8 +44,8 @@ for (let n = 0; n < N; n++) {
   const ids = RR.chars.list;
   const nb = 2 + (n % 3);
   const players = [];
-  for (let i = 0; i < nb; i++) players.push({ charId: ids[(n + i) % 4], type: 'cpu', level: n % 3 });
-  const m = new RR.Match({ mode: 'stock', stocks: 3, stageId: RR.stages.list[n % 2], players });
+  for (let i = 0; i < nb; i++) players.push({ charId: ids[(n + i) % ids.length], type: 'cpu', level: n % 3 });
+  const m = new RR.Match({ mode: 'stock', stocks: 3, stageId: RR.stages.list[n % RR.stages.list.length], players });
   RR.ui = { showResults() {} };
   const origKo = m.ko.bind(m);
   m.ko = (f) => { stats.koPct.push(f.percent); if (f.lastHitBy && m.frame - f.lastHitFrame < 480) stats.kos++; else stats.sds++; origKo(f); };

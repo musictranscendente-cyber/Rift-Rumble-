@@ -235,7 +235,7 @@
     }
     // etiqueta do jogador
     if (p.alpha > 0 && f.state !== 'respawn') {
-      const ty = f.y - f.h - (d.id === 'lumi' ? 48 : 26);
+      const ty = f.y - f.h - 26;
       ctx.fillStyle = f.pcolor;
       ctx.beginPath();
       ctx.moveTo(f.x - 7, ty);

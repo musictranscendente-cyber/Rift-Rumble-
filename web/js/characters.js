@@ -41,287 +41,6 @@
     };
   }
 
-  // ---------------- KAEL: equilibrado, fogo ----------------
-  C.kael = {
-    id: 'kael', name: 'Kael', title: 'Espadachim Flamejante', arche: 'Equilibrado',
-    color: '#ff5a36', color2: '#ffd166', dark: '#7a1f10', fxColor: '#ff8c2a',
-    alts: [{ color: '#3d7bff', color2: '#bfe3ff', dark: '#1a2f7a' }, { color: '#2fbf71', color2: '#e0ffd0', dark: '#145a33' }, { color: '#e8e8f0', color2: '#ffd166', dark: '#55556a' }],
-    w: 50, h: 92, weight: 100, walk: 6.2, air: 5.0, airAccel: 0.55, jump: 17, djump: 15.5, jumps: 2,
-    grav: 0.85, fall: 13, ff: 19,
-    stats: { Velocidade: 3, Força: 3, Peso: 3, Alcance: 3 },
-    skills: [
-      { key: 'A', name: 'Lâmina Ígnea', desc: 'Combo de 3 golpes de espada.' },
-      { key: 'B', name: 'Bola de Fogo', desc: 'Projétil de fogo em linha reta.' },
-      { key: '↑B', name: 'Ascensão Flamejante', desc: 'Salto giratório que acerta duas vezes.' },
-      { key: 'ULT', name: 'Inferno', desc: 'Corte gigante de fogo com impacto enorme.' },
-    ],
-    ai: { pref: 70, range: 95, specialRange: 560, ultRange: 330 },
-    moves: Object.assign(basics({ reach: 64, pow: 1, spd: 0, h: 92, w: 50, fx: 'fire' }), {
-      special: {
-        name: 'Bola de Fogo', startup: 12, active: 1, recovery: 18, cooldown: 45, air: true, sfx: 'fire', anim: 'cast',
-        onFrame(f, g, t) {
-          if (t === 12)
-            g.spawnProjectile(f, {
-              type: 'fireball', x: f.x + f.facing * 42, y: f.y - f.h * 0.55, vx: f.facing * 11.5,
-              w: 34, h: 28, life: 75, fx: 'fire', hit: hb(0, 0, 0, 0, 7, 5, 7, 30, { fx: 'fire' }),
-            });
-        },
-      },
-      recovery: {
-        name: 'Ascensão Flamejante', startup: 4, active: 22, recovery: 10, helpless: true, air: true, lc: true,
-        landLag: 12, grav: 0.55, sfx: 'fire', anim: 'rise',
-        onFrame(f, g, t) {
-          if (t === 4) {
-            f.vy = -19;
-            f.vx = f.inp.mx * 3.5;
-          }
-          if (t > 4 && t < 26 && t % 3 === 0) g.burst(f.x, f.y - f.h * 0.5, 'fire', 2);
-        },
-        hits: [
-          hb(12, -50, 86, 104, 5, 6, 6, 80, { fx: 'fire', t1: 10 }),
-          hb(12, -60, 96, 110, 6, 8, 10, 75, { fx: 'fire', t0: 12, group: 1 }),
-        ],
-      },
-      ult: {
-        name: 'Inferno', startup: 14, active: 8, recovery: 30, air: true, grav: 0.15, noDrift: true,
-        intang: [1, 14], sfx: 'fire', anim: 'big',
-        onFrame(f, g, t) {
-          if (t === 1) {
-            f.vx = 0;
-            f.vy = Math.min(f.vy, 0) * 0.3;
-          }
-          if (t === 14) {
-            g.shake = 22;
-            g.flashScreen('#ff7a2a', 0.45);
-            g.burst(f.x + f.facing * 170, f.y - 60, 'fire', 45, 14);
-            RR.audio.play('heavyhit');
-          }
-        },
-        hits: [hb(175, -60, 370, 240, 25, 4, 20, 40, { fx: 'fire' })],
-      },
-    }),
-  };
-
-  // ---------------- ZYRA: rápida, vento ----------------
-  C.zyra = {
-    id: 'zyra', name: 'Zyra', title: 'Ninja do Vento', arche: 'Rápida',
-    color: '#21d4a8', color2: '#c8fff0', dark: '#0b5c49', fxColor: '#7dfce0',
-    alts: [{ color: '#ffb000', color2: '#fff1c2', dark: '#7a4a00' }, { color: '#ff5fa2', color2: '#ffe0f0', dark: '#7a1f4a' }, { color: '#4a4a5a', color2: '#d0d0e0', dark: '#1a1a24' }],
-    w: 44, h: 84, weight: 82, walk: 7.8, air: 6.2, airAccel: 0.75, jump: 18, djump: 16.5, jumps: 3,
-    grav: 0.95, fall: 14, ff: 20,
-    stats: { Velocidade: 5, Força: 2, Peso: 1, Alcance: 2 },
-    skills: [
-      { key: 'A', name: 'Lâminas Gêmeas', desc: 'Combo rápido de adagas. Pulo triplo.' },
-      { key: 'B', name: 'Corte do Vento', desc: 'Avanço veloz que atravessa o inimigo.' },
-      { key: '↑B', name: 'Tornado', desc: 'Sobe girando e prende quem estiver perto.' },
-      { key: 'ULT', name: 'Tempestade de Lâminas', desc: 'Investida invencível com vários cortes.' },
-    ],
-    ai: { pref: 55, range: 80, specialRange: 300, ultRange: 380 },
-    moves: Object.assign(basics({ reach: 52, pow: 0.85, spd: -1, h: 84, w: 44, fx: 'wind' }), {
-      special: {
-        name: 'Corte do Vento', startup: 6, active: 12, recovery: 14, cooldown: 35, air: true, oncePerAir: true,
-        grav: 0, noDrift: true, sfx: 'dash', anim: 'dash',
-        onFrame(f, g, t) {
-          if (t === 6) f.vx = f.facing * 17;
-          if (t >= 6 && t < 18) {
-            f.vy = 0;
-            if (t % 2 === 0) g.burst(f.x - f.facing * 20, f.y - f.h * 0.5, 'wind', 1);
-          }
-          if (t === 18) f.vx *= 0.3;
-        },
-        hits: [hb(22, -42, 72, 62, 8, 7, 12, 35, { fx: 'wind' })],
-      },
-      recovery: {
-        name: 'Tornado', startup: 3, active: 26, recovery: 8, helpless: true, air: true, lc: true, landLag: 12,
-        grav: 0, noDrift: true, sfx: 'wind', anim: 'spin',
-        onFrame(f, g, t) {
-          if (t >= 3 && t < 29) {
-            f.vy = -12.5 + (t - 3) * 0.25;
-            f.vx = f.inp.mx * 5.5;
-            if (t % 3 === 0) g.burst(f.x, f.y - 10, 'wind', 2);
-          }
-        },
-        hits: [
-          hb(0, -45, 92, 112, 1.5, 4, 2, 85, { fx: 'wind', multi: 5, radial: true, t1: 22 }),
-          hb(0, -50, 100, 118, 4, 8, 11, 80, { fx: 'wind', t0: 22, group: 1 }),
-        ],
-      },
-      ult: {
-        name: 'Tempestade de Lâminas', startup: 10, active: 36, recovery: 20, air: true, grav: 0, noDrift: true,
-        intang: [1, 46], sfx: 'dash', anim: 'dash',
-        onFrame(f, g, t) {
-          if (t === 10) f.vx = f.facing * 14;
-          if (t > 1 && t < 46) f.vy = 0;
-          if (t === 30) f.vx = 0;
-          if (t > 10 && t < 46 && t % 2 === 0)
-            g.burst(f.x + U_rand(-60, 60), f.y - f.h * 0.5 + U_rand(-40, 40), 'wind', 1);
-          if (t === 38) {
-            g.shake = 18;
-            g.flashScreen('#7dfce0', 0.35);
-            RR.audio.play('heavyhit');
-          }
-        },
-        hits: [
-          hb(10, -42, 150, 110, 2, 2, 0, 15, { fx: 'wind', multi: 4, t1: 26 }),
-          hb(0, -48, 230, 170, 12, 4, 19, 42, { fx: 'wind', t0: 28, group: 1, radial: true }),
-        ],
-      },
-    }),
-  };
-
-  // ---------------- GORAK: pesado, pedra ----------------
-  C.gorak = {
-    id: 'gorak', name: 'Gorak', title: 'Golem de Pedra', arche: 'Pesado',
-    color: '#a67c52', color2: '#ffb347', dark: '#4a3422', fxColor: '#c79a6b',
-    alts: [{ color: '#7a8a99', color2: '#7df9ff', dark: '#2e3740' }, { color: '#5f8a4a', color2: '#d4ff6b', dark: '#2a4020' }, { color: '#c9c3b8', color2: '#ff5a5a', dark: '#5a554c' }],
-    w: 64, h: 104, weight: 125, walk: 4.6, air: 4.1, airAccel: 0.45, jump: 15.8, djump: 14.2, jumps: 2,
-    grav: 0.95, fall: 15, ff: 21,
-    stats: { Velocidade: 1, Força: 5, Peso: 5, Alcance: 3 },
-    skills: [
-      { key: 'A', name: 'Punhos de Rocha', desc: 'Socos lentos e muito fortes.' },
-      { key: 'B', name: 'Tremor', desc: 'Soca o chão e cria ondas de pedra. Resiste a golpes.' },
-      { key: '↑B', name: 'Salto Rochoso', desc: 'Pulo blindado com golpe forte.' },
-      { key: 'ULT', name: 'Meteoro', desc: 'Salta alto e cai causando um terremoto.' },
-    ],
-    ai: { pref: 75, range: 105, specialRange: 420, ultRange: 300 },
-    moves: Object.assign(basics({ reach: 66, pow: 1.35, spd: 3, h: 104, w: 64, fx: 'rock' }), {
-      special: {
-        name: 'Tremor', startup: 18, active: 4, recovery: 22, cooldown: 70, air: true, armor: [1, 18],
-        sfx: 'rock', anim: 'slam',
-        onFrame(f, g, t) {
-          if (!f.grounded && t === 17) {
-            f.moveT = 16; // segura até tocar o chão
-            f.vy = 18;
-          }
-          if (t === 18) {
-            g.shake = 10;
-            g.burst(f.x, f.y, 'rock', 14);
-            for (const dir of [-1, 1])
-              g.spawnProjectile(f, {
-                type: 'wave', x: f.x + dir * 50, y: f.y, vx: dir * 9, w: 44, h: 54, life: 48, fx: 'rock',
-                ground: true, hit: hb(0, 0, 0, 0, 10, 8, 12, 72, { fx: 'rock' }),
-              });
-          }
-        },
-        hits: [hb(0, -24, 130, 52, 8, 7, 10, 75, { fx: 'rock' })],
-      },
-      recovery: {
-        name: 'Salto Rochoso', startup: 6, active: 16, recovery: 12, helpless: true, air: true, lc: true,
-        landLag: 14, armor: [1, 12], sfx: 'rock', anim: 'rise',
-        onFrame(f, g, t) {
-          if (t === 6) {
-            f.vy = -21;
-            f.vx = f.inp.mx * 3 + f.facing;
-          }
-        },
-        hits: [hb(10, -64, 92, 112, 11, 8, 13, 80, { fx: 'rock', t1: 8 })],
-      },
-      ult: {
-        name: 'Meteoro', startup: 8, active: 70, recovery: 26, air: true, armor: [1, 90], noDrift: true,
-        sfx: 'rock', anim: 'slam',
-        onFrame(f, g, t) {
-          if (t === 8) {
-            f.vy = -24;
-            f.vx = f.facing * 4;
-          }
-          if (t >= 30 && !f.mvar.slam) f.vy = 24;
-          if (t > 12 && f.grounded && !f.mvar.slam) {
-            f.mvar.slam = true;
-            f.vx = 0;
-            g.shake = 30;
-            g.flashScreen('#ffb347', 0.4);
-            g.burst(f.x, f.y, 'rock', 40, 14);
-            RR.audio.play('heavyhit');
-            g.spawnProjectile(f, {
-              type: 'blast', x: f.x, y: f.y - 70, w: 560, h: 190, life: 8, fx: 'rock', pierce: true, radial: true,
-              hit: hb(0, 0, 0, 0, 24, 7, 20, 68, { fx: 'rock' }),
-            });
-            f.moveT = f.move.startup + f.move.active;
-          }
-          if (t === f.move.startup + f.move.active - 1 && !f.mvar.slam) f.mvar.fail = true;
-        },
-        hits: [hb(0, -52, 100, 112, 10, 9, 10, 60, { fx: 'rock', t0: 22 })],
-      },
-    }),
-  };
-
-  // ---------------- LUMI: à distância, gelo ----------------
-  C.lumi = {
-    id: 'lumi', name: 'Lumi', title: 'Maga do Gelo', arche: 'À distância',
-    color: '#8f6bff', color2: '#9ff3ff', dark: '#3b2a7a', fxColor: '#9ff3ff',
-    alts: [{ color: '#ff5fa2', color2: '#ffe0f0', dark: '#7a1f4a' }, { color: '#2fa4ff', color2: '#ffffff', dark: '#103a6a' }, { color: '#333344', color2: '#b7ff6b', dark: '#15151f' }],
-    w: 46, h: 88, weight: 88, walk: 5.5, air: 5.4, airAccel: 0.6, jump: 16, djump: 15, jumps: 2,
-    grav: 0.72, fall: 10.5, ff: 16,
-    stats: { Velocidade: 3, Força: 2, Peso: 2, Alcance: 5 },
-    skills: [
-      { key: 'A', name: 'Cajado Cristal', desc: 'Golpes de cajado com bom alcance.' },
-      { key: 'B', name: 'Estilhaço de Gelo', desc: 'Três cristais que congelam por um instante.' },
-      { key: '↑B', name: 'Teleporte', desc: 'Some e reaparece na direção escolhida.' },
-      { key: 'ULT', name: 'Raio Prismático', desc: 'Raio enorme que atravessa a arena.' },
-    ],
-    ai: { pref: 260, range: 100, specialRange: 650, ultRange: 900 },
-    moves: Object.assign(basics({ reach: 74, pow: 0.9, spd: 1, h: 88, w: 46, fx: 'ice' }), {
-      special: {
-        name: 'Estilhaço de Gelo', startup: 10, active: 1, recovery: 20, cooldown: 50, air: true, sfx: 'ice', anim: 'cast',
-        onFrame(f, g, t) {
-          if (t === 10)
-            for (const a of [-12, 0, 12]) {
-              const r = (a * Math.PI) / 180;
-              g.spawnProjectile(f, {
-                type: 'shard', x: f.x + f.facing * 40, y: f.y - f.h * 0.6,
-                vx: Math.cos(r) * 13 * f.facing, vy: Math.sin(r) * 13, w: 26, h: 18, life: 55, fx: 'ice',
-                hit: hb(0, 0, 0, 0, 4, 4, 5, 20, { fx: 'ice', freeze: 8 }),
-              });
-            }
-        },
-      },
-      recovery: {
-        name: 'Teleporte', startup: 12, active: 2, recovery: 14, helpless: true, air: true, lc: true, landLag: 10,
-        grav: 0, noDrift: true, intang: [1, 15], anim: 'cast',
-        onFrame(f, g, t) {
-          if (t === 1) {
-            let dx = f.inp.mx, dy = f.inp.my;
-            const len = Math.hypot(dx, dy);
-            if (len < 0.3) { dx = 0; dy = -1; } else { dx /= len; dy /= len; }
-            f.mvar.dx = dx;
-            f.mvar.dy = dy;
-            f.vx = 0;
-            f.vy = 0;
-            f.hidden = true;
-            g.burst(f.x, f.y - f.h / 2, 'ice', 12);
-            RR.audio.play('teleport');
-          }
-          if (t < 12) { f.vx = 0; f.vy = 0; }
-          if (t === 12) {
-            g.teleport(f, f.mvar.dx * 280, f.mvar.dy * 280);
-            f.hidden = false;
-            f.vx = f.mvar.dx * 4;
-            f.vy = f.mvar.dy * 4;
-            g.burst(f.x, f.y - f.h / 2, 'ice', 12);
-          }
-        },
-        hits: [hb(0, -44, 120, 116, 6, 7, 8, 70, { fx: 'ice', radial: true })],
-      },
-      ult: {
-        name: 'Raio Prismático', startup: 30, active: 48, recovery: 22, air: true, grav: 0.1, noDrift: true,
-        intang: [1, 30], sfx: 'ult', anim: 'cast',
-        onFrame(f, g, t) {
-          if (t === 1) { f.vx = 0; f.vy = 0; }
-          if (t < 30 && t % 2 === 0) g.burst(f.x + f.facing * 40, f.y - f.h * 0.6, 'ice', 1);
-          if (t === 30) {
-            g.flashScreen('#c7f7ff', 0.4);
-            g.shake = 14;
-            g.spawnProjectile(f, {
-              type: 'beam', x: f.x, y: f.y, w: 1100, h: 86, life: 48, fx: 'ice', pierce: true, attached: true,
-              hit: hb(0, 0, 0, 0, 2.5, 3, 1, 8, { fx: 'ice', multi: 5 }),
-              final: hb(0, 0, 0, 0, 12, 5, 19, 32, { fx: 'ice' }),
-            });
-          }
-        },
-      },
-    }),
-  };
-
   // ---------------- VEX: gêmeos (Gêmeos), luz e sombra — arte em sprites ----------------
   C.vex = {
     id: 'vex', name: 'Vex', title: 'Gêmeos de Luz e Sombra', arche: 'Gêmeos', sign: '♊',
@@ -536,9 +255,82 @@
     }),
   };
 
+  // ---------------- SOLKAR: rei leão (Leão), fogo solar — arte em sprites ----------------
+  C.solkar = {
+    id: 'solkar', name: 'Solkar', title: 'Rei Leão Solar', arche: 'Rei Guerreiro', sign: '♌',
+    sprite: 'solkar',
+    color: '#ffb000', color2: '#ff5a1a', dark: '#5a2a08', fxColor: '#ffd166',
+    alts: [{ color: '#ff5a1a', color2: '#ffb000', dark: '#3a1404' }],
+    w: 62, h: 82, weight: 106, walk: 5.8, air: 4.9, airAccel: 0.55, jump: 16.5, djump: 15, jumps: 2,
+    grav: 0.92, fall: 14.5, ff: 20.5,
+    stats: { Velocidade: 3, Força: 5, Peso: 4, Alcance: 4 },
+    skills: [
+      { key: 'A', name: 'Garras Solares', desc: 'Combo de três golpes com as garras flamejantes.' },
+      { key: 'B', name: 'Rugido Solar', desc: 'Onda concentrada de energia; segure perto para mais força.' },
+      { key: '↑B', name: 'Ascensão do Leão', desc: 'Lança-se para cima envolvido por chamas, com armadura.' },
+      { key: 'ULT', name: 'Coroa da Estrela', desc: 'Um leão colossal de energia solar avança sobre os adversários.' },
+    ],
+    ai: { pref: 90, range: 110, specialRange: 600, ultRange: 420 },
+    moves: Object.assign(basics({ reach: 90, pow: 1.1, spd: 1, h: 82, w: 62, fx: 'fire' }), {
+      special: {
+        name: 'Rugido Solar', startup: 16, active: 1, recovery: 20, cooldown: 50, air: true, armor: [1, 16], sfx: 'fire',
+        onFrame(f, g, t) {
+          if (t === 16) {
+            g.shake = 6;
+            g.spawnProjectile(f, {
+              type: 'orb', anim: ['roar', 'roarBig'], scale: 0.62, hitFx: null,
+              x: f.x + f.facing * 60, y: f.y - f.h * 0.5, vx: f.facing * 12,
+              w: 64, h: 44, life: 60, fx: 'fire',
+              hit: hb(0, 0, 0, 0, 11, 7, 11, 35, { fx: 'fire' }),
+            });
+          }
+        },
+      },
+      recovery: {
+        name: 'Ascensão do Leão', startup: 6, active: 20, recovery: 10, helpless: true, air: true, lc: true, landLag: 14,
+        grav: 0.45, noDrift: true, armor: [1, 14], sfx: 'fire',
+        onFrame(f, g, t) {
+          if (t === 6) {
+            f.vy = -20;
+            f.vx = f.inp.mx * 3;
+            g.burst(f.x, f.y, 'fire', 14, 9);
+          }
+          if (t > 6 && t < 26 && t % 3 === 0) g.burst(f.x, f.y - 10, 'fire', 2);
+        },
+        hits: [
+          hb(0, -40, 100, 110, 4, 5, 3, 85, { fx: 'fire', multi: 6, radial: true, t1: 14 }),
+          hb(0, -50, 110, 120, 8, 9, 13, 80, { fx: 'fire', t0: 14, group: 1 }),
+        ],
+      },
+      ult: {
+        name: 'Coroa da Estrela', startup: 18, active: 34, recovery: 24, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 30], sfx: 'ult',
+        onFrame(f, g, t) {
+          if (t === 1) {
+            f.vx = 0;
+            f.vy = 0;
+          }
+          if (t === 18) {
+            g.flashScreen('#ffd166', 0.45);
+            g.shake = 14;
+          }
+          if (t > 18 && t < 52 && t % 3 === 0) g.burst(f.x + f.facing * U_rand(40, 380), f.y - U_rand(10, 180), 'fire', 2, 9);
+          if (t === 44) {
+            g.shake = 26;
+            RR.audio.play('heavyhit');
+          }
+        },
+        hits: [
+          hb(170, -90, 440, 220, 3, 3, 1, 50, { fx: 'fire', multi: 6, t1: 26 }),
+          hb(200, -90, 500, 240, 14, 6, 21, 38, { fx: 'fire', t0: 26, group: 1 }),
+        ],
+      },
+    }),
+  };
+
   function U_rand(a, b) {
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['vex', 'noxara', 'astrael', 'kael', 'zyra', 'gorak', 'lumi'];
+  C.list = ['solkar', 'astrael', 'noxara', 'vex'];
 })(window.RR);

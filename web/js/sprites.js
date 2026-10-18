@@ -136,6 +136,43 @@
         return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
       },
     },
+
+    // Solkar: mesma grade do Astrael
+    solkar: {
+      idle: 'idle1',
+      portrait: 'face',
+      shieldFrame: true,
+      frames: ['idle1', 'idle2', 'run1', 'run2', 'run3', 'run4', 'jump', 'land', 'crouch', 'shield', 'roll', 'hurt',
+        'launched', 'spin', 'ledge', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'b1', 'b2', 'b3', 'b4', 'b5', 'roar', 'roarBig',
+        's1', 's2', 'r1', 'r2', 'r3', 'r4', 'r5', 'u1', 'u2', 'u3', 'win', 'face'],
+      scale: 0.66,
+      moves: {
+        jab1: ['a1', 'a2', 'a2'],
+        jab2: ['a3', 'a4', 'a4'],
+        jab3: ['a5', 'a6', 'a6'],
+        upA: ['b1', 'b1', 'b1'],
+        downG: ['b3', 'b3', 'b3'],
+        nair: ['b2', 'b4', 'b4'],
+        dair: ['b5', ['b5', 1.1], ['b5', 1.1]],
+        special: ['s1', 's2', 's2'],
+        recovery: ['r1', { seq: ['r2', 'r3', 'r4'] }, 'r5'],
+        ult: ['u1', { seq: ['u2', 'u3'] }, 'u3'],
+      },
+      pose(f, time) {
+        switch (f.state) {
+          case 'run': return ['run1', 'run2', 'run3', 'run4'][Math.floor(f.anim.run * 1.3) % 4];
+          case 'air': case 'helpless': return 'jump';
+          case 'landing': return f.lagT > 6 ? 'crouch' : 'land';
+          case 'shield': return 'shield';
+          case 'spotdodge': return 'crouch';
+          case 'roll': case 'airdodge': return 'roll';
+          case 'hitstun': return f.lastKb > 22 ? 'spin' : 'hurt';
+          case 'stunned': return 'hurt';
+          case 'ledge': return 'ledge';
+        }
+        return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
+      },
+    },
   };
   S.sets = SETS;
 

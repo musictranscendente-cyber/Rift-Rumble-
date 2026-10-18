@@ -2,41 +2,6 @@
 (function (RR) {
   const S = (RR.stages = {});
 
-  S.ruinas = {
-    id: 'ruinas', name: 'Ruínas Celestes', desc: 'Clássica: 3 plataformas flutuantes.',
-    solids: [{ x: -450, y: 0, w: 900, h: 230 }],
-    plats: [
-      { x: -330, y: -150, w: 200 },
-      { x: 130, y: -150, w: 200 },
-      { x: -100, y: -290, w: 200 },
-    ],
-    blast: { left: -1150, right: 1150, top: -860, bottom: 620 },
-    spawns: [{ x: -260, y: 0 }, { x: 260, y: 0 }, { x: -90, y: 0 }, { x: 90, y: 0 }],
-    respawn: { y: -470, xs: [-170, 170, -60, 60] },
-    theme: {
-      sky: ['#140f3a', '#3b2a78', '#c0569a'],
-      far: '#2a2160', mid: '#3d2f80', top: '#8be0a4', topDark: '#3f9e6a', body: '#5a4a8f', bodyDark: '#2f2560',
-      plat: '#c9b8ff', platGlow: '#8f6bff', accent: '#ffd166',
-    },
-  };
-
-  S.vulcao = {
-    id: 'vulcao', name: 'Fenda Vulcânica', desc: 'Arena larga com 2 plataformas e lava.',
-    solids: [{ x: -560, y: 0, w: 1120, h: 210 }],
-    plats: [
-      { x: -390, y: -165, w: 220 },
-      { x: 170, y: -165, w: 220 },
-    ],
-    blast: { left: -1250, right: 1250, top: -860, bottom: 600 },
-    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
-    respawn: { y: -440, xs: [-200, 200, -70, 70] },
-    theme: {
-      sky: ['#1a0606', '#4a1208', '#b8380e'],
-      far: '#2b0d08', mid: '#45150a', top: '#ff9a3c', topDark: '#b8440e', body: '#3b2a26', bodyDark: '#1f1412',
-      plat: '#ffcf9a', platGlow: '#ff6a00', accent: '#ff6a00', lava: true,
-    },
-  };
-
   // Arena do Vex: imagem pintada; a colisão segue as plataformas do desenho
   // (1 pixel da imagem = 0,8 unidade do mundo; a origem é o centro do chão principal)
   S.gemeos = {
@@ -96,10 +61,33 @@
     theme: { sky: ['#0a1440', '#1d3a8a', '#6fb2ff'], platGlow: '#7fe3ff', accent: '#ffd166' },
   };
 
+  // Arena do Solkar: escadarias dos dois lados (rampas), ilhas no meio e plataformas altas (1 px = 0,8 unidade)
+  S.leao = {
+    id: 'leao', name: 'Trono Solar', desc: 'Arena do Solkar: escadarias, ilhas flutuantes e o sol coroado.',
+    solids: [{ x: -460, y: 0, w: 944, h: 210 }],
+    plats: [
+      { x: -476, y: -62, w: 120 },
+      { x: -356, y: -62, w: 136, y2: 0 },
+      { x: 264, y: 0, w: 96, y2: -60 },
+      { x: 360, y: -60, w: 104 },
+      { x: -228, y: -102, w: 116 },
+      { x: 44, y: -106, w: 120 },
+      { x: -416, y: -176, w: 184 },
+      { x: -108, y: -164, w: 208 },
+      { x: 224, y: -176, w: 168 },
+    ],
+    blast: { left: -1300, right: 1300, top: -920, bottom: 620 },
+    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
+    respawn: { y: -480, xs: [-200, 200, -70, 70] },
+    image: { src: 'img/arena-leao.webp', x: -672, y: -436, w: 1338, h: 753 },
+    bg: { src: 'img/arena-leao-fundo.webp', parallax: 0.03 },
+    theme: { sky: ['#3a1a08', '#a4521a', '#ffd166'], platGlow: '#ffd166', accent: '#ffb000' },
+  };
+
   // altura da superfície da plataforma no ponto x (rampas são inclinadas)
   S.surfaceY = (p, x) => (p.y2 == null ? p.y : p.y + ((p.y2 - p.y) * Math.min(1, Math.max(0, (x - p.x) / p.w))));
 
-  S.list = ['sagitario', 'escorpiao', 'gemeos', 'ruinas', 'vulcao'];
+  S.list = ['leao', 'sagitario', 'escorpiao', 'gemeos'];
 
   S.prepare = function (st) {
     st.ledges = [];

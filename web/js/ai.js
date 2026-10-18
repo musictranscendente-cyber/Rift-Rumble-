@@ -185,23 +185,10 @@
       }
       const dist = Math.abs(edgeX - f.x);
       if (f.jumpsLeft === 0 && !f.recoveryUsed && (f.vy > 2 || below) && f.y > st.solids[0].y - 30 && !under) {
-        // Lumi: teleporta mirando a borda
-        if (f.def.id === 'lumi') {
-          const ty = st.solids[0].y - 40 - (f.y - f.h * 0.5);
-          const len = Math.hypot(edgeX - f.x, ty) || 1;
-          o.mx = (edgeX + toward * 40 - f.x) / len;
-          o.my = Math.min(-0.55, ty / len);
-        } else {
-          o.my = -1;
-          o.mx = dist > 60 ? toward : 0;
-        }
+        o.my = -1;
+        o.mx = dist > 60 ? toward : 0;
         o.specialP = true;
         return o;
-      }
-      // Zyra: avanço lateral ajuda a voltar
-      if (f.def.id === 'zyra' && dist > 260 && !f.specialAirUsed && f.cd.special === 0 && Math.random() < 0.1) {
-        o.specialP = true;
-        f.facing = toward;
       }
       return o;
     }

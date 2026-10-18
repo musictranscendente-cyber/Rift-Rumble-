@@ -35,6 +35,8 @@
 
   const seqNames = (prefix, n) => Array.from({ length: n }, (_, i) => prefix + String(i).padStart(2, '0'));
   const VRUN = seqNames('vrun', 12), VIDLE = seqNames('vidle', 16), VJAB = seqNames('vjab', 17), VWIN = seqNames('vwin', 21);
+  const VJAB2 = seqNames('vjab2', 19), VJAB3 = seqNames('vjab3', 23), VSPEC = seqNames('vspec', 15);
+  const VJUMP = seqNames('vjump', 9).slice(1), VREC = seqNames('vrec', 16);
 
   // Configuração de cada personagem com sprites
   // scale: unidades do mundo por pixel (número, ou por quadro/prefixo quando a folha mistura tamanhos)
@@ -190,26 +192,30 @@
       shieldFrame: true,
       alias: { win: 'vwin12' },
       frames: ['stance', 'swipe', 'spin', 'up', 'wave', 'claw', 'cast', 'orbA', 'orbB', 'splash', 'jump', 'rise1', 'rise2',
-        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN),
+        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN, VJAB2, VJAB3, VSPEC, VJUMP, VREC),
       // cada fonte foi desenhada num tamanho: vídeo (v...), vídeo da vitória (com zoom) e folha
       scale: { vwin: 0.5, v: 0.6, default: 0.66 },
       moves: {
         jab1: { track: VJAB },
-        jab2: ['stance', 'swipe', 'swipe'],
-        jab3: ['claw', 'spin', 'spin'],
+        jab2: { track: VJAB2 },
+        jab3: { track: VJAB3 },
         upA: ['stance', 'up', 'up'],
         downG: ['low', 'low', 'low'],
         nair: ['spin', 'wave', 'wave'],
         dair: ['fall', 'dive', 'dive'],
-        special: ['charge', 'cast', 'cast'],
-        recovery: ['jump', { seq: ['rise1', 'rise2'] }, 'rise2'],
+        special: { track: VSPEC },
+        recovery: { track: VREC },
         ult: ['u1', { seq: ['u2'] }, 'u3'],
       },
       winFrame: (time) => VWIN[Math.floor(time / 3) % VWIN.length],
       pose(f, time) {
         switch (f.state) {
           case 'run': return VRUN[Math.floor(f.anim.run * 2.6) % VRUN.length];
-          case 'air': return f.vy < 0 ? 'jump' : 'fall';
+          case 'air': {
+            // quadro do pulo conforme a velocidade vertical: subindo, topo, descendo
+            const k = Math.min(1, Math.max(0, (f.vy + f.def.jump) / (2 * f.def.jump)));
+            return VJUMP[Math.round(k * (VJUMP.length - 1))];
+          }
           case 'helpless': return 'fall';
           case 'landing': return 'low';
           case 'shield': return 'bubble';

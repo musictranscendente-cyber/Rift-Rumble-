@@ -346,9 +346,9 @@
     ai: { pref: 85, range: 105, specialRange: 520, ultRange: 320 },
     moves: Object.assign(basics({ reach: 84, pow: 1.0, spd: 1, h: 70, w: 64, fx: 'water' }), {
       special: {
-        name: 'Orbe Abissal', startup: 14, active: 1, recovery: 18, cooldown: 45, air: true, sfx: 'ice',
+        name: 'Orbe Abissal', startup: 24, active: 1, recovery: 6, cooldown: 45, air: true, sfx: 'ice',
         onFrame(f, g, t) {
-          if (t === 14)
+          if (t === 24)
             g.spawnProjectile(f, {
               type: 'orb', anim: ['orbA', 'orbB'], scale: 0.62,
               x: f.x + f.facing * 56, y: f.y - f.h * 0.5, vx: f.facing * 10,

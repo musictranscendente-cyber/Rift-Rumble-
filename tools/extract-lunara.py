@@ -17,10 +17,15 @@ VIDEOS = {
     'vidle': ('idle.mp4', 20, 95, 5),   # respiração: ciclo de ~76 quadros
     'vjab': ('jab.mp4', 6, 56, 3),      # um golpe completo: preparação, soco com jato d'água e volta
     'vwin': ('win.mp4', 84, 144, 3),    # comemoração (parte final, já sem a aproximação da câmera)
+    'vjab2': ('jab2.mp4', 7, 61, 3),    # golpe 2: giro com arco d'água
+    'vjab3': ('jab3.mp4', 13, 79, 3),   # golpe 3: pinças para cima e batida com onda
+    'vspec': ('special.mp4', 31, 85, 3),  # Orbe Abissal: carrega e dispara
+    'vjump': ('jump.mp4', 40, 64, 3, 'bottom'),  # no ar: o apoio acompanha o corpo (a física já faz subir)
+    'vrec': ('rec.mp4', 25, 85, 4, 'jet'),       # Jato Lunar: apoio onde o corpo encontra a coluna d'água
 }
 
 
-def video_frames(name, file, a, b, step):
+def video_frames(name, file, a, b, step, mode='fixed'):
     tmp = tempfile.mkdtemp()
     subprocess.run(['ffmpeg', '-v', 'error', '-i', os.path.join(SRC, file), os.path.join(tmp, '%03d.png')], check=True)
     idx = list(range(a, b + 1, step))
@@ -46,8 +51,21 @@ def video_frames(name, file, a, b, step):
         im = Image.fromarray(k[y0:y1, x0:x1], 'RGBA').resize((w, h), Image.LANCZOS)
         fname = f'{name}{n:02d}'
         im.save(os.path.join(OUT, fname + '.png'), optimize=True)
-        top = np.nonzero(np.asarray(im)[..., 3] > 200)[0].min()
-        out[fname] = {'w': w, 'h': h, 'ax': round(float(ax), 1), 'ay': round(float(ay), 1), 'bodyH': round(float(ay - top), 1)}
+        a = np.asarray(im)[..., 3] > 140
+        rows = np.nonzero(a.any(axis=1))[0]
+        top = rows.min()
+        fax, fay = ax, ay
+        if mode == 'bottom':
+            fay = rows.max()
+        elif mode == 'jet':
+            # de baixo para cima, pula a coluna estreita até chegar ao corpo largo
+            widths = a.sum(axis=1)
+            wmax = widths.max()
+            yb = rows.max()
+            while yb > top and widths[yb] < wmax * 0.45:
+                yb -= 1
+            fay = yb
+        out[fname] = {'w': w, 'h': h, 'ax': round(float(fax), 1), 'ay': round(float(fay), 1), 'bodyH': round(float(fay - top), 1)}
     return out
 
 
@@ -75,7 +93,7 @@ json.dump(manifest, open(os.path.join(OUT, 'lunara.json'), 'w'), indent=1)
 with open(os.path.join(ROOT, 'web/js/sprites-lunara.js'), 'w') as f:
     f.write('// Gerado por tools/extract-lunara.py: tamanho e ponto de apoio (pés) de cada quadro da Lunara\n')
     f.write('window.RR = window.RR || {};\nRR.spriteData = RR.spriteData || {};\nRR.spriteData.lunara = ' + json.dumps(manifest) + ';\n')
-for k in ['stance', 'vrun00', 'vidle00', 'vjab00', 'vwin00', 'u2']:
+for k in ['vjab200', 'vjab300', 'vspec00', 'vjump00', 'vjump04', 'vrec00', 'vrec08']:
     print(k, manifest[k])
 print(len(manifest), 'quadros')
 

@@ -614,6 +614,7 @@
       }
       // vertical
       const prevY = this.y;
+      const prevPlat = this.platform;
       this.y += this.vy;
       this.grounded = false;
       this.platform = null;
@@ -630,12 +631,28 @@
           }
         }
       }
+      // do chão para a rampa: andando sobre a ponta baixa, sobe nela
+      if (this.grounded && this.dropT <= 0) {
+        for (const p of st.plats) {
+          if (p.y2 == null || this.x <= p.x || this.x >= p.x + p.w) continue;
+          const sy = RR.stages.surfaceY(p, this.x);
+          if (sy <= this.y && this.y - sy < 6) {
+            this.y = sy;
+            this.platform = p;
+          }
+        }
+      }
       if (!this.grounded && this.vy >= 0 && this.dropT <= 0) {
         for (const p of st.plats) {
-          if (prevY <= p.y + 1 && this.y >= p.y && this.x > p.x - 4 && this.x < p.x + p.w + 4) {
+          if (this.x <= p.x - 4 || this.x >= p.x + p.w + 4) continue;
+          const sy = RR.stages.surfaceY(p, this.x);
+          const syPrev = RR.stages.surfaceY(p, this.x - this.vx);
+          // em rampas, quem já estava em cima acompanha a descida
+          const stay = p === prevPlat && p.y2 != null && Math.abs(this.y - sy) < 14;
+          if ((prevY <= syPrev + 1 && this.y >= sy) || stay) {
             // durante hitstun com muita força, atravessa a plataforma
             if (this.state === 'hitstun' && this.vy > 14) continue;
-            this.y = p.y;
+            this.y = sy;
             this.vy = 0;
             this.grounded = true;
             this.platform = p;

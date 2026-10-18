@@ -15,7 +15,7 @@ const out = process.argv[2] || '.';
   await page.screenshot({ path: out + '/1-title.png' });
   await page.tap('[data-go=select]');
   await page.waitForTimeout(400);
-  await page.tap('.char-card[data-id=noxara]');
+  await page.tap('.char-card[data-id=altair]');
   await page.tap('#optBots button[data-v="3"]');
   await page.waitForTimeout(300);
   await page.screenshot({ path: out + '/2-select.png' });

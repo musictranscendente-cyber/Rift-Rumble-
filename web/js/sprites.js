@@ -98,6 +98,44 @@
         return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
       },
     },
+
+    // Altair: folha em grade, mesma escala em todas as poses
+    altair: {
+      idle: 'idle1',
+      portrait: 'face',
+      shieldFrame: true,
+      frames: ['idle1', 'idle2', 'run1', 'run2', 'run3', 'run4', 'jump', 'fall', 'land', 'crouch', 'shield', 'roll', 'hurt',
+        'launched', 'spin', 'ledge', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'b1', 'b2', 'b3', 'b4', 'b5', 'comet',
+        's1', 's2', 'r1', 'r2', 'r3', 'r4', 'r5', 'volley', 'u1', 'u2', 'u3', 'win', 'face'],
+      scale: 0.64,
+      moves: {
+        jab1: ['a1', 'a2', 'a2'],
+        jab2: ['a3', 'a4', 'a4'],
+        jab3: ['a5', 'a7', 'a7'],
+        upA: ['b1', 'b1', 'b1'],
+        downG: ['b3', 'b3', 'b3'],
+        nair: ['b2', 'b4', 'b4'],
+        dair: ['b5', ['b5', 1.1], ['b5', 1.1]],
+        special: ['a1', 'a6', 'a6'],
+        recovery: ['r1', { seq: ['r2', 'r3', 'r4'] }, 'r5'],
+        ult: ['u1', { seq: ['u2', 'u3'] }, 'u3'],
+      },
+      pose(f, time) {
+        switch (f.state) {
+          case 'run': return ['run1', 'run2', 'run3', 'run4'][Math.floor(f.anim.run * 1.3) % 4];
+          case 'air': return f.vy < 0 ? 'jump' : 'fall';
+          case 'helpless': return 'fall';
+          case 'landing': return f.lagT > 6 ? 'crouch' : 'land';
+          case 'shield': return 'shield';
+          case 'spotdodge': return 'crouch';
+          case 'roll': case 'airdodge': return 'roll';
+          case 'hitstun': return f.lastKb > 22 ? 'launched' : 'hurt';
+          case 'stunned': return 'hurt';
+          case 'ledge': return 'ledge';
+        }
+        return Math.floor((time + f.slot * 17) / 32) % 2 ? 'idle2' : 'idle1';
+      },
+    },
   };
   S.sets = SETS;
 
@@ -187,6 +225,7 @@
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.scale(dir, 1);
+    if (p.vy) ctx.rotate(Math.atan2(p.vy, Math.abs(p.vx)));
     drawFrame(ctx, p.owner.def.sprite, name, 0, 0, 0, p.scale * (1 + Math.sin(time * 0.5) * 0.04), 0);
     ctx.restore();
   };

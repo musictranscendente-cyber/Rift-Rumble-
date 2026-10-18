@@ -74,7 +74,32 @@
     theme: { sky: ['#12051f', '#3a0f5c', '#8a2bb8'], platGlow: '#d24dff', accent: '#d24dff' },
   };
 
-  S.list = ['escorpiao', 'gemeos', 'ruinas', 'vulcao'];
+  // Arena do Altair: rampas (passarelas inclinadas) e plataformas em alturas diferentes (1 px = 0,8 unidade)
+  // plataforma com y2 = rampa: altura y na esquerda e y2 na direita
+  S.sagitario = {
+    id: 'sagitario', name: 'Observatório Celeste', desc: 'Arena do Altair: passarelas inclinadas e plataformas altas.',
+    solids: [{ x: -500, y: 0, w: 1000, h: 210 }],
+    plats: [
+      { x: -640, y: -140, w: 192 },
+      { x: -448, y: -140, w: 232, y2: 0 },
+      { x: -396, y: -192, w: 96 },
+      { x: -36, y: -192, w: 220 },
+      { x: 136, y: -112, w: 184 },
+      { x: 320, y: -112, w: 120, y2: 0 },
+      { x: 304, y: -202, w: 252 },
+    ],
+    blast: { left: -1300, right: 1300, top: -920, bottom: 620 },
+    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
+    respawn: { y: -480, xs: [-200, 200, -70, 70] },
+    image: { src: 'img/arena-sagitario.webp', x: -712, y: -460, w: 1338, h: 753 },
+    bg: { src: 'img/arena-sagitario-fundo.webp', parallax: 0.03 },
+    theme: { sky: ['#0a1440', '#1d3a8a', '#6fb2ff'], platGlow: '#7fe3ff', accent: '#ffd166' },
+  };
+
+  // altura da superfície da plataforma no ponto x (rampas são inclinadas)
+  S.surfaceY = (p, x) => (p.y2 == null ? p.y : p.y + ((p.y2 - p.y) * Math.min(1, Math.max(0, (x - p.x) / p.w))));
+
+  S.list = ['sagitario', 'escorpiao', 'gemeos', 'ruinas', 'vulcao'];
 
   S.prepare = function (st) {
     st.ledges = [];

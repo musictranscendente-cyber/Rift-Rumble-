@@ -31,7 +31,8 @@ button { font-family: inherit; }
 #screen-title { background: radial-gradient(ellipse at 50% 40%, rgba(20,15,58,0.2), rgba(20,15,58,0.75)); align-items: center; justify-content: center; }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
-.title-wrap { text-align: center; }
+.title-wrap { text-align: center; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto auto; column-gap: 4vh; align-items: center; }
+.title-wrap .emblem { grid-row: 1 / 4; height: min(62vh, 40vw); width: auto; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,.5)); }
 .logo { margin: 0; line-height: .85; font-style: italic; font-weight: 900; letter-spacing: 2px; font-size: min(17vh, 13vw); }
 .logo span { display: block; background: linear-gradient(180deg, #fff6c0, #ffd166 45%, #ff7a2a); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 0 #7a1f10) drop-shadow(0 8px 14px rgba(0,0,0,.5)); }
 .logo span + span { background: linear-gradient(180deg, #e6fff9, #4dabff 50%, #8f6bff); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 4px 0 #2f2560) drop-shadow(0 8px 14px rgba(0,0,0,.5)); margin-left: 8vh; }

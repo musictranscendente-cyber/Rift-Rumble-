@@ -467,9 +467,78 @@
     }),
   };
 
+  // ---------------- ALTAIR: arqueiro estelar (Sagitário) — arte em sprites ----------------
+  C.altair = {
+    id: 'altair', name: 'Altair', title: 'Arqueiro Estelar', arche: 'Arqueiro', sign: '♐',
+    sprite: 'altair',
+    color: '#4dc3ff', color2: '#ffd166', dark: '#16245c', fxColor: '#7fe3ff',
+    alts: [{ color: '#ffd166', color2: '#4dc3ff', dark: '#3a2a10' }],
+    w: 48, h: 78, weight: 85, walk: 7, air: 5.9, airAccel: 0.68, jump: 17.5, djump: 16, jumps: 2,
+    grav: 0.85, fall: 13, ff: 19,
+    stats: { Velocidade: 4, Força: 3, Peso: 2, Alcance: 5 },
+    skills: [
+      { key: 'A', name: 'Combo Celeste', desc: 'Três disparos rápidos de curta distância com o arco.' },
+      { key: 'B', name: 'Flecha Cometa', desc: 'Flecha de energia azul que atravessa a arena e todos no caminho.' },
+      { key: '↑B', name: 'Ascensão Estelar', desc: 'Explosão de energia que o impulsiona para cima.' },
+      { key: 'ULT', name: 'Chuva de Constelações', desc: 'Flechas cósmicas caem do céu sobre a área à frente.' },
+    ],
+    ai: { pref: 220, range: 110, specialRange: 900, ultRange: 500 },
+    moves: Object.assign(basics({ reach: 92, pow: 0.9, spd: -1, h: 78, w: 48, fx: 'light' }), {
+      special: {
+        name: 'Flecha Cometa', startup: 14, active: 1, recovery: 18, cooldown: 55, air: true, sfx: 'dash',
+        onFrame(f, g, t) {
+          if (t === 14)
+            g.spawnProjectile(f, {
+              type: 'orb', sprite: 'comet', scale: 0.8, pierce: true,
+              x: f.x + f.facing * 60, y: f.y - f.h * 0.5, vx: f.facing * 19,
+              w: 80, h: 30, life: 80, fx: 'light',
+              hit: hb(0, 0, 0, 0, 8, 6, 9, 25, { fx: 'light' }),
+            });
+        },
+      },
+      recovery: {
+        name: 'Ascensão Estelar', startup: 5, active: 18, recovery: 10, helpless: true, air: true, lc: true, landLag: 12,
+        grav: 0.4, noDrift: true, sfx: 'teleport',
+        onFrame(f, g, t) {
+          if (t === 5) {
+            f.vy = -20;
+            f.vx = f.inp.mx * 4;
+            g.burst(f.x, f.y, 'light', 14, 9);
+            g.ring(f.x, f.y, '#7fe3ff', 70);
+          }
+          if (t > 5 && t < 23 && t % 3 === 0) g.burst(f.x, f.y, 'light', 2);
+        },
+        hits: [hb(0, -30, 110, 110, 9, 8, 12, 82, { fx: 'light', t1: 6, radial: true })],
+      },
+      ult: {
+        name: 'Chuva de Constelações', startup: 16, active: 44, recovery: 20, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 30], sfx: 'ult',
+        onFrame(f, g, t) {
+          if (t === 1) {
+            f.vx = 0;
+            f.vy = 0;
+          }
+          if (t === 16) g.flashScreen('#9fe8ff', 0.35);
+          // flechas caindo do céu em ondas sobre a área à frente
+          if (t >= 16 && t < 56 && t % 4 === 0) {
+            const k = (t - 16) / 40;
+            const last = t === 52;
+            g.spawnProjectile(f, {
+              type: 'orb', sprite: 'volley', scale: last ? 1.05 : 0.75, pierce: true,
+              x: f.x + f.facing * (60 + U_rand(0, 420)), y: f.y - 520 - U_rand(0, 80),
+              vx: f.facing * 5, vy: 22, w: last ? 120 : 70, h: 70, life: 40, fx: 'light',
+              hit: last ? hb(0, 0, 0, 0, 12, 5, 19, 55, { fx: 'light' }) : hb(0, 0, 0, 0, 3, 3, 1, 70 - k * 20, { fx: 'light' }),
+            });
+          }
+          if (t === 52) g.shake = 18;
+        },
+      },
+    }),
+  };
+
   function U_rand(a, b) {
     return a + Math.random() * (b - a);
   }
 
-  C.list = ['vex', 'noxara', 'kael', 'zyra', 'gorak', 'lumi'];
+  C.list = ['vex', 'noxara', 'altair', 'kael', 'zyra', 'gorak', 'lumi'];
 })(window.RR);

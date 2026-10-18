@@ -34,6 +34,7 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 
 | Lutador | Estilo | A | B | ↑B | Ultimate |
 |---|---|---|---|---|---|
+| **Altair** ♐ | Arqueiro estelar (alcance 5) — arte em sprites | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
 | **Noxara** ♏ | Assassina ágil (veneno) — arte em sprites | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
 | **Vex** ♊ | Gêmeos (luz e sombra) — arte em sprites | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
 | **Kael** | Equilibrado (fogo) | Lâmina Ígnea | Bola de Fogo | Ascensão Flamejante | Inferno |
@@ -41,9 +42,9 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 | **Gorak** | Pesado, forte (pedra) | Punhos de Rocha | Tremor (blindado) | Salto Rochoso | Meteoro |
 | **Lumi** | À distância (gelo) | Cajado Cristal | Estilhaço de Gelo | Teleporte | Raio Prismático |
 
-Arenas: **Abismo do Escorpião** (arena da Noxara, com fundo cósmico separado), **Santuário dos Gêmeos** (arena do Vex, arte pintada), **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
+Arenas: **Observatório Celeste** (arena do Altair, com rampas inclinadas e plataformas em alturas diferentes), **Abismo do Escorpião** (arena da Noxara, com fundo cósmico separado), **Santuário dos Gêmeos** (arena do Vex, arte pintada), **Ruínas Celestes** (3 plataformas) e **Fenda Vulcânica** (larga, 2 plataformas).
 
-Vex e Noxara são os primeiros lutadores do elenco do zodíaco (`art/source/roster-zodiaco.jpg`); os outros 4 ainda usam a arte desenhada em código.
+Vex, Noxara e Altair são os primeiros lutadores do elenco do zodíaco (`art/source/roster-zodiaco.jpg`); os outros 4 ainda usam a arte desenhada em código.
 
 ## Estrutura
 
@@ -64,7 +65,7 @@ release/        APK gerado
 
 ### Arte em sprites (personagens do zodíaco)
 
-As folhas de personagem ficam em `art/source/` (fundo verde). `python3 tools/extract-vex.py` remove o verde, recorta cada quadro (`web/img/vex/`), calcula o ponto de apoio dos pés e gera `web/js/sprites-vex.js`. Em `web/js/sprites.js` fica qual quadro usar em cada estado/golpe e a escala de cada linha da folha. A arena vira `web/img/arena-gemeos.webp`; a colisão das plataformas está em `web/js/stages.js` (1 px da imagem = 0,8 unidade do mundo).
+As folhas de personagem ficam em `art/source/` (fundo verde). `python3 tools/extract-vex.py` remove o verde, recorta cada quadro (`web/img/vex/`), calcula o ponto de apoio dos pés e gera `web/js/sprites-vex.js`. Em `web/js/sprites.js` fica qual quadro usar em cada estado/golpe e a escala de cada linha da folha. Plataformas com `y2` em `stages.js` são rampas (altura `y` na esquerda e `y2` na direita). A logo (`art/source/logo-icone.png`) gera os ícones do app inteira, sem cortar. A arena vira `web/img/arena-gemeos.webp`; a colisão das plataformas está em `web/js/stages.js` (1 px da imagem = 0,8 unidade do mundo).
 
 Personagens novos seguem o modelo da Noxara: folha em grade (`tools/extract-noxara.py` + `tools/sprite_tools.py`) e uma entrada em `SETS` no `sprites.js` dizendo qual quadro usar em cada estado e golpe.
 

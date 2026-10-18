@@ -918,7 +918,7 @@
   function drawImageSky(ctx, g, W, H, bg) {
     const im = RR.sprites.image(bg.src);
     if (!RR.sprites.ready(im)) return;
-    const s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.12;
+    const s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.05;
     const base = RR.view ? RR.view.base : 1;
     const ox = -g.cam.x * base * (bg.parallax || 0.04);
     const oy = -(g.cam.y + 150) * base * (bg.parallax || 0.04);

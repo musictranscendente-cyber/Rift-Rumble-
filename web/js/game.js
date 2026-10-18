@@ -272,7 +272,7 @@
         // onda segue o chão; some ao sair da plataforma
         let onGround = false;
         for (const s of this.stage.solids) if (p.x > s.x && p.x < s.x + s.w && Math.abs(p.y - s.y) < 4) onGround = true;
-        for (const s of this.stage.plats) if (p.x > s.x && p.x < s.x + s.w && Math.abs(p.y - s.y) < 4) onGround = true;
+        for (const s of this.stage.plats) if (p.x > s.x && p.x < s.x + s.w && s.y2 == null && Math.abs(p.y - s.y) < 4) onGround = true;
         if (!onGround) p.dead = true;
         if (p.t % 4 === 0) this.burst(p.x, p.y, 'rock', 1, 3);
       } else if (p.type !== 'blast') {
@@ -283,7 +283,9 @@
             this.projFx(p);
           }
         }
-        if (p.t % 2 === 0) this.trail(p);
+        if (p.type === 'orb') {
+          if (p.t % 3 === 0) this.burst(p.x - p.vx, p.y - p.vy, p.fx, 1, 2);
+        } else if (p.t % 2 === 0) this.trail(p);
       }
       if (!p.dead) this.projHits(p, p.hit);
     }

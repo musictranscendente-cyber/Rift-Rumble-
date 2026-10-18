@@ -62,6 +62,7 @@ window.RR = window.RR || {};
     jumpH: false,
     attackP: false,
     specialP: false,
+    specialH: false,
     shieldH: false,
     shieldP: false,
     ultP: false,

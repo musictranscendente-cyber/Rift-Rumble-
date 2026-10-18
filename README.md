@@ -36,10 +36,10 @@ No PC (para testar): A/D/W/S ou setas, Espaço (pulo), J (ataque), K (especial),
 |---|---|---|---|---|---|
 | **Bront** ♉ | Colosso de pedra: lento, fortíssimo, pesado | Martelo de Rocha | Ruptura Sísmica (onda pelo chão) | Investida do Touro | Colosso da Terra |
 | **Lunara** ♋ | Tanque: lenta, forte e muito pesada | Garras da Maré | Orbe Abissal | Jato Lunar | Imperatriz do Oceano |
-| **Solkar** ♌ | Rei guerreiro: forte e pesado | Garras Solares | Rugido Solar (com armadura) | Ascensão do Leão | Coroa da Estrela |
-| **Astrael** ♐ | Arqueiro estelar (alcance 5) | Combo Celeste | Flecha Cometa (atravessa todos) | Ascensão Estelar | Chuva de Constelações |
-| **Noxara** ♏ | Assassina ágil (veneno) | Combo Ferrão | Lâmina Venenosa (envenena) | Espiral do Escorpião | Eclipse Venenoso |
-| **Vex** ♊ | Gêmeos de luz e sombra | Combo Gêmeo | Orbe Dual (alterna luz/sombra) | Espiral Gêmea | Dragões Gêmeos |
+| **Solkar** ♌ | Rei guerreiro: forte e pesado | Garras Solares | Rugido Solar (de perto: atordoa e devolve projéteis) | Ascensão do Leão | Queda do Sol (cai como meteoro no oponente) |
+| **Astrael** ♐ | Arqueiro estelar (alcance 5) | Combo Celeste | Flecha Cometa (segure para carregar) | Ascensão Estelar | Chuva de Constelações |
+| **Noxara** ♏ | Assassina ágil (veneno) | Combo Ferrão | Bote do Escorpião (agarrão com veneno) | Espiral do Escorpião | Dança do Eclipse (salta entre os oponentes) |
+| **Vex** ♊ | Gêmeos de luz e sombra | Combo Gêmeo | Passo Gêmeo (teleporte atrás do oponente) | Espiral Gêmea | Dragões Gêmeos (atravessam a arena) |
 
 Arenas: **Platô de Esmeralda** (Bront: disco aberto e baixo, só degraus de pedra na beira), **Santuário da Maré Lunar** (Lunara: pedestal da lua no centro e rochas flutuantes em alturas diferentes), **Trono Solar** (Solkar: escadarias, ilhas flutuantes no meio e plataformas altas), **Observatório Celeste** (Astrael: passarelas inclinadas), **Abismo do Escorpião** (Noxara) e **Santuário dos Gêmeos** (Vex).
 

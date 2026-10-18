@@ -173,7 +173,12 @@
   const MOVES = {
     vex: {
       special(g, f, t) {
-        if (t === 12) add(g, { k: 'yin', x: f.x + f.facing * 46, y: f.y - f.h * 0.5, r: 30, rot: 0, life: 12 });
+        // lampejo onde some e onde reaparece
+        if (t === 6 || t === 13) {
+          add(g, { k: 'yin', x: f.x, y: f.y - f.h * 0.5, r: 44, rot: 0, life: 14 });
+          for (let i = 0; i < 6; i++) P.star(g, f.x, f.y - f.h * 0.5, rnd(-6, 6), rnd(-6, 6), rnd(6, 10), i % 2 ? '#4dabff' : '#ff5fd2');
+        }
+        if (t === 14) basicFx(g, f, 'jab3', f.move);
       },
       recovery(g, f, t) {
         if (t === 4) add(g, { k: 'helix', f, cols: ['#4dabff', '#ff5fd2'], r: 46, h: 120, life: 24 });
@@ -181,10 +186,7 @@
       },
       ult(g, f, t) {
         if (t === 2) add(g, { k: 'sigil', f, cols: ['#4dabff', '#ff5fd2'], r: 120, life: 70 });
-        if (t === 14) {
-          add(g, { k: 'dragon', f, col: '#4dabff', col2: '#dff4ff', ph: 0, life: 42 });
-          add(g, { k: 'dragon', f, col: '#ff5fd2', col2: '#ffe0f6', ph: Math.PI, life: 42 });
-        }
+
       },
     },
     noxara: {
@@ -192,18 +194,25 @@
         if (t === 4) add(g, { k: 'helix', f, cols: ['#d24dff'], r: 40, h: 110, sting: true, life: 22 });
       },
       ult(g, f, t) {
-        if (t === 1) add(g, { k: 'eclipse', x: f.x + f.facing * 220, y: f.y - 250, r: 56, life: 76 });
-        if (t === 10) add(g, { k: 'stinger', x: f.x + f.facing * 40, y: f.y, dir: f.facing, reach: 330, life: 44 });
-        if (t === 46) {
-          const x = f.x + f.facing * 300;
-          P.shock(g, x, f.y, 110, '#d24dff', 22);
-          for (let i = 0; i < 10; i++) P.smoke(g, x + rnd(-80, 80), f.y - rnd(0, 60), rnd(-2, 2), rnd(-1.5, -0.3), rnd(26, 40), '#7cff4d', 0.35);
+        if (t === 1) add(g, { k: 'eclipse', x: f.x, y: f.y - 260, r: 56, life: 90 });
+        if (t === 1) add(g, { k: 'dark', life: 88 });
+        if (t === 66) {
+          // ferrão final: cauda gigante crava onde ela reapareceu
+          add(g, { k: 'stinger', x: f.x - f.facing * 30, y: f.y, dir: f.facing, life: 24, quick: true });
+          P.shock(g, f.x, f.y, 110, '#d24dff', 22);
+          for (let i = 0; i < 8; i++) P.smoke(g, f.x + rnd(-70, 70), f.y - rnd(0, 60), rnd(-2, 2), rnd(-1.5, -0.3), rnd(24, 36), '#a12bd6', 0.35);
         }
       },
     },
     astrael: {
       special(g, f, t) {
-        if (t === 14) add(g, { k: 'flare', x: f.x + f.facing * 60, y: f.y - f.h * 0.5, r: 60, col: '#9fe8ff', life: 12 });
+        // carga: estrelas sendo puxadas para a ponta da flecha
+        const c = f.mvar.c || 0;
+        if (t === 9 && c > 0 && c % 3 === 0) {
+          const a = rnd(0, TAU), x = f.x + f.facing * 50, y = f.y - f.h * 0.5;
+          P.star(g, x + Math.cos(a) * 60, y + Math.sin(a) * 60, -Math.cos(a) * 5, -Math.sin(a) * 5, rnd(5, 8) + c / 10, c >= 57 ? '#ffd166' : '#9fe8ff');
+        }
+        if (t === 10) add(g, { k: 'flare', x: f.x + f.facing * 60, y: f.y - f.h * 0.5, r: 40 + c, col: c >= 57 ? '#ffd166' : '#9fe8ff', life: 12 });
       },
       recovery(g, f, t) {
         if (t === 5) {
@@ -221,15 +230,24 @@
     },
     solkar: {
       special(g, f, t) {
-        if (t === 16) for (let i = 0; i < 8; i++) P.flame(g, f.x + f.facing * rnd(40, 80), f.y - f.h * 0.5 + rnd(-20, 20), f.facing * rnd(2, 6), rnd(-2, 1), rnd(12, 20));
+        if (t === 14) add(g, { k: 'roar', f, dir: f.facing, life: 18 });
+        if (t >= 14 && t < 22 && t % 2 === 0) P.flame(g, f.x + f.facing * rnd(50, 170), f.y - f.h * 0.5 + rnd(-40, 40), f.facing * rnd(3, 7), rnd(-2, 1), rnd(10, 16));
       },
       recovery(g, f, t) {
         if (t === 6) add(g, { k: 'firePillar', f, life: 22 });
         if (t > 6 && t < 26 && t % 2 === 0) P.flame(g, f.x + rnd(-20, 20), f.y + rnd(-10, 20), 0, rnd(1, 3), rnd(12, 18));
       },
       ult(g, f, t) {
-        if (t === 1) add(g, { k: 'sun', x: f.x - f.facing * 30, y: f.y - 220, r: 54, life: 76 });
-        if (t === 16) add(g, { k: 'lion', x0: f.x + f.facing * 40, y: f.y, dir: f.facing, dist: 420, life: 36 });
+        if (t === 1) {
+          P.shock(g, f.x, f.y, 90, '#ffb000');
+          for (let i = 0; i < 8; i++) P.flame(g, f.x + rnd(-30, 30), f.y - rnd(0, 20), rnd(-3, 3), rnd(-2, 0), rnd(14, 22));
+        }
+        if (t < 14 && t % 2 === 0) P.flame(g, f.x + rnd(-14, 14), f.y + rnd(0, 20), 0, 3, rnd(14, 20));
+        if (t === 26) add(g, { k: 'target', f, x: f.x, y: g.stage.solids[0].y, life: 30 });
+        if (t > 26 && !f.mvar.landed && !f.hidden) {
+          add(g, { k: 'meteor', x: f.x, y: f.y - f.h * 0.5, life: 6 });
+          P.flame(g, f.x + rnd(-24, 24), f.y - rnd(0, f.h), rnd(-2, 2), -6, rnd(18, 26));
+        }
       },
     },
     lunara: {
@@ -270,6 +288,70 @@
         }
       },
     },
+  };
+
+  // silhueta que fica no lugar onde a Noxara passou
+  V.ghost = function (g, f, x, y, dir) {
+    add(g, { k: 'ghost', f, x, y, dir, life: 14 });
+    for (let i = 0; i < 4; i++) P.smoke(g, x + rnd(-20, 20), y - rnd(10, 60), rnd(-1, 1), rnd(-1, 0), 16, '#7a1fa8', 0.45);
+  };
+
+  // impacto do Sol do Solkar
+  V.sunImpact = function (g, f) {
+    P.shock(g, f.x, f.y, 260, '#ffb000', 26);
+    add(g, { k: 'flare', x: f.x, y: f.y - 30, r: 160, col: '#ffd166', life: 18 });
+    add(g, { k: 'crack', x: f.x, y: f.y, r: 180, seed: Math.random() * 1000, life: 60 });
+    for (let i = 0; i < 26; i++) P.flame(g, f.x + rnd(-200, 200), f.y - rnd(0, 40), rnd(-3, 3), rnd(-5, -1), rnd(16, 28));
+  };
+
+  // dragão que atravessa a arena (projétil do ultimate do Vex)
+  V.drawSpirit = function (ctx, p, time) {
+    const N = 16;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, (p.life - p.t) / 12);
+    ctx.globalCompositeOperation = 'lighter';
+    const pt = (i) => [p.x - p.dir * i * 20, p.y + Math.sin(time * 0.25 - i * 0.55) * 18 * Math.min(1, i / 3)];
+    for (let i = N; i >= 1; i--) {
+      const [x, y] = pt(i);
+      glow(ctx, x, y, 40 * (1 - (i / N) * 0.7), p.col, i % 3 === 0 ? '#ffffff' : p.col2);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    const [hx, hy] = pt(0);
+    ctx.translate(hx, hy);
+    ctx.scale(p.dir, 1);
+    const hg = ctx.createLinearGradient(-20, 0, 50, 0);
+    hg.addColorStop(0, p.col);
+    hg.addColorStop(1, p.col2);
+    ctx.fillStyle = hg;
+    ctx.beginPath();
+    ctx.moveTo(52, 6);
+    ctx.lineTo(14, -24);
+    ctx.lineTo(-18, -20);
+    ctx.lineTo(-18, 20);
+    ctx.lineTo(14, 26);
+    ctx.closePath();
+    ctx.fill();
+    // boca aberta, chifres e olho
+    ctx.fillStyle = 'rgba(27,18,48,0.6)';
+    ctx.beginPath();
+    ctx.moveTo(52, 6);
+    ctx.lineTo(18, 4);
+    ctx.lineTo(40, 16);
+    ctx.fill();
+    ctx.fillStyle = p.col2;
+    ctx.beginPath();
+    ctx.moveTo(-8, -20);
+    ctx.lineTo(-40, -42);
+    ctx.lineTo(-2, -12);
+    ctx.moveTo(-8, 20);
+    ctx.lineTo(-36, 40);
+    ctx.lineTo(-2, 12);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.ellipse(16, -8, 7, 3.5, 0.3, 0, TAU);
+    ctx.fill();
+    ctx.restore();
   };
 
   // chamado a cada quadro de golpe (fighter.updAttack)
@@ -394,6 +476,73 @@
 
   const DRAW = {
     arc: drawArc,
+    dark(ctx, p, k) {
+      // escurece a cena inteira (desenhado no mundo: um retângulo bem grande)
+      ctx.globalAlpha = Math.min(1, k * 4, (1 - k) * 6) * 0.45;
+      ctx.fillStyle = '#12051f';
+      ctx.fillRect(-4000, -4000, 8000, 8000);
+    },
+    ghost(ctx, p, k) {
+      ctx.save();
+      ctx.globalAlpha = k * 0.7;
+      ctx.translate(p.x, p.y);
+      ctx.scale(p.dir, 1);
+      const gr = ctx.createLinearGradient(0, -80, 0, 0);
+      gr.addColorStop(0, 'rgba(255,95,210,0.9)');
+      gr.addColorStop(1, 'rgba(143,59,255,0.2)');
+      ctx.fillStyle = gr;
+      ctx.beginPath();
+      ctx.ellipse(0, -36, 22, 38, 0.2, 0, TAU);
+      ctx.fill();
+      // risco do corte
+      ctx.strokeStyle = '#ffe6fb';
+      ctx.lineWidth = 5 * k + 1;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-30, -90);
+      ctx.lineTo(80, 10);
+      ctx.stroke();
+      ctx.restore();
+    },
+    roar(ctx, p, k) {
+      // ondas de som em chamas saindo da boca do leão
+      const [fx, fy] = fpos(p.f);
+      const s = 1 - k;
+      ctx.save();
+      ctx.translate(fx + p.dir * 30, fy - 52);
+      ctx.scale(p.dir, 1);
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 4; i++) {
+        const r = 30 + ((s * 200 + i * 45) % 180);
+        const a = 1 - r / 210;
+        ctx.globalAlpha = Math.max(0, a) * Math.min(1, k * 3);
+        ctx.strokeStyle = i % 2 ? '#ffb000' : '#ff5a00';
+        ctx.lineWidth = 12 * a + 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, -0.6, 0.6);
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+    target(ctx, p, k) {
+      // marca no chão onde o sol vai cair
+      const [fx] = fpos(p.f);
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, k * 3) * 0.8;
+      ctx.strokeStyle = '#ffb000';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(fx, p.y - 2, 90 * (0.6 + k * 0.4), 18, 0, 0, TAU);
+      ctx.stroke();
+      ctx.restore();
+    },
+    meteor(ctx, p, k) {
+      ctx.save();
+      ctx.globalAlpha = k;
+      ctx.globalCompositeOperation = 'lighter';
+      glow(ctx, p.x, p.y, 80, 'rgba(255,90,0,0.55)', 'rgba(255,243,196,0.9)');
+      ctx.restore();
+    },
     chunk(ctx, p, k) {
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -751,58 +900,6 @@
       }
       ctx.restore();
     },
-    dragon(ctx, p, k) {
-      // dragão espiritual: corpo em fita que gira em volta do Vex e se abre para os lados
-      const [fx, fy] = fpos(p.f);
-      const s = 1 - k;
-      const pos = (u) => {
-        const a = p.ph + u * TAU * 1.7;
-        const R = 50 + u * 280;
-        return [fx + Math.cos(a) * R, fy - 70 + Math.sin(a) * R * 0.45 - u * 30];
-      };
-      const N = 22, len = 0.32;
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, k * 4, s * 8);
-      ctx.globalCompositeOperation = 'lighter';
-      for (let i = N; i >= 0; i--) {
-        const u = Math.max(0, s - (i / N) * len);
-        const [x, y] = pos(u);
-        glow(ctx, x, y, 34 * (1 - (i / N) * 0.7), p.col, i % 3 === 0 ? '#ffffff' : p.col2);
-      }
-      ctx.globalCompositeOperation = 'source-over';
-      // cabeça
-      const [hx, hy] = pos(s), [bx, by] = pos(Math.max(0, s - 0.02));
-      const ang = Math.atan2(hy - by, hx - bx);
-      ctx.translate(hx, hy);
-      ctx.rotate(ang);
-      const hg = ctx.createLinearGradient(-14, 0, 42, 0);
-      hg.addColorStop(0, p.col);
-      hg.addColorStop(1, p.col2);
-      ctx.fillStyle = hg;
-      ctx.beginPath();
-      ctx.moveTo(42, 0);
-      ctx.lineTo(10, -22);
-      ctx.lineTo(-14, -18);
-      ctx.lineTo(-14, 18);
-      ctx.lineTo(10, 22);
-      ctx.closePath();
-      ctx.fill();
-      // chifres e olho
-      ctx.fillStyle = p.col2;
-      ctx.beginPath();
-      ctx.moveTo(-6, -18);
-      ctx.lineTo(-30, -34);
-      ctx.lineTo(-2, -10);
-      ctx.moveTo(-6, 18);
-      ctx.lineTo(-30, 34);
-      ctx.lineTo(-2, 10);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.ellipse(12, -8, 6, 3, 0.3, 0, TAU);
-      ctx.fill();
-      ctx.restore();
-    },
     eclipse(ctx, p, k) {
       const s = 1 - k;
       const a = Math.min(1, s * 5, k * 4);
@@ -827,8 +924,8 @@
     stinger(ctx, p, k) {
       // cauda gigante: sobe do chão, enrola e crava o ferrão à frente
       const s = 1 - k;
-      const rise = Math.min(1, s / 0.45);
-      const strike = s < 0.7 ? 0 : Math.min(1, (s - 0.7) / 0.12);
+      const rise = Math.min(1, s / (p.quick ? 0.25 : 0.45));
+      const strike = p.quick ? Math.min(1, Math.max(0, (s - 0.25) / 0.15)) : s < 0.7 ? 0 : Math.min(1, (s - 0.7) / 0.12);
       const back = s > 0.9 ? (s - 0.9) / 0.1 : 0;
       const N = 14;
       const pts = [];
@@ -899,102 +996,6 @@
         star4(ctx, pts[i][0], pts[i][1], 12 + Math.sin(s * 20 + i) * 4, s * 3);
         ctx.fill();
       }
-      ctx.restore();
-    },
-    sun(ctx, p, k) {
-      const s = 1 - k;
-      const y = p.y + (1 - Math.min(1, s * 3)) * 120;
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, s * 4, k * 4);
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.translate(p.x, y);
-      glow(ctx, 0, 0, p.r * 2.4, 'rgba(255,140,42,0.45)', 'rgba(255,243,196,0.9)');
-      ctx.rotate(s * 2);
-      for (let i = 0; i < 12; i++) {
-        ctx.rotate(TAU / 12);
-        const rg = ctx.createLinearGradient(p.r * 0.8, 0, p.r * 2, 0);
-        rg.addColorStop(0, 'rgba(255,209,102,0.8)');
-        rg.addColorStop(1, 'rgba(255,90,0,0)');
-        ctx.fillStyle = rg;
-        ctx.beginPath();
-        ctx.moveTo(p.r * 0.8, -10);
-        ctx.lineTo(p.r * 2, 0);
-        ctx.lineTo(p.r * 0.8, 10);
-        ctx.fill();
-      }
-      glow(ctx, 0, 0, p.r, '#ffd166', '#ffffff');
-      ctx.restore();
-    },
-    lion(ctx, p, k) {
-      // leão de energia solar: juba de chamas, rosto de luz e coroa, avançando pelo chão
-      const s = 1 - k;
-      const e = 1 - Math.pow(1 - Math.min(1, s / 0.75), 2);
-      const x = p.x0 + p.dir * p.dist * e, y = p.y - 90;
-      const R = 50 + Math.min(1, s * 4) * 22;
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, s * 6, k * 4);
-      // rastro de chamas no chão
-      const gr = ctx.createLinearGradient(p.x0, 0, x, 0);
-      gr.addColorStop(0, 'rgba(255,90,0,0)');
-      gr.addColorStop(1, 'rgba(255,176,0,0.8)');
-      ctx.fillStyle = gr;
-      ctx.beginPath();
-      ctx.moveTo(p.x0, p.y);
-      for (let i = 0; i <= 10; i++) ctx.lineTo(p.x0 + (x - p.x0) * (i / 10), p.y - 30 - (i / 10) * 60 - Math.abs(Math.sin(s * 25 + i)) * 20);
-      ctx.lineTo(x, p.y);
-      ctx.closePath();
-      ctx.fill();
-      ctx.translate(x, y);
-      ctx.scale(p.dir, 1);
-      ctx.globalCompositeOperation = 'lighter';
-      glow(ctx, 0, 0, R * 2.3, 'rgba(255,90,0,0.5)', 'rgba(255,209,102,0.8)');
-      // juba: línguas de fogo para trás e para os lados
-      for (let i = 0; i < 14; i++) {
-        const a = Math.PI * 0.5 + (i / 13) * Math.PI + Math.sin(s * 20 + i) * 0.08;
-        const L = R * (1.5 + Math.abs(Math.sin(s * 18 + i * 1.7)) * 0.6);
-        const fg = ctx.createLinearGradient(0, 0, Math.cos(a) * L, Math.sin(a) * L);
-        fg.addColorStop(0, 'rgba(255,243,196,0.9)');
-        fg.addColorStop(0.5, 'rgba(255,140,42,0.7)');
-        fg.addColorStop(1, 'rgba(255,60,0,0)');
-        ctx.fillStyle = fg;
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(a - 0.25) * R * 0.6, Math.sin(a - 0.25) * R * 0.6);
-        ctx.lineTo(Math.cos(a) * L, Math.sin(a) * L);
-        ctx.lineTo(Math.cos(a + 0.25) * R * 0.6, Math.sin(a + 0.25) * R * 0.6);
-        ctx.fill();
-      }
-      // focinho
-      glow(ctx, R * 0.25, R * 0.15, R * 0.95, 'rgba(255,209,102,0.85)', '#ffffff');
-      glow(ctx, R * 0.7, R * 0.3, R * 0.45, 'rgba(255,209,102,0.7)', '#fff3c4');
-      ctx.globalCompositeOperation = 'source-over';
-      // olhos brancos em fenda
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.moveTo(R * 0.15, -R * 0.12);
-      ctx.lineTo(R * 0.55, -R * 0.22);
-      ctx.lineTo(R * 0.5, -R * 0.06);
-      ctx.closePath();
-      ctx.fill();
-      // boca rugindo
-      ctx.fillStyle = 'rgba(122,42,16,0.8)';
-      ctx.beginPath();
-      ctx.ellipse(R * 0.62, R * 0.52, R * 0.18, R * 0.08 + Math.abs(Math.sin(s * 14)) * R * 0.08, 0.2, 0, TAU);
-      ctx.fill();
-      // coroa dourada
-      const cg = ctx.createLinearGradient(0, -R * 1.2, 0, -R * 0.6);
-      cg.addColorStop(0, '#fff6c0');
-      cg.addColorStop(1, '#ffb000');
-      ctx.fillStyle = cg;
-      ctx.beginPath();
-      ctx.moveTo(-R * 0.35, -R * 0.62);
-      ctx.lineTo(-R * 0.28, -R * 1.02);
-      ctx.lineTo(-R * 0.06, -R * 0.76);
-      ctx.lineTo(R * 0.12, -R * 1.14);
-      ctx.lineTo(R * 0.28, -R * 0.76);
-      ctx.lineTo(R * 0.48, -R * 0.98);
-      ctx.lineTo(R * 0.46, -R * 0.6);
-      ctx.closePath();
-      ctx.fill();
       ctx.restore();
     },
   };

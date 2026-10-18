@@ -24,6 +24,10 @@
     poll(f, g) {
       const o = RR.U.blankInput();
       if (!f.alive) return o;
+      if (f.state === 'attack' && f.moveId === 'special' && f.def.moves.special.charge) {
+        const t = this.pickTarget(f, g);
+        o.specialH = !!t && Math.abs(t.x - f.x) > 260 && (f.mvar.c || 0) < 40 + this.level * 6;
+      }
       const st = g.stage;
       const p = this.p;
 

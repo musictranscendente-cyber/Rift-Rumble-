@@ -223,6 +223,11 @@
       b.hidden = false;
       b.setState('hitstun');
       b.hitstun = Math.floor(kb * 0.85) + 4 + (h.freeze || 0);
+      if (h.stun) {
+        // atordoado: fica tonto no lugar (o empurrão já foi dado)
+        b.setState('stunned');
+        b.stunT = h.stun;
+      }
       b.frozen = h.freeze || 0;
       b.lastKb = kb;
       b.anim.spin = 0;

@@ -60,10 +60,10 @@
         downG: ['c1a', ['c1b', 0.35], ['c1b', 0.35]],
         nair: ['c1c', 'c1d', 'c1d'],
         dair: ['c1c', ['c1d', 1.3], ['c1d', 1.3]],
+        special: ['castB', 'c3b', 'c3b'],
         recovery: ['rec1', 'rec2', 'rec3'],
         ult: ['ult1', 'ult2', 'ult3'],
       },
-      moveFrames: (f) => (f.moveId === 'special' ? (f.twinDark ? ['castB', 'castB', 'castB'] : ['castA', 'castA', 'castA']) : null),
       pose(f) {
         switch (f.state) {
           case 'run': return 'c1a';

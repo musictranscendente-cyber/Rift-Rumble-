@@ -55,7 +55,7 @@
       const o = {
         mx, my,
         jumpP: this.latch.jump, jumpH: H('jump'),
-        attackP: this.latch.attack, specialP: this.latch.special,
+        attackP: this.latch.attack, specialP: this.latch.special, specialH: H('special'),
         shieldH: H('shield'), shieldP: this.latch.shield,
         ultP: this.latch.ult,
         downP: my > 0.6 && this.prevMy <= 0.6,

@@ -163,7 +163,7 @@
   }
 
   function drawFighterAt(ctx, f, g, time) {
-    if (f.state === 'dead' || f.state === 'out') return;
+    if (f.state === 'dead' || f.state === 'out' || f.hidden) return;
     const d = f.def;
     ctx.save();
     ctx.translate(f.x, f.y);

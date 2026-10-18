@@ -102,10 +102,28 @@
     theme: { sky: ['#04163a', '#0b4a8a', '#5ad0ff'], platGlow: '#8fdcff', accent: '#8fdcff' },
   };
 
+  // Arena do Bront: disco largo e baixo, sem nada no alto; só degraus de pedra na beira (blocos laterais e lajes do fundo)
+  S.touro = {
+    id: 'touro', name: 'Platô de Esmeralda', desc: 'Arena do Bront: disco aberto e baixo sobre as ilhas flutuantes.',
+    solids: [{ x: -528, y: 0, w: 1056, h: 210 }],
+    plats: [
+      { x: -636, y: -58, w: 152 },
+      { x: 452, y: -58, w: 188 },
+      { x: -496, y: -98, w: 352 },
+      { x: 140, y: -98, w: 360 },
+    ],
+    blast: { left: -1300, right: 1300, top: -900, bottom: 620 },
+    spawns: [{ x: -300, y: 0 }, { x: 300, y: 0 }, { x: -110, y: 0 }, { x: 110, y: 0 }],
+    respawn: { y: -460, xs: [-200, 200, -70, 70] },
+    image: { src: 'img/arena-touro.webp', x: -668, y: -360, w: 1338, h: 753 },
+    bg: { src: 'img/arena-touro-fundo.webp', parallax: 0.03 },
+    theme: { sky: ['#3a5aa8', '#8fb8ff', '#ffd9a8'], platGlow: '#5dffa8', accent: '#3ddc84' },
+  };
+
   // altura da superfície da plataforma no ponto x (rampas são inclinadas)
   S.surfaceY = (p, x) => (p.y2 == null ? p.y : p.y + ((p.y2 - p.y) * Math.min(1, Math.max(0, (x - p.x) / p.w))));
 
-  S.list = ['cancer', 'leao', 'sagitario', 'escorpiao', 'gemeos'];
+  S.list = ['touro', 'cancer', 'leao', 'sagitario', 'escorpiao', 'gemeos'];
 
   S.prepare = function (st) {
     st.ledges = [];

@@ -25,7 +25,8 @@ def key_auto(img, lo=55, hi=110, klo=70, khi=120):
 def video_frames(video, out_dir, name, a, b, step, mode, R, keyfn, body_h=None):
     """Extrai os quadros a..b (passo step), mesmo recorte para todos.
     mode: 'fixed' (pés fixos), 'medfoot' (pés pela mediana), 'bottom' (base de cada quadro),
-          'jet' (base do corpo largo), 'center' (centro, para projéteis), 'follow' (centro e base de cada quadro)."""
+          'jet' (base do corpo largo), 'center' (centro, para projéteis), 'follow' (centro e base de cada quadro),
+          'first' (pés do primeiro quadro, para efeitos que crescem e passam dos pés)."""
     tmp = tempfile.mkdtemp()
     subprocess.run(['ffmpeg', '-v', 'error', '-i', video, os.path.join(tmp, '%03d.png')], check=True)
     idx = list(range(a, b + 1, step))
@@ -42,6 +43,9 @@ def video_frames(video, out_dir, name, a, b, step, mode, R, keyfn, body_h=None):
     band = ys > foot - (foot - ys.min()) * 0.15
     ax = (xs[band].mean() - x0) * R
     ay = (y1 - 4 - y0) * R
+    if mode == 'first':
+        # pés onde estavam no primeiro quadro (efeitos grandes depois não mexem no apoio)
+        ay = (foot - y0) * R
     if mode == 'medfoot':
         feet = [np.nonzero((k[..., 3] > 200).sum(axis=1) > 25)[0].max() for k in keyed]
         ay = (float(np.median(feet)) - y0) * R
@@ -84,3 +88,16 @@ def to_webp(out_dir):
             p = os.path.join(out_dir, f)
             Image.open(p).save(p[:-4] + '.webp', 'WEBP', quality=90, method=6)
             os.remove(p)
+
+
+def key_fx(img, top=60, side=70, bottom=20):
+    """Fundo verde com efeitos brilhantes: tira o brilho verde que sobra e esfuma as bordas do quadro,
+    para o que o vídeo cortou (ondas nas laterais, pinças no topo) sumir suave em vez de virar uma linha reta."""
+    from chroma import key
+    k = np.asarray(key(img, lo=30, hi=90)).astype(np.float32)
+    r, g, b, a = (k[..., i] for i in range(4))
+    g = np.minimum(g, np.maximum(r, b) + 12)
+    H, W = a.shape
+    y, x = np.arange(H)[:, None], np.arange(W)[None, :]
+    fade = np.clip(y / top, 0, 1) * np.clip((H - 1 - y) / bottom, 0, 1) * np.clip(x / side, 0, 1) * np.clip((W - 1 - x) / side, 0, 1)
+    return Image.fromarray(np.dstack([r, g, b, a * fade]).clip(0, 255).astype(np.uint8), 'RGBA')

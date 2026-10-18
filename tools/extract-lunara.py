@@ -52,6 +52,8 @@ for f in os.listdir(OUT):
 manifest = extract(os.path.join(SRC, 'lunara-sheet.png'), SHEET, OUT, 'lunara', ROOT, anchors=ANCH)
 for name, args in VIDEOS.items():
     manifest.update(video_frames(name, *args))
+# Imperatriz do Oceano (ultimate): tornado, caranguejo gigante e ondas; o vídeo corta nas bordas, então esfuma
+manifest.update(vt.video_frames(os.path.join(SRC, 'ult.mp4'), OUT, 'vult', 5, 141, 3, 'first', 0.5, vt.key_fx))
 json.dump(manifest, open(os.path.join(OUT, 'lunara.json'), 'w'), indent=1)
 with open(os.path.join(ROOT, 'web/js/sprites-lunara.js'), 'w') as f:
     f.write('// Gerado por tools/extract-lunara.py: tamanho e ponto de apoio (pés) de cada quadro da Lunara\n')

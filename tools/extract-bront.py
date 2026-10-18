@@ -48,3 +48,14 @@ with open(os.path.join(ROOT, 'web/js/sprites-bront.js'), 'w') as f:
     f.write('window.RR = window.RR || {};\nRR.spriteData = RR.spriteData || {};\nRR.spriteData.bront = ' + json.dumps(manifest) + ';\n')
 import collections
 print(collections.Counter(k.rstrip('0123456789') for k in manifest))
+
+# arena do Bront: o fundo verde sai pela distância até a cor da borda, assim a esmeralda do centro fica
+a = np.asarray(Image.open(os.path.join(SRC, 'arena-touro.webp')).convert('RGB')).astype(np.float32)
+bg = np.median(np.concatenate([a[:8].reshape(-1, 3), a[:, :8].reshape(-1, 3)]), axis=0)
+alpha = np.clip((np.sqrt(((a - bg) ** 2).sum(axis=2)) - 60) / 60, 0, 1)
+r, g, b = a[..., 0], a[..., 1], a[..., 2]
+g = np.where(alpha < 1, np.minimum(g, np.maximum(r, b)), g)
+Image.fromarray(np.dstack([r, g, b, alpha * 255]).clip(0, 255).astype(np.uint8), 'RGBA').save(
+    os.path.join(ROOT, 'web/img/arena-touro.webp'), 'WEBP', quality=88, method=6)
+Image.open(os.path.join(SRC, 'arena-touro-fundo.webp')).convert('RGB').save(
+    os.path.join(ROOT, 'web/img/arena-touro-fundo.webp'), 'WEBP', quality=82, method=6)

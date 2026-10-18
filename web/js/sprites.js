@@ -37,7 +37,7 @@
   const VRUN = seqNames('vrun', 12), VIDLE = seqNames('vidle', 16), VJAB = seqNames('vjab', 17), VWIN = seqNames('vwin', 21);
   const VJAB2 = seqNames('vjab2', 19), VJAB3 = seqNames('vjab3', 23);
   const VJUMP = seqNames('vjump', 9).slice(1), VREC = seqNames('vrec', 16);
-  const VSP = seqNames('vsp', 34), VORB = seqNames('vorb', 17);
+  const VSP = seqNames('vsp', 34), VORB = seqNames('vorb', 17), VULT = seqNames('vult', 46);
   const BRUN = seqNames('brun', 11), BIDLE = seqNames('bidle', 16), BJAB = seqNames('bjab', 23), BJAB2 = seqNames('bjab2', 18);
   const BJAB3 = seqNames('bjab3', 26), BSPEC = seqNames('bspec', 21), BJUMP = seqNames('bjump', 8), BREC = seqNames('brec', 17);
   const BWIN = seqNames('bwin', 21), BULT = seqNames('bult', 24);
@@ -196,9 +196,9 @@
       shieldFrame: true,
       alias: { win: 'vwin12' },
       frames: ['stance', 'swipe', 'spin', 'up', 'wave', 'claw', 'cast', 'orbA', 'orbB', 'splash', 'jump', 'rise1', 'rise2',
-        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN, VJAB2, VJAB3, VJUMP, VREC, VSP, VORB),
+        'low', 'fall', 'dive', 'charge', 'u1', 'u2', 'u3', 'hurt', 'dizzy', 'ko', 'bubble', 'dash', 'face'].concat(VRUN, VIDLE, VJAB, VWIN, VJAB2, VJAB3, VJUMP, VREC, VSP, VORB, VULT),
       // cada fonte foi desenhada num tamanho: vídeo (v...), vídeo da vitória (com zoom) e folha
-      scale: { vwin: 0.5, v: 0.6, default: 0.66 },
+      scale: { vult: 0.75, vwin: 0.5, v: 0.6, default: 0.66 },
       moves: {
         jab1: { track: VJAB },
         jab2: { track: VJAB2 },
@@ -209,7 +209,7 @@
         dair: ['fall', 'dive', 'dive'],
         special: { track: VSP },
         recovery: { track: VREC },
-        ult: ['u1', { seq: ['u2'] }, 'u3'],
+        ult: { track: VULT },
       },
       winFrame: (time) => VWIN[Math.floor(time / 3) % VWIN.length],
       pose(f, time) {

@@ -383,26 +383,26 @@
         ],
       },
       ult: {
-        name: 'Imperatriz do Oceano', startup: 18, active: 36, recovery: 24, air: true, grav: 0.1, noDrift: true,
-        intang: [1, 34], sfx: 'ult',
+        // segue o vídeo: tornado e caranguejo gigante (60), pinças descem (t 86 = batida) e ondas, depois volta ao normal
+        name: 'Imperatriz do Oceano', startup: 60, active: 50, recovery: 40, air: true, grav: 0.1, noDrift: true,
+        intang: [1, 90], sfx: 'ult',
         onFrame(f, g, t) {
           if (t === 1) {
             f.vx = 0;
             f.vy = 0;
           }
-          if (t === 18) {
+          if (t === 20) g.flashScreen('#8fdcff', 0.3);
+          if (t === 60) g.shake = 10;
+          if (t > 86 && t < 112 && t % 3 === 0) g.burst(f.x + U_rand(-260, 260), f.y - U_rand(0, 140), 'water', 2, 8);
+          if (t === 86) {
             g.flashScreen('#8fdcff', 0.45);
-            g.shake = 16;
-          }
-          if (t > 18 && t < 54 && t % 3 === 0) g.burst(f.x + U_rand(-280, 280), f.y - U_rand(0, 160), 'water', 2, 8);
-          if (t === 46) {
             g.shake = 26;
             RR.audio.play('heavyhit');
           }
         },
         hits: [
-          hb(0, -80, 560, 220, 3, 3, 1, 65, { fx: 'water', multi: 6, radial: true, t1: 26 }),
-          hb(0, -80, 600, 240, 13, 6, 20, 45, { fx: 'water', t0: 26, group: 1, radial: true }),
+          hb(0, -80, 480, 220, 3, 3, 1, 65, { fx: 'water', multi: 6, radial: true, t1: 26 }),
+          hb(0, -80, 520, 240, 13, 6, 20, 45, { fx: 'water', t0: 26, group: 1, radial: true }),
         ],
       },
     }),

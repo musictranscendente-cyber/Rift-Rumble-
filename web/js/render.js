@@ -384,7 +384,7 @@
       if (!out && f.state !== 'dead') {
         text(ctx, pc + '%', x + cw - 10 + ox, y + 24 + oy, Math.min(28, cw * 0.19), pctColor(pc), 'right');
       } else {
-        text(ctx, out ? 'FORA' : 'KO', x + cw - 10, y + 24, 18, '#aaa', 'right');
+        text(ctx, out ? RR.t('FORA') : 'KO', x + cw - 10, y + 24, 18, '#aaa', 'right');
       }
       // vidas ou placar
       if (g.mode === 'stock') {

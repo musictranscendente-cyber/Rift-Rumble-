@@ -3,7 +3,8 @@
   const U = RR.U;
   const ui = (RR.ui = {});
   const $ = (s) => document.querySelector(s);
-  const LEVEL_NAMES = ['Fácil', 'Médio', 'Difícil'];
+  const T = RR.t;
+  const LEVEL_NAMES = ['Fácil', 'Médio', 'Difícil'].map(T);
 
   const cfg = Object.assign(
     { char: 'solkar', mode: 'stock', bots: 1, level: 1, stage: 'leao', cpuChars: ['random', 'random', 'random'] },
@@ -74,7 +75,7 @@
       grid.appendChild(card);
       portraits.push({ cv, d });
     }
-    seg('#optMode', [['stock', '3 Vidas'], ['time', 'Tempo 2min']], () => cfg.mode, (v) => (cfg.mode = v));
+    seg('#optMode', [['stock', T('3 Vidas')], ['time', T('Tempo 2min')]], () => cfg.mode, (v) => (cfg.mode = v));
     seg('#optBots', [[1, '1'], [2, '2'], [3, '3']], () => cfg.bots, (v) => (cfg.bots = v));
     seg('#optLevel', LEVEL_NAMES.map((n, i) => [i, n]), () => cfg.level, (v) => (cfg.level = v));
     refreshSelect();
@@ -226,12 +227,26 @@
     const p = $('#optionsPanel');
     const s = RR.settings;
     const toggles = [
-      ['sound', 'Efeitos sonoros'],
-      ['music', 'Música'],
-      ['vibration', 'Vibração'],
-      ['hitboxes', 'Mostrar hitboxes (debug)'],
+      ['sound', T('Efeitos sonoros')],
+      ['music', T('Música')],
+      ['vibration', T('Vibração')],
+      ['hitboxes', T('Mostrar hitboxes (debug)')],
     ];
     p.innerHTML = '';
+    const lr = document.createElement('div');
+    lr.className = 'row';
+    lr.innerHTML = `<span>${RR.lang === 'en' ? 'Language' : 'Idioma / Language'}</span>`;
+    const ls = document.createElement('div');
+    ls.className = 'seg';
+    for (const [v, name] of [['pt', 'Português'], ['en', 'English']]) {
+      const b = document.createElement('button');
+      b.textContent = name;
+      b.classList.toggle('on', RR.lang === v);
+      b.addEventListener('click', () => v !== RR.lang && RR.setLang(v));
+      ls.appendChild(b);
+    }
+    lr.appendChild(ls);
+    p.appendChild(lr);
     for (const [k, label] of toggles) {
       const row = document.createElement('div');
       row.className = 'row';
@@ -250,8 +265,8 @@
       p.appendChild(row);
     }
     const sliders = [
-      ['ctrlSize', 'Tamanho dos controles', 0.7, 1.4, 0.05],
-      ['ctrlOpacity', 'Opacidade dos controles', 0.2, 1, 0.05],
+      ['ctrlSize', T('Tamanho dos controles'), 0.7, 1.4, 0.05],
+      ['ctrlOpacity', T('Opacidade dos controles'), 0.2, 1, 0.05],
     ];
     for (const [k, label, min, max, step] of sliders) {
       const row = document.createElement('div');
@@ -340,10 +355,10 @@
     const won = rank[0] === human;
     RR.platform.gameplayStop();
     if (won) RR.platform.happy();
-    $('#resTitle').textContent = won ? 'VITÓRIA!' : 'DERROTA';
+    $('#resTitle').textContent = T(won ? 'VITÓRIA!' : 'DERROTA');
     $('#resTitle').style.color = won ? '#ffd166' : '#ff6b6b';
     const tbl = $('#resTable');
-    tbl.innerHTML = '<div class="res-row head"><span></span><span></span><span>LUTADOR</span><span class="v">KOs</span><span class="v">QUEDAS</span><span class="v">DANO</span></div>';
+    tbl.innerHTML = `<div class="res-row head"><span></span><span></span><span>${T('LUTADOR')}</span><span class="v">KOs</span><span class="v">${T('QUEDAS')}</span><span class="v">${T('DANO')}</span></div>`;
     rank.forEach((f, i) => {
       const row = document.createElement('div');
       row.className = 'res-row';
@@ -351,7 +366,7 @@
       const cv = document.createElement('canvas');
       cv.width = 92;
       cv.height = 92;
-      row.innerHTML = `<span class="pos">${i + 1}º</span>`;
+      row.innerHTML = `<span class="pos">${RR.lang === 'en' ? i + 1 + ['st', 'nd', 'rd', 'th'][Math.min(i, 3)] : i + 1 + 'º'}</span>`;
       row.appendChild(cv);
       row.insertAdjacentHTML(
         'beforeend',

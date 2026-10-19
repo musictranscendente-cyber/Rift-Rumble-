@@ -16,6 +16,7 @@
     water: ['#ffffff', '#8fdcff', '#3db4ff'],
   };
   RR.FX_COLORS = FX_COLORS;
+  const T = (s) => (RR.t ? RR.t(s) : s);
   const PCOLORS = ['#ff4d6d', '#4dabff', '#ffd23f', '#7cff6b'];
   RR.PCOLORS = PCOLORS;
 
@@ -72,7 +73,7 @@
           this.phase = 'play';
           this.phaseT = 0;
           sfx('go');
-          this.showMessage('LUTEM!', 50);
+          this.showMessage(T('LUTEM!'), 50);
         }
         this.drainHuman();
         for (const f of this.fighters) {
@@ -104,7 +105,7 @@
             w.moveAndCollide(this);
           }
           if (this.endT === 150) {
-            this.showMessage(w.def.name.toUpperCase() + ' VENCEU!', 150, w.def.color);
+            this.showMessage(w.def.name.toUpperCase() + ' ' + T('VENCEU!'), 150, w.def.color);
             this.flashScreen('#ffffff', 0.35);
             this.ring(w.x, w.y - w.h * 0.5, w.def.color, 160);
           }
@@ -420,7 +421,7 @@
       if (this.phase === 'ending' || this.phase === 'done') return;
       this.phase = 'ending';
       this.endT = 230;
-      this.showMessage(this.mode === 'time' ? 'TEMPO!' : 'FIM DE JOGO!', 80, '#ffd166');
+      this.showMessage(T(this.mode === 'time' ? 'TEMPO!' : 'FIM DE JOGO!'), 80, '#ffd166');
       sfx('game');
       this.hitstop = 0;
       RR.ui && RR.ui.hideControls && RR.ui.hideControls(true);

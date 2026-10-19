@@ -38,7 +38,7 @@
   function startDemo() {
     const ids = RR.chars.list.slice().sort(() => Math.random() - 0.5).slice(0, 4);
     RR.match = new RR.Match({
-      mode: 'time', time: 99999, stageId: U.pick(RR.stages.list),
+      mode: 'time', time: 99999, stageId: U.pick(RR.stages.list), demo: true,
       players: ids.map((id) => ({ charId: id, type: 'cpu', level: 2 })),
     });
     RR.match.demo = true;
@@ -67,6 +67,7 @@
         click();
         cfg.char = id;
         saveCfg();
+        RR.sprites.preload(d.sprite);
         refreshSelect();
         sc.mode = 'show';
         sc.t0 = sc.time;

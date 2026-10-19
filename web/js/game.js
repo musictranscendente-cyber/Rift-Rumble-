@@ -22,6 +22,9 @@
 
   class Match {
     constructor(cfg) {
+      // animações completas dos lutadores desta partida
+      // (a luta de fundo do menu não: ela carrega só os quadros que usar, para o jogo abrir rápido)
+      if (RR.sprites && !cfg.demo) for (const p of cfg.players) RR.sprites.preload(RR.chars[p.charId].sprite);
       this.cfg = cfg;
       this.stage = RR.stages.prepare(RR.stages[cfg.stageId]);
       for (const L of this.stage.ledges) L.occ = null;

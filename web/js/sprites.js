@@ -269,7 +269,16 @@
   S.seq = seqNames;
 
   const path = (id, name) => `img/${id}/${name}.${SETS[id].ext || 'png'}`;
-  for (const [id, set] of Object.entries(SETS)) for (const fr of set.frames) S.image(path(id, fr));
+  // ao abrir só o essencial (pose parada e rosto); o resto vem quando o
+  // personagem entra numa luta ou é escolhido, e qualquer quadro pedido no desenho começa a carregar
+  const preloaded = {};
+  S.preload = function (id) {
+    if (!SETS[id] || preloaded[id]) return;
+    preloaded[id] = true;
+    for (const fr of SETS[id].frames) S.image(path(id, fr));
+  };
+  for (const [id, set] of Object.entries(SETS))
+    for (const fr of [set.idle, set.portrait]) if (fr) S.image(path(id, fr));
 
   function scaleOf(set, name) {
     if (typeof set.scale === 'number') return set.scale;
@@ -290,9 +299,11 @@
 
   function drawFrame(ctx, id, name, x, y, rot, mul, h) {
     if (SETS[id].alias && SETS[id].alias[name]) name = SETS[id].alias[name];
-    const im = cache[path(id, name)];
+    const im = S.image(path(id, name));
     const m = RR.spriteData[id] && RR.spriteData[id][name];
-    if (!ready(im) || !m) return;
+    if (!m) return;
+    // quadro ainda chegando pela rede: mostra a pose parada no lugar
+    if (!ready(im)) return name !== SETS[id].idle && drawFrame(ctx, id, SETS[id].idle, x, y, 0, mul, h);
     const s = scaleOf(SETS[id], name) * (mul || 1);
     ctx.save();
     ctx.translate(x, y);

@@ -3,6 +3,7 @@
   const A = (RR.audio = {});
   let ctx = null;
   let master, sfxGain, musicGain, noiseBuf;
+  let muted = false; // mudo pedido pelo site (CrazyGames)
 
   A.init = function () {
     if (ctx) {
@@ -13,7 +14,7 @@
     if (!AC) return;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.85;
+    master.gain.value = muted ? 0 : 0.85;
     master.connect(ctx.destination);
     sfxGain = ctx.createGain();
     sfxGain.gain.value = 0.7;
@@ -24,6 +25,11 @@
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  };
+
+  A.setMuted = function (m) {
+    muted = !!m;
+    if (master) master.gain.setTargetAtTime(muted ? 0 : 0.85, ctx.currentTime, 0.05);
   };
 
   A.suspend = () => ctx && ctx.state === 'running' && ctx.suspend();

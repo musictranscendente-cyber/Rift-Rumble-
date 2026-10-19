@@ -16,7 +16,15 @@
       P.name = 'crazygames';
     } catch (e) {
       sdk = null;
+      return;
     }
+    // o menu já está pronto para jogar: avisa que o carregamento acabou (o resto das imagens vem durante o uso)
+    call(() => sdk.game.loadingStart());
+    call(() => sdk.game.loadingStop());
+    // botão de mudo do site
+    const applyMute = () => call(() => RR.audio.setMuted(sdk.game.settings && sdk.game.settings.muteAudio));
+    applyMute();
+    call(() => sdk.game.addSettingsChangeListener(applyMute));
   };
 
   const call = (fn) => {

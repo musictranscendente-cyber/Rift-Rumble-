@@ -1,5 +1,5 @@
 // Idiomas: português e inglês. O jogo é escrito em português; aqui fica a tradução de cada texto.
-// Idioma: o salvo nas opções, senão o do aparelho (português -> PT, qualquer outro -> EN).
+// Idioma: o salvo nas opções; sem escolha salva, inglês.
 // Os textos do HTML são trocados ao carregar; os do código passam por RR.t().
 (function (RR) {
   const U = RR.U;
@@ -149,7 +149,7 @@
       <p>Fall near an edge to <b>grab</b> it. Then: forward climbs, jump leaps, attack climbs attacking. When knocked out, you return on a high platform at 0% and stay <b>invincible for 2 s</b> (blinking).</p>`;
 
   const saved = U.store.get('lang', null);
-  RR.lang = saved === 'pt' || saved === 'en' ? saved : /^pt/i.test(navigator.language || '') ? 'pt' : 'en';
+  RR.lang = saved === 'pt' ? 'pt' : 'en';
   RR.t = (s) => (RR.lang === 'en' && EN[s] != null ? EN[s] : s);
   RR.setLang = function (l) {
     U.store.set('lang', l);

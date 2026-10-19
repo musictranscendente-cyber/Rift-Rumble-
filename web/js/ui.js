@@ -238,7 +238,7 @@
     lr.innerHTML = `<span>${RR.lang === 'en' ? 'Language' : 'Idioma / Language'}</span>`;
     const ls = document.createElement('div');
     ls.className = 'seg';
-    for (const [v, name] of [['pt', 'Português'], ['en', 'English']]) {
+    for (const [v, name] of [['en', 'English'], ['pt', 'Português']]) {
       const b = document.createElement('button');
       b.textContent = name;
       b.classList.toggle('on', RR.lang === v);

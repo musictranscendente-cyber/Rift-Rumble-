@@ -52,6 +52,13 @@
     'FIM DE JOGO!': 'GAME!',
     'VENCEU!': 'WINS!',
     'FORA': 'OUT',
+    'ULTIMATE PRONTO!': 'ULTIMATE READY!',
+    'ESPECIAL': 'SPECIAL',
+    'PRONTO!': 'READY!',
+    'Mover: WASD / setas · Pular: Espaço · Escudo: L': 'Move: WASD / Arrows · Jump: Space · Shield: L',
+    'Ataque: J · Especial: K · Cima + K: voltar · Ultimate: U': 'Attack: J · Special: K · Up + K: recover · Ultimate: U',
+    'Joystick: mover · A: ataque · B: especial · Seta: pular': 'Joystick: move · A: attack · B: special · Arrow: jump',
+    'Escudo: defender · ★: ultimate quando a barra encher': 'Shield: block · ★: ultimate when the bar is full',
     // ---------- personagens ----------
     'Velocidade': 'Speed',
     'Força': 'Power',

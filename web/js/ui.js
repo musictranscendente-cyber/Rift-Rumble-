@@ -311,6 +311,10 @@
     RR.input.human.reset();
     ui.hideControls(false);
     RR.match = new RR.Match({ mode: cfg.mode, stocks: 3, time: 120, stageId: cfg.stage, players });
+    // dica de controles nas duas primeiras lutas
+    const helps = U.store.get('help', 0);
+    RR.match.showHelp = helps < 2;
+    U.store.set('help', helps + 1);
     RR.paused = false;
     show('game');
     RR.input.layout();

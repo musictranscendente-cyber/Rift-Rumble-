@@ -410,6 +410,83 @@
     });
   }
 
+  // ---------------- Especial, ultimate e dica de controles (jogador humano) ----------------
+  const DESK = typeof matchMedia !== 'undefined' && matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const HELP_DESK = ['Mover: WASD / setas · Pular: Espaço · Escudo: L', 'Ataque: J · Especial: K · Cima + K: voltar · Ultimate: U'];
+  const HELP_TOUCH = ['Joystick: mover · A: ataque · B: especial · Seta: pular', 'Escudo: defender · ★: ultimate quando a barra encher'];
+
+  function skillIcon(ctx, x, y, r, key, label, fill, ready, color, time) {
+    ctx.fillStyle = 'rgba(10,8,30,0.7)';
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, TAU);
+    ctx.fill();
+    // anel: quanto já carregou
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.arc(x, y, r - 3, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = ready ? (time % 20 < 10 ? '#ffd166' : '#fff') : color;
+    ctx.beginPath();
+    ctx.arc(x, y, r - 3, -Math.PI / 2, -Math.PI / 2 + TAU * fill);
+    ctx.stroke();
+    if (ready) {
+      ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 0.2);
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(x, y, r + 7, 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    text(ctx, key, x, y + 1, r * 0.8, ready ? '#ffd166' : fill >= 1 ? '#fff' : '#888');
+    text(ctx, label, x, y + r + 13, 13, ready ? '#ffd166' : '#ddd');
+  }
+
+  function drawSkills(ctx, g, W, H, time, toScreen) {
+    const f = g.fighters.find((q) => q.isHuman);
+    if (!f || g.phase === 'ending' || g.phase === 'done') return;
+    // aviso em cima do personagem quando o ultimate enche
+    const ready = f.ult >= 100;
+    if (ready && !f.ultWasReady) f.ultReadyAt = time;
+    f.ultWasReady = ready;
+    const dt = time - (f.ultReadyAt || -999);
+    if (ready && dt < 150 && f.alive && f.state !== 'respawn') {
+      const s = toScreen(f.x, f.y - f.h);
+      ctx.globalAlpha = Math.min(1, (150 - dt) / 25);
+      text(ctx, RR.t('ULTIMATE PRONTO!') + (DESK ? ' (U)' : ' ★'), s.x, s.y - 34 - Math.min(dt, 20), 28, time % 16 < 8 ? '#ffd166' : '#fff');
+      ctx.globalAlpha = 1;
+    }
+    // PC: ícones do especial e do ultimate embaixo (no celular os próprios botões mostram isso)
+    if (DESK) {
+      const m = f.def.moves.special;
+      const cd = m.cooldown ? 1 - f.cd.special / m.cooldown : 1;
+      const y = H - 58;
+      skillIcon(ctx, W / 2 - 54, y, 32, 'K', RR.t('ESPECIAL'), cd, false, f.def.fxColor, time);
+      skillIcon(ctx, W / 2 + 54, y, 32, 'U', ready ? RR.t('PRONTO!') : 'ULTIMATE', f.ult / 100, ready, f.def.fxColor, time);
+    }
+    // dica de controles nas primeiras lutas
+    if (g.showHelp) {
+      const t = g.phase === 'countdown' ? g.phaseT : 180 + g.phaseT;
+      const msg = g.message && g.message.t > 0; // some enquanto aparece "FIGHT!"
+      if (t < 540 && !msg) {
+        const lines = (DESK ? HELP_DESK : HELP_TOUCH).map(RR.t);
+        const a = Math.min(1, t / 20, (540 - t) / 40);
+        const fs = Math.min(17, W / 48);
+        ctx.font = `900 ${fs}px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif`;
+        const bw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 36;
+        const bh = fs * 2 * 1.5 + 20;
+        const by = DESK ? H - 130 - bh : 84; // no celular logo abaixo do placar, longe dos botões
+        ctx.globalAlpha = a * 0.85;
+        ctx.fillStyle = 'rgba(10,8,30,0.85)';
+        roundRect(ctx, W / 2 - bw / 2, by, bw, bh, 14);
+        ctx.fill();
+        ctx.globalAlpha = a;
+        lines.forEach((l, i) => text(ctx, l, W / 2, by + 10 + fs * 0.75 + i * fs * 1.5, fs, i ? '#ffd166' : '#fff', 'center', false));
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
   function drawOffscreen(ctx, g, W, H, toScreen) {
     for (const f of g.fighters) {
       if (f.state === 'dead' || f.state === 'out') continue;
@@ -518,6 +595,7 @@
     }
     if (g.demo) return;
     drawHUD(ctx, g, W, H, time);
+    drawSkills(ctx, g, W, H, time, toScreen);
 
     // contagem regressiva e mensagens
     if (g.phase === 'countdown') {

@@ -7,6 +7,7 @@
     // ---------- menus ----------
     'Lute. Lance. Derrube da arena.': 'Fight. Launch. Knock them off the arena.',
     'JOGAR': 'PLAY',
+    'ESCOLHER LUTADOR': 'CHOOSE FIGHTER',
     'COMO JOGAR': 'HOW TO PLAY',
     'OPÇÕES': 'OPTIONS',
     'ESCOLHA SEU LUTADOR': 'CHOOSE YOUR FIGHTER',

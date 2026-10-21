@@ -417,6 +417,14 @@
       })
     );
     document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => ui.onBack()));
+    // JOGAR: luta na hora (último lutador escolhido, oponente e arena sorteados); nas primeiras lutas, bot fácil
+    $('#quickPlay').addEventListener('click', () => {
+      click();
+      const opp = U.pick(RR.chars.list.filter((c) => c !== cfg.char));
+      cfg.stage = U.pick(RR.stages.list);
+      const easy = U.store.get('help', 0) < 2;
+      ui.startMatch([{ charId: cfg.char, type: 'human' }, { charId: opp, type: 'cpu', level: easy ? 0 : cfg.level }]);
+    });
     $('#toStage').addEventListener('click', () => {
       if (sc.mode === 'win') return;
       click();

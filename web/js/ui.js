@@ -441,6 +441,11 @@
 
   // ---------------- Inicialização ----------------
   ui.init = function () {
+    // escolhas salvas (relidas: no CrazyGames elas vêm do SDK, que só fica pronto agora)
+    Object.assign(cfg, U.store.get('cfg', {}));
+    if (!RR.chars[cfg.char]) cfg.char = RR.chars.list[0];
+    if (!RR.stages[cfg.stage]) cfg.stage = RR.stages.list[0];
+    cfg.cpuChars = cfg.cpuChars.map((c) => (c === 'random' || RR.chars[c] ? c : 'random'));
     RR.input.build($('#controls'));
     buildSelect();
     buildStages();

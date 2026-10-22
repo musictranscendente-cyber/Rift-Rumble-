@@ -17,10 +17,12 @@ window.RR = window.RR || {};
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   };
 
+  // salvo no navegador; no CrazyGames vai para o Data Module do SDK (o localStorage do iframe pode se perder)
+  const backend = () => RR.storeBackend || localStorage;
   U.store = {
     get(k, def) {
       try {
-        const v = localStorage.getItem('rr_' + k);
+        const v = backend().getItem('rr_' + k);
         return v == null ? def : JSON.parse(v);
       } catch (e) {
         return def;
@@ -28,7 +30,7 @@ window.RR = window.RR || {};
     },
     set(k, v) {
       try {
-        localStorage.setItem('rr_' + k, JSON.stringify(v));
+        backend().setItem('rr_' + k, JSON.stringify(v));
       } catch (e) {}
     },
   };

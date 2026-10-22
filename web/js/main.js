@@ -31,9 +31,13 @@
   RR.onAppResume = () => RR.audio.resume();
   document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  RR.platform.init();
-  RR.ui.init();
   resize();
+  // o SDK do site (se houver) inicia antes dos menus: o progresso salvo vem dele
+  RR.platform.init().finally(() => {
+    RR.progress.load();
+    RR.ui.init();
+    resize();
+  });
 
   const STEP = 1 / 60;
   let last = performance.now();

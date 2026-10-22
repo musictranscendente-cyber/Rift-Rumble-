@@ -22,11 +22,12 @@
     return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
   };
 
-  const d = Object.assign({ xp: 0, day: '', streak: 0, missions: [], chars: [] }, U.store.get('prog', {}));
+  // carregado depois do SDK (P.load), para ler do lugar certo
+  let d = null;
   const save = () => U.store.set('prog', d);
 
   // nível: cada nível pede 100 XP a mais que o anterior (1→2: 200, 2→3: 300...)
-  P.level = function (xp = d.xp) {
+  P.level = function (xp = d ? d.xp : 0) {
     let lv = 1, need = 200;
     while (xp >= need) {
       xp -= need;
@@ -38,7 +39,11 @@
 
   // primeiro acesso do dia: missões novas e bônus da sequência
   P.daily = null;
-  (function newDay() {
+  P.load = function () {
+    d = Object.assign({ xp: 0, day: '', streak: 0, missions: [], chars: [] }, U.store.get('prog', {}));
+    newDay();
+  };
+  function newDay() {
     const now = today();
     if (d.day === now) return;
     const y = new Date();
@@ -55,7 +60,7 @@
     d.xp += bonus;
     if (!first) P.daily = { streak: d.streak, bonus };
     save();
-  })();
+  }
 
   P.missions = () => d.missions;
   P.streak = () => d.streak;

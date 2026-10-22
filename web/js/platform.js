@@ -11,12 +11,30 @@
     const cg = window.CrazyGames && window.CrazyGames.SDK;
     if (!cg) return;
     try {
-      await cg.init();
+      // não deixa o jogo esperando para sempre se o SDK não responder
+      await Promise.race([cg.init(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 5000))]);
       sdk = cg;
       P.name = 'crazygames';
     } catch (e) {
       sdk = null;
       return;
+    }
+    // progresso salvo pelo Data Module do SDK (nuvem para quem tem conta; funciona dentro do iframe)
+    let dataOk = false;
+    try {
+      sdk.data.setItem('rr_check', '1');
+      dataOk = sdk.data.getItem('rr_check') === '1';
+    } catch (e) {}
+    if (dataOk) {
+      // traz o que já estava no localStorage (quem jogou antes desta versão não perde o nível)
+      try {
+        for (const k of ['prog', 'help', 'cfg', 'settings', 'lang']) {
+          const v = localStorage.getItem('rr_' + k);
+          if (v != null && sdk.data.getItem('rr_' + k) == null) sdk.data.setItem('rr_' + k, v);
+        }
+      } catch (e) {}
+      RR.storeBackend = sdk.data;
+      Object.assign(RR.settings, RR.U.store.get('settings', {}));
     }
     // o menu já está pronto para jogar: avisa que o carregamento acabou (o resto das imagens vem durante o uso)
     call(() => sdk.game.loadingStart());

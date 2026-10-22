@@ -30,6 +30,7 @@
         <button class="btn" data-go="options">OPÇÕES</button>
       </div>
     </div>
+    <button class="prog-badge" id="progBadge"></button>
     <div class="version">v1.0</div>
   </section>
 
@@ -116,11 +117,23 @@
     <div class="modal wide">
       <h2 id="resTitle">VITÓRIA!</h2>
       <div id="resTable"></div>
+      <div id="resProg"></div>
       <div class="row">
-        <button class="btn primary" id="rematch">REVANCHE</button>
+        <button class="btn primary" id="nextFight">PRÓXIMA LUTA ▶</button>
+        <button class="btn" id="rematch">REVANCHE</button>
         <button class="btn" id="resSelect">TROCAR LUTADOR</button>
         <button class="btn" id="resMenu">MENU</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Missões diárias -->
+  <section class="screen overlay" id="screen-missions">
+    <div class="modal">
+      <h2>MISSÕES DIÁRIAS</h2>
+      <div id="misList"></div>
+      <p class="mis-hint">Novas missões todo dia. Volte amanhã para manter a sequência!</p>
+      <button class="btn primary" id="misClose">OK</button>
     </div>
   </section>
 
@@ -145,6 +158,7 @@
   <script src="js/characters.js"></script>
   <script src="js/stages.js"></script>
   <script src="js/i18n.js"></script>
+  <script src="js/progress.js"></script>
   <script src="js/fighter.js"></script>
   <script src="js/ai.js"></script>
   <script src="js/input.js"></script>

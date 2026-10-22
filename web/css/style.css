@@ -196,3 +196,30 @@ input[type=range] { width: 46%; accent-color: var(--accent); touch-action: pan-x
 @media (hover: hover) and (pointer: fine) {
   #controls { display: none; }
 }
+
+/* ---------- Progresso: nível, missões ---------- */
+.prog-badge { position: absolute; left: 14px; bottom: 10px; display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 14px;
+  background: rgba(10,8,30,.7); border: 2px solid var(--line); color: var(--text); font-weight: 900; font-size: 13px; cursor: pointer; }
+.prog-badge .mc { color: var(--accent); }
+.prog-badge .st { color: #ff8c2a; }
+.lv { font-weight: 900; font-style: italic; color: #fff; white-space: nowrap; }
+.xpbar { display: inline-block; width: 90px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.15); overflow: hidden; vertical-align: middle; }
+.xpbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd166, #ff8c2a); }
+.mis { display: grid; grid-template-columns: 20px 1fr auto auto; gap: 8px; align-items: center; padding: 5px 10px; border-radius: 10px;
+  background: rgba(255,255,255,.05); margin-bottom: 4px; font-size: 13px; font-weight: 700; min-width: min(440px, 86vw); }
+.mis .ck { color: #7cff6b; font-weight: 900; }
+.mis .nm { color: var(--muted); }
+.mis .xp { color: var(--accent); font-weight: 900; font-size: 11px; }
+.mis.done { opacity: .6; }
+.mis.done .tx { text-decoration: line-through; }
+.mis-daily { text-align: center; font-weight: 900; color: #ff8c2a; font-size: 17px; margin-bottom: 8px; }
+.mis-hint { margin: 2px 0; font-size: 11px; color: var(--muted); text-align: center; }
+.res-xp { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; margin: 2px 0; }
+.res-xp b { color: var(--accent); }
+.res-xp .lvup { color: #7cff6b; font-weight: 900; font-style: italic; }
+.res-mis .mis { font-size: 11px; padding: 3px 8px; margin-bottom: 2px; }
+.modal .row .btn { min-width: 0; padding: 9px 14px; }
+@media (max-height: 420px) {
+  .res-mis .mis { padding: 1px 8px; }
+  .res-row { padding: 2px 8px; }
+}

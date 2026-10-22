@@ -345,6 +345,7 @@
     // ---------------- Ultimate ----------------
     startUlt(f) {
       f.ult = 0;
+      f.ultsUsed = (f.ultsUsed || 0) + 1;
       if (!f.grounded) f.vy = Math.min(f.vy, 0) * 0.2;
       f.vx = 0;
       this.phase = 'cine';

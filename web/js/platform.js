@@ -25,6 +25,7 @@
     const applyMute = () => call(() => RR.audio.setMuted(sdk.game.settings && sdk.game.settings.muteAudio));
     applyMute();
     call(() => sdk.game.addSettingsChangeListener(applyMute));
+    if (wantPlay) P.gameplayStart();
   };
 
   const call = (fn) => {
@@ -36,12 +37,15 @@
   };
 
   // avisa quando a luta começa e para (o CrazyGames usa isso para saber quando pode mostrar anúncio)
+  let wantPlay = false; // luta começou antes do SDK terminar de iniciar
   P.gameplayStart = function () {
+    wantPlay = true;
     if (!sdk || playing) return;
     playing = true;
     call(() => sdk.game.gameplayStart());
   };
   P.gameplayStop = function () {
+    wantPlay = false;
     if (!sdk || !playing) return;
     playing = false;
     call(() => sdk.game.gameplayStop());

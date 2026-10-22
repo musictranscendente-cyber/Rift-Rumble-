@@ -36,7 +36,9 @@
 
   // ---------------- Partida demo no fundo dos menus ----------------
   function startDemo() {
-    const ids = RR.chars.list.slice().sort(() => Math.random() - 0.5).slice(0, 4);
+    // no celular a luta de fundo tem 2 lutadores (menos imagens para baixar ao abrir)
+    const touch = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
+    const ids = RR.chars.list.slice().sort(() => Math.random() - 0.5).slice(0, touch ? 2 : 4);
     RR.match = new RR.Match({
       mode: 'time', time: 99999, stageId: U.pick(RR.stages.list), demo: true,
       players: ids.map((id) => ({ charId: id, type: 'cpu', level: 2 })),
@@ -290,6 +292,35 @@
   }
 
   // ---------------- Partida ----------------
+  // luta na hora: último lutador escolhido contra oponente e arena sorteados; nas primeiras lutas, bot fácil
+  function quickMatch() {
+    const opp = U.pick(RR.chars.list.filter((c) => c !== cfg.char));
+    cfg.stage = U.pick(RR.stages.list);
+    const easy = U.store.get('help', 0) < 2;
+    ui.startMatch([{ charId: cfg.char, type: 'human' }, { charId: opp, type: 'cpu', level: easy ? 0 : cfg.level }]);
+  }
+
+  // ---------------- Progresso: nível e missões ----------------
+  function levelBar(L) {
+    return `<span class="lv">${T('NV')} ${L.lv}</span><span class="xpbar"><i style="width:${Math.round((L.cur / L.need) * 100)}%"></i></span>`;
+  }
+  function missionsHTML() {
+    return RR.progress
+      .missions()
+      .map((m) => `<div class="mis${m.done ? ' done' : ''}"><span class="ck">${m.done ? '✔' : ''}</span><span class="tx">${RR.progress.missionText(m)}</span><span class="nm">${m.n}/${m.goal}</span><span class="xp">+${m.xp} XP</span></div>`)
+      .join('');
+  }
+  function refreshBadge() {
+    const done = RR.progress.missions().filter((m) => m.done).length;
+    const st = RR.progress.streak();
+    $('#progBadge').innerHTML = levelBar(RR.progress.level()) + `<span class="mc">★ ${T('Missões')} ${done}/3</span>` + (st > 1 ? `<span class="st">🔥 ${st}</span>` : '');
+  }
+  function showMissions(daily) {
+    $('#misList').innerHTML =
+      (daily ? `<div class="mis-daily">🔥 ${T('Sequência de {n} dias!').replace('{n}', daily.streak)} +${daily.bonus} XP</div>` : '') + missionsHTML();
+    show('missions');
+  }
+
   let matchesPlayed = 0;
   ui.startMatch = function (players) {
     // a partir da segunda luta, um anúncio do CrazyGames antes de começar (no app e no navegador comum não acontece nada)
@@ -362,6 +393,12 @@
     if (won) RR.platform.happy();
     $('#resTitle').textContent = T(won ? 'VITÓRIA!' : 'DERROTA');
     $('#resTitle').style.color = won ? '#ffd166' : '#ff6b6b';
+    const pr = RR.progress.record(m);
+    $('#resProg').innerHTML = pr
+      ? `<div class="res-xp">${levelBar(pr.after)}<b>+${pr.xp} XP</b>${pr.up ? `<span class="lvup">${T('SUBIU DE NÍVEL!')}</span>` : ''}</div>` +
+        `<div class="res-mis">${missionsHTML()}</div>`
+      : '';
+    refreshBadge();
     const tbl = $('#resTable');
     tbl.innerHTML = `<div class="res-row head"><span></span><span></span><span>${T('LUTADOR')}</span><span class="v">KOs</span><span class="v">${T('QUEDAS')}</span><span class="v">${T('DANO')}</span></div>`;
     rank.forEach((f, i) => {
@@ -417,13 +454,21 @@
       })
     );
     document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => ui.onBack()));
-    // JOGAR: luta na hora (último lutador escolhido, oponente e arena sorteados); nas primeiras lutas, bot fácil
     $('#quickPlay').addEventListener('click', () => {
       click();
-      const opp = U.pick(RR.chars.list.filter((c) => c !== cfg.char));
-      cfg.stage = U.pick(RR.stages.list);
-      const easy = U.store.get('help', 0) < 2;
-      ui.startMatch([{ charId: cfg.char, type: 'human' }, { charId: opp, type: 'cpu', level: easy ? 0 : cfg.level }]);
+      quickMatch();
+    });
+    $('#nextFight').addEventListener('click', () => {
+      click();
+      quickMatch();
+    });
+    $('#progBadge').addEventListener('click', () => {
+      click();
+      showMissions();
+    });
+    $('#misClose').addEventListener('click', () => {
+      click();
+      show('title');
     });
     $('#toStage').addEventListener('click', () => {
       if (sc.mode === 'win') return;
@@ -474,8 +519,16 @@
       window.removeEventListener('pointerdown', unlock);
     };
     window.addEventListener('pointerdown', unlock);
-    startDemo();
-    show('title');
+    refreshBadge();
+    if (U.store.get('help', 0) === 0) {
+      // primeira visita: direto para uma luta fácil, com a dica de controles na tela
+      quickMatch();
+    } else {
+      startDemo();
+      show('title');
+      // voltou num dia novo: mostra a sequência e as missões do dia
+      if (RR.progress.daily) showMissions(RR.progress.daily);
+    }
     const ver = document.querySelector('.version');
     if (ver && RR.VERSION) ver.textContent = 'v' + RR.VERSION.name;
     setTimeout(() => RR.update && RR.update.check(), 1500);

@@ -10,6 +10,8 @@ const out = process.argv[2] || '.';
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  // jogador que já voltou (na primeira visita o jogo entra direto numa luta)
+  await ctx.addInitScript(() => localStorage.setItem('rr_help', '2'));
   await page.goto('file://' + path.join(__dirname, '..', 'web', 'index.html'));
   await page.waitForTimeout(1500);
   await page.screenshot({ path: out + '/1-title.png' });

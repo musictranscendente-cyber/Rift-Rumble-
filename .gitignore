@@ -1,4 +1,7 @@
+*.jks
+__pycache__/
+android/play/.gradle/
+android/play/build/
 build/
 node_modules/
 release/
-__pycache__/

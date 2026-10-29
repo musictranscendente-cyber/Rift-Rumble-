@@ -12,6 +12,7 @@
     const v = RR.VERSION;
     if (!v || !v.code) return; // versão de desenvolvimento (navegador)
     if (!window.AndroidBridge) return; // só o app baixa APK novo; no navegador (CrazyGames) o site já tem a versão nova
+    if (v.store === 'play') return; // instalado pela Google Play: a própria Play atualiza
     try {
       const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { cache: 'no-store' });
       if (!r.ok) return;

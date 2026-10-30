@@ -12,6 +12,8 @@
     }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
+    // antes do primeiro toque o navegador não deixa tocar som: espera o toque (evita avisos no console)
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
     ctx = new AC();
     master = ctx.createGain();
     master.gain.value = muted ? 0 : 0.85;

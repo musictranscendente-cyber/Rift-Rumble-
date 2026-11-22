@@ -6,6 +6,9 @@
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- o jogo é horizontal, mas não exige isso do aparelho (senão a Play bloqueia tablets, Chromebooks etc.) -->
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application

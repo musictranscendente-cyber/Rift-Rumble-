@@ -4,6 +4,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- o jogo é horizontal, mas não exige isso do aparelho (senão a Play bloqueia tablets, Chromebooks etc.) -->
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application
         android:label="Rift Rumble"

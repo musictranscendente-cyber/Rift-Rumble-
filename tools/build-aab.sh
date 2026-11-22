@@ -15,4 +15,9 @@ echo "window.RR = window.RR || {}; RR.VERSION = { code: $VERSION_CODE, name: '1.
 
 gradle -p "$ROOT/android/play" --no-daemon -q bundleRelease
 cp "$ROOT/android/play/build/outputs/bundle/release/"*.aab "$ROOT/release/RiftRumble.aab"
+# confere a assinatura: com a chave configurada, um .aab sem assinatura é erro (a Play recusaria)
+if [ -n "${KEYSTORE_FILE:-}" ]; then
+  jarsigner -verify "$ROOT/release/RiftRumble.aab" | grep -q "jar verified" || { echo "AAB sem assinatura válida"; exit 1; }
+  echo "> Assinado com a chave de upload"
+fi
 echo "> Pronto: release/RiftRumble.aab (versão 1.0.$VERSION_CODE)"

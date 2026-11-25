@@ -11,6 +11,7 @@ on:
       - 'tools/build-web.sh'
       - 'tools/build-aab.sh'
       - '.github/workflows/apk.yml'
+      - 'tools/play-publish.py'
   workflow_dispatch:
 
 permissions:
@@ -91,3 +92,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "v$(git rev-list --count HEAD)" release/RiftRumble.aab --clobber
+
+      # Teste interno da Google Play (só se a chave da conta de serviço estiver nos Secrets)
+      - name: Enviar para o teste interno da Google Play
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ] || [ -z "${{ secrets.ANDROID_KEYSTORE_B64 }}" ]; then
+            echo "Sem PLAY_SERVICE_ACCOUNT_JSON (ou sem a chave de upload) nos Secrets: envio para a Play pulado"; exit 0
+          fi
+          pip install -q google-auth requests
+          NOTES=$(git log -1 --pretty=%B | grep -v -e '^Co-Authored-By' -e '^Claude-Session' | head -1)
+          python3 tools/play-publish.py upload release/RiftRumble.aab internal "$NOTES"

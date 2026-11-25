@@ -1,0 +1,28 @@
+# Manda para PRODUÇÃO a versão que está no teste interno da Google Play (depois de testada).
+# Rodar em: Actions -> "Play: produção" -> Run workflow.
+name: 'Play: produção'
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Versão (versionCode) a promover; vazio = a mais nova do teste interno'
+        required: false
+        default: ''
+
+concurrency:
+  group: play-production
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Promover teste interno -> produção
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          pip install -q google-auth requests
+          python3 tools/play-publish.py promote internal production "$VERSION_CODE"

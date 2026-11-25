@@ -36,6 +36,7 @@
   RR.platform.init().finally(() => {
     RR.progress.load();
     RR.ui.init();
+    RR.rank.init();
     resize();
   });
 

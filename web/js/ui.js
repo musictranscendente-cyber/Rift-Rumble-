@@ -31,8 +31,11 @@
     document.querySelectorAll('.screen').forEach((e) => e.classList.toggle('show', e.id === 'screen-' + id));
     $('#hud').classList.toggle('hidden', id !== 'game' && id !== 'pause');
     current = id;
+    document.body.dataset.screen = id; // o ranking funciona com o celular em pé (as outras telas pedem para deitar)
   }
   ui.current = () => current;
+  ui.show = show;
+  ui.cfgChar = () => cfg.char;
 
   // ---------------- Partida demo no fundo dos menus ----------------
   function startDemo() {
@@ -328,7 +331,19 @@
     beginMatch(players);
   };
 
-  function beginMatch(players) {
+  // Ranqueada: 1 contra 1 com 3 vidas; rk = { opp: { name, fav, points, league }, ai: { level, ultStart } }
+  ui.startRanked = function (rk) {
+    const players = [{ charId: cfg.char, type: 'human' }, { charId: rk.opp.fav, type: 'cpu', level: rk.ai.level }];
+    const go = () => {
+      cfg.stage = U.pick(RR.stages.list);
+      beginMatch(players, { mode: 'stock', ranked: rk });
+    };
+    if (matchesPlayed++ > 0) return RR.platform.midgame(go);
+    go();
+  };
+
+  function beginMatch(players, opts) {
+    opts = opts || {};
     if (!players) {
       const pool = RR.chars.list;
       players = [{ charId: cfg.char, type: 'human' }];
@@ -341,7 +356,15 @@
     lastPlayers = players;
     RR.input.human.reset();
     ui.hideControls(false);
-    RR.match = new RR.Match({ mode: cfg.mode, stocks: 3, time: 120, stageId: cfg.stage, players });
+    RR.match = new RR.Match({ mode: opts.mode || cfg.mode, stocks: 3, time: 120, stageId: cfg.stage, players });
+    if (opts.ranked) {
+      // o nome do adversário aparece no lugar de "CPU1"; nas ligas altas ele já começa com parte do ultimate
+      const o = RR.match.fighters[1];
+      RR.match.ranked = opts.ranked;
+      o.label = opts.ranked.opp.name.slice(0, 12);
+      o.ult = opts.ranked.ai.ultStart || 0;
+    }
+    $('#restart').classList.toggle('hidden', !!opts.ranked); // reiniciar a ranqueada seria fugir da derrota
     // dica de controles nas duas primeiras lutas
     const helps = U.store.get('help', 0);
     RR.match.showHelp = helps < 2;
@@ -390,14 +413,17 @@
     const human = m.fighters.find((f) => f.isHuman);
     const won = rank[0] === human;
     RR.platform.gameplayStop();
+    const ranked = !!m.ranked;
+    $('#screen-results').classList.toggle('ranked', ranked);
     if (won) RR.platform.happy();
     $('#resTitle').textContent = T(won ? 'VITÓRIA!' : 'DERROTA');
     $('#resTitle').style.color = won ? '#ffd166' : '#ff6b6b';
     const pr = RR.progress.record(m);
-    $('#resProg').innerHTML = pr
+    const rkHTML = ranked ? RR.rank.finish(m, won ? 'win' : 'loss') : '';
+    $('#resProg').innerHTML = rkHTML + (pr
       ? `<div class="res-xp">${levelBar(pr.after)}<b>+${pr.xp} XP</b>${pr.up ? `<span class="lvup">${T('SUBIU DE NÍVEL!')}</span>` : ''}</div>` +
         `<div class="res-mis">${missionsHTML()}</div>`
-      : '';
+      : '');
     refreshBadge();
     const tbl = $('#resTable');
     tbl.innerHTML = `<div class="res-row head"><span></span><span></span><span>${T('LUTADOR')}</span><span class="v">KOs</span><span class="v">${T('QUEDAS')}</span><span class="v">${T('DANO')}</span></div>`;
@@ -432,6 +458,11 @@
         click();
         return show(optionsReturn || 'title');
       case 'results': return ui.toMenu();
+      case 'ranked': click(); return show('title');
+      case 'login': click(); return show('ranked');
+      case 'mm':
+      case 'notice':
+        return;
       case 'title':
         if (window.AndroidBridge && window.AndroidBridge.exit) window.AndroidBridge.exit();
         return;
@@ -503,6 +534,8 @@
     });
     $('#quit').addEventListener('click', () => {
       click();
+      // sair no meio da Ranqueada é desistir: conta como derrota
+      if (RR.match && RR.match.ranked && RR.match.phase !== 'done') return RR.rank.forfeit();
       ui.toMenu();
     });
     $('#rematch').addEventListener('click', () => {

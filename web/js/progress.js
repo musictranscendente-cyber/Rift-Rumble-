@@ -40,7 +40,7 @@
   // primeiro acesso do dia: missões novas e bônus da sequência
   P.daily = null;
   P.load = function () {
-    d = Object.assign({ xp: 0, day: '', streak: 0, missions: [], chars: [] }, U.store.get('prog', {}));
+    d = Object.assign({ xp: 0, day: '', streak: 0, missions: [], chars: [], coins: 0, gems: 0 }, U.store.get('prog', {}));
     newDay();
   };
   function newDay() {
@@ -61,6 +61,15 @@
     if (!first) P.daily = { streak: d.streak, bonus };
     save();
   }
+
+  // moedas do jogo e gemas (prêmios da Ranqueada; a loja vai usar as duas)
+  P.coins = () => d.coins;
+  P.gems = () => d.gems;
+  P.addCurrency = function (coins, gems) {
+    d.coins += coins || 0;
+    d.gems += gems || 0;
+    save();
+  };
 
   P.missions = () => d.missions;
   P.streak = () => d.streak;

@@ -25,6 +25,7 @@
       <p class="tagline">Lute. Lance. Derrube da arena.</p>
       <div class="menu">
         <button class="btn big primary" id="quickPlay">JOGAR</button>
+        <button class="btn ranked-btn" id="openRanked">🏆 RANQUEADA</button>
         <button class="btn" data-go="select">ESCOLHER LUTADOR</button>
         <button class="btn" data-go="howto">COMO JOGAR</button>
         <button class="btn" data-go="options">OPÇÕES</button>
@@ -120,10 +121,76 @@
       <div id="resProg"></div>
       <div class="row">
         <button class="btn primary" id="nextFight">PRÓXIMA LUTA ▶</button>
+        <button class="btn primary rk-only" id="rkAgain">PRÓXIMA PARTIDA ▶</button>
+        <button class="btn rk-only" id="rkBoard">RANKING</button>
         <button class="btn" id="rematch">REVANCHE</button>
         <button class="btn" id="resSelect">TROCAR LUTADOR</button>
         <button class="btn" id="resMenu">MENU</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Ranqueada: ranking da temporada -->
+  <section class="screen" id="screen-ranked">
+    <header class="bar">
+      <button class="btn back" data-back>◀</button>
+      <h2>RANQUEADA <small id="rkSeason"></small></h2>
+      <span></span>
+    </header>
+    <div class="rk-body">
+      <div class="rk-me">
+        <div class="rk-emblem" id="rkEmblem"></div>
+        <div class="rk-league" id="rkLeague"></div>
+        <div class="rk-pos" id="rkPos"></div>
+        <div class="rk-bar"><i id="rkBar"></i></div>
+        <div class="rk-next" id="rkNext"></div>
+        <div class="rk-stats" id="rkStats"></div>
+        <button class="btn big primary" id="rkPlay">JOGAR RANQUEADA</button>
+        <div class="rk-acc" id="rkAcc"></div>
+      </div>
+      <div class="rk-list">
+        <div class="rk-rows" id="rkRows"></div>
+        <div class="rk-mine" id="rkMine"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ranqueada: procurando adversário e VS -->
+  <section class="screen overlay" id="screen-mm">
+    <div class="mm-box">
+      <div class="mm-radar" id="mmRadar"><i></i><b></b></div>
+      <h2 id="mmTitle">PROCURANDO ADVERSÁRIO...</h2>
+      <div class="mm-vs" id="mmVs">
+        <div class="mm-card" id="mmMe"><canvas width="220" height="200"></canvas><b></b><span></span></div>
+        <div class="mm-x">VS</div>
+        <div class="mm-card" id="mmOpp"><canvas width="220" height="200"></canvas><b></b><span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ranqueada: entrar na conta -->
+  <section class="screen overlay" id="screen-login">
+    <div class="modal">
+      <h2>ENTRAR</h2>
+      <p class="lg-hint">Entre para participar do ranking da temporada.</p>
+      <input id="lgEmail" type="email" placeholder="E-mail" autocomplete="email">
+      <input id="lgPass" type="password" placeholder="Senha (mín. 6)" autocomplete="current-password">
+      <input id="lgName" type="text" maxlength="16" placeholder="Apelido no ranking (3 a 16)">
+      <p class="lg-msg" id="lgMsg"></p>
+      <div class="row">
+        <button class="btn primary" id="lgIn">ENTRAR</button>
+        <button class="btn" id="lgUp">CRIAR CONTA</button>
+        <button class="btn" id="lgClose">VOLTAR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ranqueada: avisos que só fecham no OK (prêmio da temporada, partida abandonada) -->
+  <section class="screen overlay" id="screen-notice">
+    <div class="modal">
+      <h2 id="ntTitle"></h2>
+      <div id="ntBody" class="nt-body"></div>
+      <button class="btn big primary" id="ntOk">OK</button>
     </div>
   </section>
 
@@ -159,6 +226,8 @@
   <script src="js/stages.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/progress.js"></script>
+  <script src="js/rank-core.js"></script>
+  <script src="js/rank-config.js"></script>
   <script src="js/fighter.js"></script>
   <script src="js/ai.js"></script>
   <script src="js/input.js"></script>
@@ -174,6 +243,7 @@
   <script src="js/art.js"></script>
   <script src="js/render.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/rank.js"></script>
   <script src="js/update.js"></script>
   <script src="js/main.js"></script>
 </body>

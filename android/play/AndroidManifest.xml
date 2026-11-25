@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Versão da Google Play: sem permissão de internet (o jogo roda todo do aparelho, sem anúncios ainda)
-     e sem o aviso de atualização pelo GitHub (a Play atualiza o app). -->
+<!-- Versão da Google Play: internet só para o ranking da Ranqueada (Supabase); sem o aviso de
+     atualização pelo GitHub (a Play atualiza o app). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- o jogo é horizontal, mas não exige isso do aparelho (senão a Play bloqueia tablets, Chromebooks etc.) -->
     <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />

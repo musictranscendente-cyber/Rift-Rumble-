@@ -1,29 +1,37 @@
 # Rift Rumble – Privacy Policy
 
-_Last updated: October 29, 2026_
+_Last updated: November 25, 2026_
 
 Rift Rumble ("the game") is developed by Transcendente Universal.
 
-## Data we collect
-**None.** The Google Play version of Rift Rumble does not collect, store on any server, share or sell any personal data. It does not require an account, does not use the internet and contains no analytics or advertising SDKs.
+## Playing without an account
+You can play every mode without an account. In that case the game does not collect or send any personal data: your settings and progress (language, sound, player level, daily missions, coins) are saved only on your device.
 
-## Data stored on your device
-The game saves your settings and progress (language, sound options, player level, daily missions) only on your own device. This data never leaves your device and is removed when you uninstall the game or clear its data.
+## Ranked mode (optional account)
+If you choose to create an account to join the online season ranking, we store:
+- **Email address and password** – only to sign you in. Passwords are stored encrypted by our authentication provider and are never visible to us.
+- **Nickname, favorite fighter and ranked statistics** (points, league, wins, losses, streak, trophies, season) – shown publicly in the in-game ranking.
+
+This data is stored with [Supabase](https://supabase.com) (our database and authentication provider). It is used only to run the ranking. It is never sold, never shared with advertisers and not used for tracking.
+
+## Deleting your data
+To delete your account and ranking data, email the developer at the address shown on the game's Google Play page with the subject "Delete my Rift Rumble account". We delete it within 30 days.
 
 ## Permissions
-- **Vibration:** used for haptic feedback during fights. You can turn it off in Options.
+- **Internet:** used only for the online ranking.
+- **Vibration:** haptic feedback during fights (can be turned off in Options).
 
 ## Children
-The game does not knowingly collect any information from anyone, including children under 13.
+The ranked account is intended for players aged 13 and over. We do not knowingly collect personal data from children under 13.
 
 ## Changes
-If a future version adds features that handle data (for example ads or online play), this policy will be updated before that version is released and the Google Play Data safety section will be updated accordingly.
-
-## Contact
-For any questions, contact the developer through the email address shown on the game's Google Play page.
+If the game adds features that handle data differently (for example ads or purchases), this policy will be updated before that version is released.
 
 ---
 
 # Rift Rumble – Política de Privacidade (Português)
 
-O Rift Rumble **não coleta, não envia e não compartilha nenhum dado pessoal**. Não exige conta, não usa internet e não tem anúncios nem ferramentas de análise. As configurações e o progresso (idioma, som, nível, missões diárias) ficam salvos só no seu aparelho e são apagados ao desinstalar o jogo. A permissão de vibração é usada apenas para a vibração nos golpes e pode ser desligada nas Opções. Dúvidas: use o e-mail do desenvolvedor mostrado na página do jogo na Google Play.
+Sem conta, o Rift Rumble **não coleta nenhum dado pessoal**: configurações e progresso ficam só no aparelho.
+Na **Ranqueada (opcional)**, quem cria conta tem guardados no Supabase: **e-mail e senha** (só para entrar; a senha fica criptografada), **apelido, lutador favorito e estatísticas da Ranqueada** (aparecem no ranking público). Esses dados servem só para o ranking: não são vendidos nem compartilhados com anunciantes.
+Para apagar sua conta, envie um e-mail ao desenvolvedor (endereço na página do jogo na Google Play) com o assunto "Apagar minha conta do Rift Rumble". Apagamos em até 30 dias.
+Permissões: internet (só para o ranking) e vibração (pode ser desligada nas Opções).

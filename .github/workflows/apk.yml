@@ -19,8 +19,8 @@ permissions:
 
 # Google Play (preenchidos depois de rodar o script do Cloud Shell; não são segredos)
 env:
-  PLAY_WIF_PROVIDER: ''
-  PLAY_SERVICE_ACCOUNT: ''
+  PLAY_WIF_PROVIDER: 'projects/319017136739/locations/global/workloadIdentityPools/github/providers/rift-rumble'
+  PLAY_SERVICE_ACCOUNT: 'play-publisher@rift-rumble-play.iam.gserviceaccount.com'
 
 concurrency:
   group: apk

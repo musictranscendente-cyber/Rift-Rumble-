@@ -16,8 +16,8 @@ permissions:
 
 # iguais aos do apk.yml
 env:
-  PLAY_WIF_PROVIDER: ''
-  PLAY_SERVICE_ACCOUNT: ''
+  PLAY_WIF_PROVIDER: 'projects/319017136739/locations/global/workloadIdentityPools/github/providers/rift-rumble'
+  PLAY_SERVICE_ACCOUNT: 'play-publisher@rift-rumble-play.iam.gserviceaccount.com'
 
 concurrency:
   group: play-production

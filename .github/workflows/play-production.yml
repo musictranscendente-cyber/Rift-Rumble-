@@ -10,6 +10,15 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: read
+  id-token: write
+
+# iguais aos do apk.yml
+env:
+  PLAY_WIF_PROVIDER: ''
+  PLAY_SERVICE_ACCOUNT: ''
+
 concurrency:
   group: play-production
   cancel-in-progress: false
@@ -19,9 +28,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - id: gcp
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.PLAY_WIF_PROVIDER }}
+          service_account: ${{ env.PLAY_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
       - name: Promover teste interno -> produção
         env:
-          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          PLAY_ACCESS_TOKEN: ${{ steps.gcp.outputs.access_token }}
           VERSION_CODE: ${{ inputs.version_code }}
         run: |
           pip install -q google-auth requests

@@ -4,7 +4,8 @@
   upload  <arquivo.aab> <faixa> [notas]   envia o .aab e coloca na faixa (ex.: internal)
   promote <de> <para> [versionCode]       copia a versão da faixa <de> para <para> (ex.: internal production)
 
-A chave da conta de serviço vem da variável PLAY_SERVICE_ACCOUNT_JSON (conteúdo do .json).
+Acesso: PLAY_ACCESS_TOKEN (token de curta duração do login sem chave do GitHub Actions)
+ou PLAY_SERVICE_ACCOUNT_JSON (conteúdo do .json de uma conta de serviço).
 Precisa de: pip install google-auth requests
 """
 import json
@@ -21,6 +22,12 @@ LANG = 'en-US'  # idioma padrão da página da loja
 
 
 def session():
+    tok = os.environ.get('PLAY_ACCESS_TOKEN')
+    if tok:
+        import requests
+        s = requests.Session()
+        s.headers['Authorization'] = 'Bearer ' + tok
+        return s
     info = json.loads(os.environ['PLAY_SERVICE_ACCOUNT_JSON'])
     cred = service_account.Credentials.from_service_account_info(
         info, scopes=['https://www.googleapis.com/auth/androidpublisher'])

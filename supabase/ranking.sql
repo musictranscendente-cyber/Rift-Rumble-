@@ -16,6 +16,9 @@ create table if not exists public.ranked_players (
   updated_at  timestamptz not null default now()
 );
 
+-- visual do perfil no ranking (ícone.moldura.título) — só aparência
+alter table public.ranked_players add column if not exists cosm text not null default '' check (char_length(cosm) <= 60);
+
 create index if not exists ranked_players_season_points on public.ranked_players (season, points desc);
 
 alter table public.ranked_players enable row level security;
@@ -65,6 +68,11 @@ begin
     end if;
     if new.trophies <> old.trophies then raise exception 'trofeu so na virada'; end if;
     new.prev_points := old.prev_points;
+    -- pontos iguais (ex.: só trocou o visual): não conta como gravação de pontos para o limite de tempo
+    if new.points = old.points then
+      new.updated_at := old.updated_at;
+      return new;
+    end if;
   else
     -- virada de temporada: no máximo metade dos pontos antigos + 40; troféu sobe no máximo 1
     if new.points > floor(old.points / 2) + 40 then raise exception 'virada: pontos demais'; end if;

@@ -35,6 +35,7 @@
   // o SDK do site (se houver) inicia antes dos menus: o progresso salvo vem dele
   RR.platform.init().finally(() => {
     RR.progress.load();
+    RR.cosmetics.load();
     RR.ui.init();
     RR.rank.init();
     resize();
@@ -67,6 +68,7 @@
       if (!m.demo) RR.input.updateHUD(m.fighters.find((f) => f.isHuman));
     }
     RR.ui.tick(time);
+    RR.shop.tick();
   }
   requestAnimationFrame(loop);
 })(window.RR);

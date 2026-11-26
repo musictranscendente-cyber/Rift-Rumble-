@@ -31,11 +31,13 @@
     document.querySelectorAll('.screen').forEach((e) => e.classList.toggle('show', e.id === 'screen-' + id));
     $('#hud').classList.toggle('hidden', id !== 'game' && id !== 'pause');
     current = id;
+    if (id === 'title' && RR.progress && ui.refreshBadge) ui.refreshBadge();
     document.body.dataset.screen = id; // o ranking funciona com o celular em pé (as outras telas pedem para deitar)
   }
   ui.current = () => current;
   ui.show = show;
   ui.cfgChar = () => cfg.char;
+  ui.refreshSkins = () => {};
 
   // ---------------- Partida demo no fundo dos menus ----------------
   function startDemo() {
@@ -316,8 +318,10 @@
   function refreshBadge() {
     const done = RR.progress.missions().filter((m) => m.done).length;
     const st = RR.progress.streak();
-    $('#progBadge').innerHTML = levelBar(RR.progress.level()) + `<span class="mc">★ ${T('Missões')} ${done}/3</span>` + (st > 1 ? `<span class="st">🔥 ${st}</span>` : '');
+    $('#progBadge').innerHTML = levelBar(RR.progress.level()) + `<span class="mc">★ ${T('Missões')} ${done}/3</span>` + (st > 1 ? `<span class="st">🔥 ${st}</span>` : '') +
+      `<span class="cn">🪙 ${RR.progress.coins().toLocaleString()}</span>`;
   }
+  ui.refreshBadge = () => refreshBadge();
   function showMissions(daily) {
     $('#misList').innerHTML =
       (daily ? `<div class="mis-daily">🔥 ${T('Sequência de {n} dias!').replace('{n}', daily.streak)} +${daily.bonus} XP</div>` : '') + missionsHTML();
@@ -365,6 +369,7 @@
       o.ult = opts.ranked.ai.ultStart || 0;
     }
     $('#restart').classList.toggle('hidden', !!opts.ranked); // reiniciar a ranqueada seria fugir da derrota
+    buildEmotes();
     // dica de controles nas duas primeiras lutas
     const helps = U.store.get('help', 0);
     RR.match.showHelp = helps < 2;
@@ -377,10 +382,28 @@
     RR.platform.gameplayStart();
   }
 
-  // esconde os botões de toque (cena de vitória)
+  // emotes da luta: botão 😀 abre os equipados (até 4); no PC, teclas 1 a 4
+  function buildEmotes() {
+    const bar = $('#emoteBar');
+    const ids = RR.cosmetics ? RR.cosmetics.eq().em.filter(Boolean) : [];
+    bar.innerHTML = ids.map((id) => {
+      const it = RR.cosmetics.get(id);
+      return `<button data-em="${id}">${it.txt ? `<i class="gg">${it.txt}</i>` : it.e}</button>`;
+    }).join('');
+    bar.classList.add('hidden');
+    $('#btnEmote').classList.toggle('hidden', !ids.length);
+  }
+  function sendEmote(id) {
+    const m = RR.match;
+    const h = m && !m.demo && m.fighters.find((f) => f.isHuman);
+    if (h) RR.cosmetics.emote(m, h, id);
+    $('#emoteBar').classList.add('hidden');
+  }
   ui.hideControls = function (hide) {
     $('#controls').classList.toggle('hidden', hide);
     $('#btnPause').classList.toggle('hidden', hide);
+    $('#btnEmote').classList.toggle('hidden', hide || !$('#emoteBar').children.length);
+    if (hide) $('#emoteBar').classList.add('hidden');
   };
 
   ui.pause = function () {
@@ -421,7 +444,7 @@
     const pr = RR.progress.record(m);
     const rkHTML = ranked ? RR.rank.finish(m, won ? 'win' : 'loss') : '';
     $('#resProg').innerHTML = rkHTML + (pr
-      ? `<div class="res-xp">${levelBar(pr.after)}<b>+${pr.xp} XP</b>${pr.up ? `<span class="lvup">${T('SUBIU DE NÍVEL!')}</span>` : ''}</div>` +
+      ? `<div class="res-xp">${levelBar(pr.after)}<b>+${pr.xp} XP</b><b class="coin">+${pr.coins} 🪙${pr.gems ? ` +${pr.gems} 💎` : ''}</b>${pr.up ? `<span class="lvup">${T('SUBIU DE NÍVEL!')}</span>` : ''}</div>` +
         `<div class="res-mis">${missionsHTML()}</div>`
       : '');
     refreshBadge();
@@ -459,6 +482,10 @@
         return show(optionsReturn || 'title');
       case 'results': return ui.toMenu();
       case 'ranked': click(); return show('title');
+      case 'shop':
+        click();
+        if (RR.shop.isPopOpen()) return RR.shop.closePop();
+        return show(shopReturn || 'title');
       case 'login': click(); return show('ranked');
       case 'mm':
       case 'notice':
@@ -469,6 +496,7 @@
     }
   };
   let optionsReturn = null;
+  let shopReturn = null;
 
   // ---------------- Inicialização ----------------
   ui.init = function () {
@@ -519,6 +547,27 @@
       ui.startMatch();
     });
     $('#btnPause').addEventListener('click', () => ui.pause());
+    $('#btnEmote').addEventListener('click', () => $('#emoteBar').classList.toggle('hidden'));
+    $('#emoteBar').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-em]');
+      if (b) sendEmote(b.dataset.em);
+    });
+    window.addEventListener('keydown', (e) => {
+      if (current !== 'game' || !/^Digit[1-4]$/.test(e.code)) return;
+      const id = RR.cosmetics.eq().em.filter(Boolean)[+e.code.slice(5) - 1];
+      if (id) sendEmote(id);
+    });
+    $('#openShop').addEventListener('click', () => {
+      click();
+      shopReturn = 'title';
+      RR.shop.open();
+    });
+    $('#scSkin').addEventListener('click', () => {
+      if (sc.mode === 'win') return;
+      click();
+      shopReturn = 'select';
+      RR.shop.open({ tab: 'skin', char: cfg.char, mode: 'mine' });
+    });
     $('#resume').addEventListener('click', () => {
       click();
       ui.resume();
@@ -579,7 +628,7 @@
       return;
     }
     sc.time = time;
-    const d = RR.chars[cfg.char];
+    const d = RR.cosmetics ? RR.cosmetics.def(cfg.char) : RR.chars[cfg.char];
     const t = time - sc.t0;
     let frame;
     if (sc.mode === 'show') {
@@ -594,6 +643,9 @@
     } else frame = RR.sprites.anim(d, 'idle', time);
     RR.render.portrait($('#showCv'), d, time, frame, 0.42, 0.8);
     if (time % 2) return;
-    for (const p of portraits) RR.render.portrait(p.cv, p.d, time, RR.sprites.anim(p.d, 'idle', time + p.d.h * 3), 0.62, 0.88);
+    for (const p of portraits) {
+      const pd = RR.cosmetics ? RR.cosmetics.def(p.d.id) : p.d;
+      RR.render.portrait(p.cv, pd, time, RR.sprites.anim(pd, 'idle', time + p.d.h * 3), 0.62, 0.88);
+    }
   };
 })(window.RR);

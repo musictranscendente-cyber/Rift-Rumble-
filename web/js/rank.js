@@ -85,9 +85,30 @@
         R.lastError = e.message;
       }
       save();
+      await pushCosm();
     });
     return pushing;
   }
+
+  // visual do perfil (ícone, moldura, título) numa gravação à parte: se o banco ainda não tiver a coluna, só ela falha
+  let mineRow = null, cosmSent = null;
+  async function pushCosm() {
+    if (!RR.cosmetics || !session || !rowExists) return;
+    const c = RR.cosmetics.profileStr();
+    if (c === cosmSent) return;
+    try {
+      await api('/rest/v1/ranked_players?user_id=eq.' + session.user.id, { method: 'PATCH', auth: true, body: JSON.stringify({ cosm: c }) });
+      cosmSent = c;
+    } catch (e) {
+      R.lastError = e.message;
+    }
+  }
+  R.cosmChanged = function () {
+    if (!cloudOn() || !session) return;
+    pushing = pushing.then(async () => {
+      if (await freshSession()) await pushCosm();
+    });
+  };
 
   // lê a nuvem: a própria linha (para continuar de outro aparelho) e os jogadores da temporada
   async function pull() {
@@ -99,15 +120,18 @@
         const mine = await api('/rest/v1/ranked_players?select=*&user_id=eq.' + session.user.id, { auth: true });
         rowExists = !!(mine && mine.length);
         const m = mine && mine[0];
+        mineRow = m || null;
         if (m && !st.pending && (m.season > st.season || (m.season === st.season && m.points > st.points))) {
           Object.assign(st, { name: m.name, fav: m.fav, season: m.season, points: m.points, maxLeague: m.max_league, streak: m.streak, wins: m.wins, losses: m.losses, trophies: m.trophies, prevPoints: m.prev_points });
           save();
         }
       }
-      const rows = await api('/rest/v1/ranked_players?select=user_id,name,fav,season,points,trophies,prev_points&order=points.desc&limit=300');
+      // select=* traz o visual (coluna cosm) quando ela existe, sem quebrar se o banco ainda não tiver
+      const rows = await api('/rest/v1/ranked_players?select=*&order=points.desc&limit=300');
       R.allRows = rows || [];
       const season = K.seasonOf(now());
-      reals = (rows || []).filter((r) => r.season === season).map((r) => ({ id: r.user_id, name: r.name, fav: r.fav, points: r.points, trophies: r.trophies }));
+      reals = (rows || []).filter((r) => r.season === season).map((r) => ({ id: r.user_id, name: r.name, fav: r.fav, points: r.points, trophies: r.trophies, cosm: r.cosm }));
+      if (mineRow && mineRow.cosm !== undefined) cosmSent = mineRow.cosm;
       R.cloudOk = true;
     } catch (e) {
       R.cloudOk = false;
@@ -128,6 +152,7 @@
     const ro = K.rollover(st, cur, pos);
     st = Object.assign(st, ro.st);
     RR.progress.addCurrency(ro.reward.coins, ro.reward.gems);
+    if (RR.cosmetics) RR.cosmetics.checkRank(st);
     save();
     push();
     return ro;
@@ -177,9 +202,19 @@
   const medal = (p) => (p === 1 ? '🥇' : p === 2 ? '🥈' : p === 3 ? '🥉' : '#' + p);
   const me = () => ({ id: session ? session.user.id : 'me', name: st.name || T('Você'), fav: st.fav || RR.ui.cfgChar(), points: st.points, trophies: st.trophies });
 
+  function profileOf(r, mine) {
+    const CO = RR.cosmetics;
+    if (!CO) return null;
+    if (mine || r.me) return CO.profile();
+    if (r.bot) return CO.botProfile(r.name, r.fav, r.pos);
+    return CO.parseProfile(r.cosm, r.fav);
+  }
   function rowHTML(r, mine) {
     const lg = L(K.leagueOf(r.points));
-    return `<div class="rk-row${mine ? ' me' : ''}"><span class="p">${medal(r.pos)}</span><img src="${faceSrc(r.fav)}" alt=""><span class="n">${esc(r.name)}${r.trophies ? ` <em>${'🏆'.repeat(Math.min(3, r.trophies))}</em>` : ''}</span><span class="l" title="${lname(K.leagueOf(r.points))}">${lg.icon}</span><span class="v">${r.points.toLocaleString()}</span></div>`;
+    const pr = profileOf(r, mine);
+    const av = pr ? RR.cosmetics.avatarHTML(pr) : `<img src="${faceSrc(r.fav)}" alt="">`;
+    const ti = pr && pr.title ? `<small class="ti">${esc(RR.cosmetics.titleText(pr.title))}</small>` : '';
+    return `<div class="rk-row${mine ? ' me' : ''}"><span class="p">${medal(r.pos)}</span>${av}<span class="n">${esc(r.name)}${r.trophies ? ` <em>${'🏆'.repeat(Math.min(3, r.trophies))}</em>` : ''}${ti}</span><span class="l" title="${lname(K.leagueOf(r.points))}">${lg.icon}</span><span class="v">${r.points.toLocaleString()}</span></div>`;
   }
 
   function render() {
@@ -312,6 +347,7 @@
     save();
     push();
     m.ranked.done = true;
+    const got = RR.cosmetics ? RR.cosmetics.checkRank(st) : [];
     const lg = L(r.league);
     const sign = r.delta > 0 ? '+' : '';
     const parts = [];
@@ -323,6 +359,7 @@
       `<span class="t">${lg.icon} ${st.points.toLocaleString()} ${T('pts')} · ${lname(r.league)}</span>` +
       (parts.length ? `<span class="b">${parts.join(' · ')}</span>` : '') +
       (r.leagueUp ? `<span class="lu">${T('Subiu para a liga {l}!').replace('{l}', lg.icon + ' ' + lname(r.league))}</span>` : '') +
+      got.map((id) => `<span class="lu">🎁 ${T('Item exclusivo')}: ${esc(RR.cosmetics.name(RR.cosmetics.get(id)))}</span>`).join('') +
       `</div>`
     );
   };

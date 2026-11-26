@@ -70,6 +70,16 @@
     d.gems += gems || 0;
     save();
   };
+  // gasto na loja: devolve false (e não mexe em nada) se não tiver saldo
+  P.spend = function (coins, gems) {
+    coins = coins || 0;
+    gems = gems || 0;
+    if (d.coins < coins || d.gems < gems) return false;
+    d.coins -= coins;
+    d.gems -= gems;
+    save();
+    return true;
+  };
 
   P.missions = () => d.missions;
   P.streak = () => d.streak;
@@ -82,6 +92,8 @@
     const won = m.ranking()[0] === h;
     const before = P.level();
     let xp = 40 + (won ? 60 : 0) + h.kos * 15;
+    // moedas da luta: participação, vitória e nocautes; cada missão completa dá mais 50
+    let coins = 10 + (won ? 20 : 0) + h.kos * 5, gems = 0;
     if (!d.chars.includes(h.def.id)) d.chars.push(h.def.id);
     const add = { win: won ? 1 : 0, ko: h.kos, ult: h.ultsUsed || 0, dmg: Math.round(h.dmgDealt), play: 1 };
     const finished = [];
@@ -92,12 +104,20 @@
         ms.n = ms.goal;
         ms.done = true;
         xp += ms.xp;
+        coins += 50;
         finished.push(ms);
       }
     }
     d.xp += xp;
-    save();
     const after = P.level();
-    return { xp, before, after, up: after.lv > before.lv, finished };
+    // subir de nível: 100 moedas por nível; a cada 5 níveis, 20 gemas
+    for (let lv = before.lv + 1; lv <= after.lv; lv++) {
+      coins += 100;
+      if (lv % 5 === 0) gems += 20;
+    }
+    d.coins += coins;
+    d.gems += gems;
+    save();
+    return { xp, coins, gems, before, after, up: after.lv > before.lv, finished };
   };
 })(window.RR);

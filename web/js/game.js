@@ -48,6 +48,10 @@
         const dup = cfg.players.slice(0, i).filter((q) => q.charId === p.charId).length;
         if (dup > 0) def = Object.assign({}, def, def.alts[(dup - 1) % def.alts.length]);
         const human = p.type === 'human';
+        // visual (skin, vitória, nocaute, emotes): o do jogador; bots às vezes com itens da loja
+        const CO = RR.cosmetics;
+        const cos = p.cos || (CO ? CO.forFighter(p.charId, human, cfg.demo) : null);
+        if (cos && cos.skin && CO) def = CO.withSkin(def, cos.skin);
         const ctrl = human ? RR.input.human : new RR.AIController(p.level);
         const f = new RR.Fighter(def, i, ctrl, {
           human,
@@ -55,6 +59,7 @@
           pcolor: PCOLORS[i],
           stocks: cfg.mode === 'stock' ? cfg.stocks : Infinity,
         });
+        f.cos = cos;
         const sp = this.stage.spawns[i];
         f.spawnAt(sp.x, sp.y, sp.x < 0 ? 1 : -1);
         return f;
@@ -66,6 +71,10 @@
     // ---------------- Loop ----------------
     step() {
       this.phaseT++;
+      if (RR.cosmetics) {
+        RR.cosmetics.stepEmotes(this);
+        RR.cosmetics.stepBots(this);
+      }
       if (this.shake > 0) this.shake *= 0.86;
       if (this.shake < 0.3) this.shake = 0;
       if (this.flashA > 0) this.flashA = Math.max(0, this.flashA - 0.03);
@@ -113,6 +122,8 @@
             this.ring(w.x, w.y - w.h * 0.5, w.def.color, 160);
           }
           if (this.endT < 150 && this.endT % 6 === 0) this.burst(w.x + (Math.random() - 0.5) * 160, w.y - Math.random() * 160, 'neutral', 1, 3);
+          // comemoração de vitória (item da loja)
+          if (this.endT <= 150 && w.cos && RR.cosmetics) RR.cosmetics.winFx(this, w.cos.win, 150 - this.endT, w.x, w.y, w.h);
         }
         this.updateFx();
         this.updateCamera();
@@ -387,6 +398,11 @@
       const px = U.clamp(f.x, b.left + 40, b.right - 40);
       const py = U.clamp(f.y - f.h / 2, b.top + 40, b.bottom - 40);
       this.fx.push({ type: 'ko', x: px, y: py, life: 50, max: 50, color: f.pcolor, ang: Math.atan2(-150 - py, this.stage.cx - px) });
+      // efeito de nocaute de quem derrubou (item da loja), um pouco para dentro da arena, onde a câmera vê
+      if (killer && killer !== f && killer.cos && RR.cosmetics) {
+        RR.cosmetics.koFx(this, killer.cos.ko, px + (this.stage.cx - px) * 0.45, py + (-150 - py) * 0.45);
+        RR.cosmetics.botTaunt(this, killer);
+      }
       this.burst(px, py, 'neutral', 30, 18);
       this.shake = 26;
       this.flashScreen(f.pcolor, 0.3);
@@ -515,6 +531,7 @@
           p.y += p.vy;
           p.vy *= 0.93;
         } else if (p.type === 'v') RR.vfx.update(p);
+        else if (p.type === 'c') RR.cosmetics.update(p);
       }
       this.fx = this.fx.filter((p) => p.life > 0);
     }

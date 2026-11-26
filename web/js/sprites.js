@@ -297,13 +297,44 @@
     return m ? m.w * scaleOf(set, set.idle) : def.w;
   };
 
-  function drawFrame(ctx, id, name, x, y, rot, mul, h) {
+  // ---------------- Skins ----------------
+  // skin com quadros próprios (dir: pasta com os mesmos nomes de quadro) ou recolorida (filter) a partir do original;
+  // o quadro recolorido é feito uma vez e guardado
+  const canFilter = typeof document !== 'undefined' && (() => {
+    try {
+      return 'filter' in document.createElement('canvas').getContext('2d');
+    } catch (e) {
+      return false;
+    }
+  })();
+  const tinted = new Map();
+  function skinned(im, key, skin) {
+    if (!skin || !skin.filter || !canFilter) return im;
+    const k = skin.id + '|' + key;
+    let c = tinted.get(k);
+    if (!c) {
+      c = document.createElement('canvas');
+      c.width = im.naturalWidth;
+      c.height = im.naturalHeight;
+      const x = c.getContext('2d');
+      x.filter = skin.filter;
+      x.drawImage(im, 0, 0);
+      tinted.set(k, c);
+    }
+    return c;
+  }
+  S.skinned = skinned;
+
+  function drawFrame(ctx, id, name, x, y, rot, mul, h, skin) {
     if (SETS[id].alias && SETS[id].alias[name]) name = SETS[id].alias[name];
-    const im = S.image(path(id, name));
-    const m = RR.spriteData[id] && RR.spriteData[id][name];
+    const own = skin && skin.dir && RR.spriteData[skin.dir] && RR.spriteData[skin.dir][name];
+    const src = own ? `img/${skin.dir}/${name}.webp` : path(id, name);
+    let im = S.image(src);
+    const m = own || (RR.spriteData[id] && RR.spriteData[id][name]);
     if (!m) return;
     // quadro ainda chegando pela rede: mostra a pose parada no lugar
-    if (!ready(im)) return name !== SETS[id].idle && drawFrame(ctx, id, SETS[id].idle, x, y, 0, mul, h);
+    if (!ready(im)) return name !== SETS[id].idle && drawFrame(ctx, id, SETS[id].idle, x, y, 0, mul, h, skin);
+    if (!own) im = skinned(im, src, skin);
     const s = scaleOf(SETS[id], name) * (mul || 1);
     ctx.save();
     ctx.translate(x, y);
@@ -420,7 +451,7 @@
       ctx.save();
       ctx.translate(g.x, g.y);
       ctx.scale(g.facing, 1);
-      drawFrame(ctx, id, g.frame, 0, 0, g.rot || 0, 1, f.def.h);
+      drawFrame(ctx, id, g.frame, 0, 0, g.rot || 0, 1, f.def.h, f.def.skin);
       ctx.restore();
     }
     ctx.restore();
@@ -447,13 +478,13 @@
     ctx.translate(p.offX || 0, p.bob2 || 0);
     if (p.mlean) ctx.rotate(p.mlean);
     if (tint) ctx.filter = tint === '#ffffff' ? 'brightness(2.6) saturate(0.2)' : 'saturate(0.4) brightness(1.3)';
-    drawFrame(ctx, id, fr, 0, 0, p.frot || 0, 1, d.h);
+    drawFrame(ctx, id, fr, 0, 0, p.frot || 0, 1, d.h, d.skin);
     if (tint) ctx.filter = 'none';
     // pose anterior sumindo por cima: transição suave entre quadros
     if (p.prevFrame && p.prevAlpha > 0.02) {
       const a = ctx.globalAlpha;
       ctx.globalAlpha = a * p.prevAlpha;
-      drawFrame(ctx, id, p.prevFrame, 0, 0, 0, 1, d.h);
+      drawFrame(ctx, id, p.prevFrame, 0, 0, 0, 1, d.h, d.skin);
       ctx.globalAlpha = a;
     }
     ctx.restore();
@@ -463,10 +494,13 @@
   S.drawPortrait = function (ctx, d, cx, cy, r) {
     const set = d.sprite && SETS[d.sprite];
     if (!set || !set.portrait) return false;
-    const im = cache[path(d.sprite, set.portrait)];
+    const src = path(d.sprite, set.portrait);
+    let im = cache[src];
     if (!ready(im)) return true;
-    const s = (r * 2.3) / Math.max(im.naturalWidth, im.naturalHeight);
-    ctx.drawImage(im, cx - im.naturalWidth * s * 0.5, cy - im.naturalHeight * s * 0.42, im.naturalWidth * s, im.naturalHeight * s);
+    const iw = im.naturalWidth, ih = im.naturalHeight;
+    im = skinned(im, src, d.skin);
+    const s = (r * 2.3) / Math.max(iw, ih);
+    ctx.drawImage(im, cx - iw * s * 0.5, cy - ih * s * 0.42, iw * s, ih * s);
     return true;
   };
 
@@ -478,7 +512,7 @@
     ctx.translate(p.x, p.y);
     ctx.scale(dir, 1);
     if (p.vy) ctx.rotate(Math.atan2(p.vy, Math.abs(p.vx)));
-    drawFrame(ctx, p.owner.def.sprite, name, 0, 0, 0, p.scale * (1 + Math.sin(time * 0.5) * 0.04), 0);
+    drawFrame(ctx, p.owner.def.sprite, name, 0, 0, 0, p.scale * (1 + Math.sin(time * 0.5) * 0.04), 0, p.owner.def.skin);
     ctx.restore();
   };
 

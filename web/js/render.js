@@ -296,6 +296,8 @@
         RR.sprites.drawFx(ctx, p);
       } else if (p.type === 'v') {
         RR.vfx.draw(ctx, p);
+      } else if (p.type === 'c') {
+        RR.cosmetics.drawP(ctx, p);
       } else if (p.type === 'impact') {
         RR.art.drawImpact(ctx, p.x, p.y, p.r, p.life / p.max, p.color);
       } else if (p.type === 'ko') {
@@ -540,6 +542,7 @@
     for (const f of order) drawFighter(ctx, f, g, time);
     for (const p of g.projectiles) if (p.type !== 'blast') RR.art.drawProjectile(ctx, p, g, time);
     drawFx(ctx, g);
+    if (RR.cosmetics) RR.cosmetics.drawEmotes(ctx, g);
     if (RR.settings.hitboxes) {
       ctx.lineWidth = 2;
       for (const f of g.fighters) {
